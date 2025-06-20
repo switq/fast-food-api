@@ -13,7 +13,7 @@ enum OrderStatus {
 
 class Order {
   private _id: string;
-  private _customerId: string;
+  private _customerId?: string;
   private _items: OrderItem[];
   private _status: OrderStatus;
   private _totalAmount: number;
@@ -22,13 +22,15 @@ class Order {
 
   constructor(
     id: string = uuidv4(),
-    customerId: string,
+    customerId?: string,
     items: OrderItem[] = [],
     status: OrderStatus = OrderStatus.PENDING
   ) {
     this.validateId(id);
-    this.validateCustomerId(customerId);
-    this.validateItems(items);
+    if (customerId) {
+      this.validateCustomerId(customerId);
+    }
+    this.validateItemsArray(items);
 
     this._id = id;
     this._customerId = customerId;
@@ -57,6 +59,12 @@ class Order {
     }
   }
 
+  private validateItemsArray(items: OrderItem[]): void {
+    if (!Array.isArray(items)) {
+      throw new Error("Items must be an array");
+    }
+  }
+
   private validateItems(items: OrderItem[]): void {
     if (!Array.isArray(items)) {
       throw new Error("Items must be an array");
@@ -75,7 +83,7 @@ class Order {
     return this._id;
   }
 
-  get customerId(): string {
+  get customerId(): string | undefined {
     return this._customerId;
   }
 
@@ -104,6 +112,10 @@ class Order {
     if (this._status !== OrderStatus.PENDING) {
       throw new Error("Order can only be confirmed when in PENDING status");
     }
+
+    // Validate that order has at least one item before confirming
+    this.validateItems(this._items);
+
     this._status = OrderStatus.CONFIRMED;
     this._updatedAt = new Date();
   }
@@ -225,5 +237,5 @@ class Order {
   }
 }
 
-export default Order;
 export { OrderStatus };
+export default Order;
