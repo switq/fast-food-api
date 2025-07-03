@@ -1,4 +1,4 @@
-import ProductUseCases from "../../../src/domain/usecases/ProductUseCases";
+import ProductUseCases from "../../../src/application/use-cases/ProductUseCases";
 import Product from "../../../src/domain/entities/Product";
 import { IProductRepository } from "../../../src/domain/repositories/IProductRepository";
 import { ICategoryRepository } from "../../../src/domain/repositories/ICategoryRepository";

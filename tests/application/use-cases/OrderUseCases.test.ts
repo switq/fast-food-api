@@ -1,4 +1,4 @@
-import OrderUseCases from "../../../src/domain/usecases/OrderUseCases";
+import OrderUseCases from "../../../src/application/use-cases/OrderUseCases";
 import Order, { OrderStatus } from "../../../src/domain/entities/Order";
 import OrderItem from "../../../src/domain/entities/OrderItem";
 import { IOrderRepository } from "../../../src/domain/repositories/IOrderRepository";

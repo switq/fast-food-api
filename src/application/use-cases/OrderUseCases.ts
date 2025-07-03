@@ -1,8 +1,8 @@
-import Order, { OrderStatus } from "../entities/Order";
-import OrderItem from "../entities/OrderItem";
-import { IOrderRepository } from "../repositories/IOrderRepository";
-import { IProductRepository } from "../repositories/IProductRepository";
-import { ICustomerRepository } from "../repositories/ICustomerRepository";
+import Order, { OrderStatus } from "../../domain/entities/Order";
+import OrderItem from "../../domain/entities/OrderItem";
+import { IOrderRepository } from "../../domain/repositories/IOrderRepository";
+import { IProductRepository } from "../../domain/repositories/IProductRepository";
+import { ICustomerRepository } from "../../domain/repositories/ICustomerRepository";
 
 class OrderUseCases {
   async createOrder(

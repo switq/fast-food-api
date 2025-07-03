@@ -1,4 +1,4 @@
-import CustomerUseCases from "../../../src/domain/usecases/CustomerUseCases";
+import CustomerUseCases from "../../../src/application/use-cases/CustomerUseCases";
 import Customer from "../../../src/domain/entities/Customer";
 import { ICustomerRepository } from "../../../src/domain/repositories/ICustomerRepository";
 

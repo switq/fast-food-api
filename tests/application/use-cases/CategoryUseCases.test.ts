@@ -1,4 +1,4 @@
-import CategoryUseCases from "../../../src/domain/usecases/CategoryUseCases";
+import CategoryUseCases from "../../../src/application/use-cases/CategoryUseCases";
 import Category from "../../../src/domain/entities/Category";
 import { ICategoryRepository } from "../../../src/domain/repositories/ICategoryRepository";
 

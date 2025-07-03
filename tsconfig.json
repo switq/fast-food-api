@@ -4,13 +4,21 @@
     "module": "commonjs",
     "lib": ["es2020"],
     "outDir": "./dist",
-    "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "paths": {
+      "@src/*": ["src/*"],
+      "@tests/*": ["tests/*"]
+    },
+    "baseUrl": "./"
   },
-  "include": ["src/**/*"],
+  "include": [
+    "src/**/*",
+    "prisma",
+    "tests/infrastructure/database/prisma/implementations/repositoryImplementationTests.ts"
+  ],
   "exclude": ["node_modules"]
 }

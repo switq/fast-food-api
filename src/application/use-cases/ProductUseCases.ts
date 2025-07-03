@@ -1,5 +1,6 @@
-import Product from "../entities/Product";
-import { IProductRepository } from "../repositories/IProductRepository";
+import Product from "../../domain/entities/Product";
+import { IProductRepository } from "../../domain/repositories/IProductRepository";
+import { ICategoryRepository } from "../../domain/repositories/ICategoryRepository";
 
 class ProductUseCases {
   async createProduct(
@@ -9,7 +10,7 @@ class ProductUseCases {
     categoryId: string,
     imageUrl: string | undefined,
     repository: IProductRepository,
-    categoryRepository: import("../repositories/ICategoryRepository").ICategoryRepository
+    categoryRepository: ICategoryRepository
   ): Promise<Product> {
     const existingProduct = await repository.findByName(name);
     if (existingProduct) {
