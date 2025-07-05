@@ -5,6 +5,7 @@ import { ProductRepository } from "../infrastructure/database/prisma/implementat
 import { CustomerRepository } from "../infrastructure/database/prisma/implementations/CustomerRepository";
 import OrderItem from "../domain/entities/OrderItem";
 import { OrderStatus } from "../domain/entities/Order";
+import { OrderPresenter } from "../presenters/OrderPresenter";
 
 const orderUseCases = new OrderUseCases();
 const orderRepository = new OrderRepository();
@@ -15,18 +16,18 @@ export default class OrderController {
   static async listAll(req: Request, res: Response) {
     try {
       const orders = await orderUseCases.findAllOrders(orderRepository);
-      res.json(orders);
+      res.json(OrderPresenter.listToHttp(orders));
     } catch (err: any) {
-      res.status(500).json({ error: err.message });
+      res.status(500).json(OrderPresenter.error(err));
     }
   }
 
   static async getById(req: Request, res: Response) {
     try {
       const order = await orderUseCases.findOrderById(req.params.id, orderRepository);
-      res.json(order);
+      res.json(OrderPresenter.toHttp(order));
     } catch (err: any) {
-      res.status(404).json({ error: err.message });
+      res.status(404).json(OrderPresenter.error(err));
     }
   }
 
@@ -35,9 +36,9 @@ export default class OrderController {
       const { items, customerId } = req.body;
       const orderItems = items.map((item: any) => new OrderItem(undefined, undefined, item.productId, item.quantity, item.price, item.observation));
       const order = await orderUseCases.createOrder(orderItems, orderRepository, productRepository, customerId, customerRepository);
-      res.status(201).json(order);
+      res.status(201).json(OrderPresenter.toHttp(order));
     } catch (err: any) {
-      res.status(400).json({ error: err.message });
+      res.status(400).json(OrderPresenter.error(err));
     }
   }
 
@@ -46,9 +47,9 @@ export default class OrderController {
       const { items } = req.body;
       const orderItems = items.map((item: any) => new OrderItem(undefined, req.params.id, item.productId, item.quantity, item.price, item.observation));
       const order = await orderUseCases.addItemsToOrder(req.params.id, orderItems, orderRepository, productRepository);
-      res.json(order);
+      res.json(OrderPresenter.toHttp(order));
     } catch (err: any) {
-      res.status(400).json({ error: err.message });
+      res.status(400).json(OrderPresenter.error(err));
     }
   }
 
@@ -57,25 +58,25 @@ export default class OrderController {
       // Para remover item, utilize updateItemQuantity para 0 ou implemente lógica específica
       res.status(501).json({ error: "Remoção de item do pedido não implementada." });
     } catch (err: any) {
-      res.status(400).json({ error: err.message });
+      res.status(400).json(OrderPresenter.error(err));
     }
   }
 
   static async cancel(req: Request, res: Response) {
     try {
       const order = await orderUseCases.updateOrderStatus(req.params.id, OrderStatus.CANCELLED, orderRepository);
-      res.json(order);
+      res.json(OrderPresenter.toHttp(order));
     } catch (err: any) {
-      res.status(400).json({ error: err.message });
+      res.status(400).json(OrderPresenter.error(err));
     }
   }
 
   static async finalize(req: Request, res: Response) {
     try {
       const order = await orderUseCases.updateOrderStatus(req.params.id, OrderStatus.DELIVERED, orderRepository);
-      res.json(order);
+      res.json(OrderPresenter.toHttp(order));
     } catch (err: any) {
-      res.status(400).json({ error: err.message });
+      res.status(400).json(OrderPresenter.error(err));
     }
   }
 
@@ -83,36 +84,36 @@ export default class OrderController {
     try {
       const orders = await orderRepository.findAll();
       const readyOrders = orders.filter((o: any) => o.status === OrderStatus.READY);
-      res.json(readyOrders);
+      res.json(OrderPresenter.listToHttp(readyOrders));
     } catch (err: any) {
-      res.status(500).json({ error: err.message });
+      res.status(500).json(OrderPresenter.error(err));
     }
   }
 
   static async startPreparation(req: Request, res: Response) {
     try {
       const order = await orderUseCases.updateOrderStatus(req.params.id, OrderStatus.PREPARING, orderRepository);
-      res.json(order);
+      res.json(OrderPresenter.toHttp(order));
     } catch (err: any) {
-      res.status(400).json({ error: err.message });
+      res.status(400).json(OrderPresenter.error(err));
     }
   }
 
   static async markReady(req: Request, res: Response) {
     try {
       const order = await orderUseCases.updateOrderStatus(req.params.id, OrderStatus.READY, orderRepository);
-      res.json(order);
+      res.json(OrderPresenter.toHttp(order));
     } catch (err: any) {
-      res.status(400).json({ error: err.message });
+      res.status(400).json(OrderPresenter.error(err));
     }
   }
 
   static async confirmPickup(req: Request, res: Response) {
     try {
       const order = await orderUseCases.updateOrderStatus(req.params.id, OrderStatus.DELIVERED, orderRepository);
-      res.json(order);
+      res.json(OrderPresenter.toHttp(order));
     } catch (err: any) {
-      res.status(400).json({ error: err.message });
+      res.status(400).json(OrderPresenter.error(err));
     }
   }
 }

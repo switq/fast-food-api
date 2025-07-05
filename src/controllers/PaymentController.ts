@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { PaymentPresenter } from "../presenters/PaymentPresenter";
 // Importe o use case de pagamento real quando implementado
 
 export default class PaymentController {
@@ -6,9 +7,10 @@ export default class PaymentController {
     try {
       // Aqui você integraria com o use case de pagamento real
       // Por enquanto, simula confirmação
-      res.json({ status: "Pagamento confirmado (mock)", pedidoId: req.params.pedidoId });
+      const payment = { status: "Pagamento confirmado (mock)", pedidoId: req.params.pedidoId };
+      res.json(PaymentPresenter.toHttp(payment));
     } catch (err: any) {
-      res.status(400).json({ error: err.message });
+      res.status(400).json(PaymentPresenter.error(err));
     }
   }
 }

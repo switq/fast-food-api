@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import CustomerUseCases from "../application/use-cases/CustomerUseCases";
 import { CustomerRepository } from "../infrastructure/database/prisma/implementations/CustomerRepository";
 import { OrderRepository } from "../infrastructure/database/prisma/implementations/OrderRepository";
+import { CustomerPresenter } from "../presenters/CustomerPresenter";
 
 const customerUseCases = new CustomerUseCases();
 const customerRepository = new CustomerRepository();
@@ -11,18 +12,18 @@ export default class CustomerController {
   static async listAll(req: Request, res: Response) {
     try {
       const customers = await customerUseCases.findAllCustomers(customerRepository);
-      res.json(customers);
+      res.json(CustomerPresenter.listToHttp(customers));
     } catch (err: any) {
-      res.status(500).json({ error: err.message });
+      res.status(500).json(CustomerPresenter.error(err));
     }
   }
 
   static async getById(req: Request, res: Response) {
     try {
       const customer = await customerUseCases.findCustomerById(req.params.id, customerRepository);
-      res.json(customer);
+      res.json(CustomerPresenter.toHttp(customer));
     } catch (err: any) {
-      res.status(404).json({ error: err.message });
+      res.status(404).json(CustomerPresenter.error(err));
     }
   }
 
@@ -30,9 +31,9 @@ export default class CustomerController {
     try {
       const { name, email, cpf, phone } = req.body;
       const customer = await customerUseCases.createCustomer(name, email, cpf, phone, customerRepository);
-      res.status(201).json(customer);
+      res.status(201).json(CustomerPresenter.toHttp(customer));
     } catch (err: any) {
-      res.status(400).json({ error: err.message });
+      res.status(400).json(CustomerPresenter.error(err));
     }
   }
 
@@ -40,9 +41,9 @@ export default class CustomerController {
     try {
       const { name, email, cpf, phone } = req.body;
       const customer = await customerUseCases.updateCustomer(req.params.id, name, email, cpf, phone, customerRepository);
-      res.json(customer);
+      res.json(CustomerPresenter.toHttp(customer));
     } catch (err: any) {
-      res.status(400).json({ error: err.message });
+      res.status(400).json(CustomerPresenter.error(err));
     }
   }
 
@@ -51,7 +52,7 @@ export default class CustomerController {
       await customerUseCases.deleteCustomer(req.params.id, customerRepository);
       res.status(204).send();
     } catch (err: any) {
-      res.status(404).json({ error: err.message });
+      res.status(404).json(CustomerPresenter.error(err));
     }
   }
 
