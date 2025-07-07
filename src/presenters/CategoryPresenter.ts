@@ -1,6 +1,5 @@
-
 export class CategoryPresenter {
-  static toHttp(category: any) {
+  toHttp(category: any) {
     // Ajuste o formato conforme necessário para a resposta da API
     return {
       id: category.id,
@@ -9,11 +8,11 @@ export class CategoryPresenter {
     };
   }
 
-  static listToHttp(categories: any[]) {
-    return categories.map(CategoryPresenter.toHttp);
+  listToHttp(categories: any[]) {
+    return categories.map(this.toHttp);
   }
 
-  static error(error: any) {
+  error(error: any) {
     return { error: error.message };
   }
 }

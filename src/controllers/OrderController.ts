@@ -1,119 +1,31 @@
-import { Request, Response } from "express";
-import OrderUseCases from "../application/use-cases/OrderUseCases";
-import { OrderRepository } from "../infrastructure/database/prisma/implementations/OrderRepository";
-import { ProductRepository } from "../infrastructure/database/prisma/implementations/ProductRepository";
-import { CustomerRepository } from "../infrastructure/database/prisma/implementations/CustomerRepository";
-import OrderItem from "../domain/entities/OrderItem";
-import { OrderStatus } from "../domain/entities/Order";
 import { OrderPresenter } from "../presenters/OrderPresenter";
+import OrderUseCases from "../application/use-cases/OrderUseCases";
+import { DbConnection } from "@src/interfaces/dbconnection";
+import { OrderGateway } from "@gateways/OrderGateway";
+import { ProductGateway } from "@gateways/ProductGateway";
+import { CustomerGateway } from "@gateways/CustomerGateway";
 
-const orderUseCases = new OrderUseCases();
-const orderRepository = new OrderRepository();
-const productRepository = new ProductRepository();
-const customerRepository = new CustomerRepository();
-
-export default class OrderController {
-  static async listAll(req: Request, res: Response) {
-    try {
-      const orders = await orderUseCases.findAllOrders(orderRepository);
-      res.json(OrderPresenter.listToHttp(orders));
-    } catch (err: any) {
-      res.status(500).json(OrderPresenter.error(err));
-    }
+export class OrderController {
+  static async listAll(dbconnection: DbConnection): Promise<any> {
+    const gateway = new OrderGateway(dbconnection);
+    const useCase = new OrderUseCases();
+    const output = await useCase.findAllOrders(gateway);
+    return OrderPresenter.listToHttp(output);
   }
 
-  static async getById(req: Request, res: Response) {
-    try {
-      const order = await orderUseCases.findOrderById(req.params.id, orderRepository);
-      res.json(OrderPresenter.toHttp(order));
-    } catch (err: any) {
-      res.status(404).json(OrderPresenter.error(err));
-    }
+  static async getById(id: string, dbconnection: DbConnection): Promise<any> {
+    const gateway = new OrderGateway(dbconnection);
+    const useCase = new OrderUseCases();
+    const output = await useCase.findOrderById(id, gateway);
+    return OrderPresenter.toHttp(output);
   }
 
-  static async create(req: Request, res: Response) {
-    try {
-      const { items, customerId } = req.body;
-      const orderItems = items.map((item: any) => new OrderItem(undefined, undefined, item.productId, item.quantity, item.price, item.observation));
-      const order = await orderUseCases.createOrder(orderItems, orderRepository, productRepository, customerId, customerRepository);
-      res.status(201).json(OrderPresenter.toHttp(order));
-    } catch (err: any) {
-      res.status(400).json(OrderPresenter.error(err));
-    }
-  }
-
-  static async addItem(req: Request, res: Response) {
-    try {
-      const { items } = req.body;
-      const orderItems = items.map((item: any) => new OrderItem(undefined, req.params.id, item.productId, item.quantity, item.price, item.observation));
-      const order = await orderUseCases.addItemsToOrder(req.params.id, orderItems, orderRepository, productRepository);
-      res.json(OrderPresenter.toHttp(order));
-    } catch (err: any) {
-      res.status(400).json(OrderPresenter.error(err));
-    }
-  }
-
-  static async removeItem(req: Request, res: Response) {
-    try {
-      // Para remover item, utilize updateItemQuantity para 0 ou implemente lógica específica
-      res.status(501).json({ error: "Remoção de item do pedido não implementada." });
-    } catch (err: any) {
-      res.status(400).json(OrderPresenter.error(err));
-    }
-  }
-
-  static async cancel(req: Request, res: Response) {
-    try {
-      const order = await orderUseCases.updateOrderStatus(req.params.id, OrderStatus.CANCELLED, orderRepository);
-      res.json(OrderPresenter.toHttp(order));
-    } catch (err: any) {
-      res.status(400).json(OrderPresenter.error(err));
-    }
-  }
-
-  static async finalize(req: Request, res: Response) {
-    try {
-      const order = await orderUseCases.updateOrderStatus(req.params.id, OrderStatus.DELIVERED, orderRepository);
-      res.json(OrderPresenter.toHttp(order));
-    } catch (err: any) {
-      res.status(400).json(OrderPresenter.error(err));
-    }
-  }
-
-  static async listReadyForPickup(req: Request, res: Response) {
-    try {
-      const orders = await orderRepository.findAll();
-      const readyOrders = orders.filter((o: any) => o.status === OrderStatus.READY);
-      res.json(OrderPresenter.listToHttp(readyOrders));
-    } catch (err: any) {
-      res.status(500).json(OrderPresenter.error(err));
-    }
-  }
-
-  static async startPreparation(req: Request, res: Response) {
-    try {
-      const order = await orderUseCases.updateOrderStatus(req.params.id, OrderStatus.PREPARING, orderRepository);
-      res.json(OrderPresenter.toHttp(order));
-    } catch (err: any) {
-      res.status(400).json(OrderPresenter.error(err));
-    }
-  }
-
-  static async markReady(req: Request, res: Response) {
-    try {
-      const order = await orderUseCases.updateOrderStatus(req.params.id, OrderStatus.READY, orderRepository);
-      res.json(OrderPresenter.toHttp(order));
-    } catch (err: any) {
-      res.status(400).json(OrderPresenter.error(err));
-    }
-  }
-
-  static async confirmPickup(req: Request, res: Response) {
-    try {
-      const order = await orderUseCases.updateOrderStatus(req.params.id, OrderStatus.DELIVERED, orderRepository);
-      res.json(OrderPresenter.toHttp(order));
-    } catch (err: any) {
-      res.status(400).json(OrderPresenter.error(err));
-    }
+  static async create(customerId: string, items: any[], dbconnection: DbConnection): Promise<any> {
+    const orderGateway = new OrderGateway(dbconnection);
+    const productGateway = new ProductGateway(dbconnection);
+    const customerGateway = new CustomerGateway(dbconnection);
+    const useCase = new OrderUseCases();
+    const output = await useCase.createOrder(items, orderGateway, productGateway, customerId, customerGateway);
+    return OrderPresenter.toHttp(output);
   }
 }
