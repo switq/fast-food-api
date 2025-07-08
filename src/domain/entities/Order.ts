@@ -1,7 +1,8 @@
-import { v4 as uuidv4, validate as uuidValidate } from "uuid";
+import { UUIDService } from "../services/UUIDService";
+import { BaseEntity } from "./BaseEntity";
 import OrderItem from "./OrderItem";
 
-enum OrderStatus {
+export enum OrderStatus {
   PENDING = "PENDING",
   CONFIRMED = "CONFIRMED",
   PAYMENT_CONFIRMED = "PAYMENT_CONFIRMED",
@@ -11,7 +12,7 @@ enum OrderStatus {
   CANCELLED = "CANCELLED",
 }
 
-class Order {
+class Order implements BaseEntity {
   private _id: string;
   private _customerId?: string;
   private _items: OrderItem[];
@@ -21,41 +22,64 @@ class Order {
   private _updatedAt: Date;
 
   constructor(
-    id: string = uuidv4(),
-    customerId?: string,
-    items: OrderItem[] = [],
-    status: OrderStatus = OrderStatus.PENDING
+    id: string,
+    customerId: string | undefined,
+    items: OrderItem[],
+    status: OrderStatus = OrderStatus.PENDING,
+    uuidService?: UUIDService,
+    createdAt?: Date,
+    updatedAt?: Date
   ) {
-    this.validateId(id);
+    this.validateId(id, uuidService);
     if (customerId) {
-      this.validateCustomerId(customerId);
+      this.validateCustomerId(customerId, uuidService);
     }
     this.validateItemsArray(items);
-
     this._id = id;
     this._customerId = customerId;
     this._items = items;
     this._status = status;
     this._totalAmount = this.calculateTotalAmount();
-    this._createdAt = new Date();
-    this._updatedAt = new Date();
+    this._createdAt = createdAt ?? new Date();
+    this._updatedAt = updatedAt ?? new Date();
   }
 
-  private validateId(id: string): void {
+  static create(
+    customerId: string | undefined,
+    items: OrderItem[],
+    uuidService: UUIDService
+  ): Order {
+    const now = new Date();
+    return new Order(
+      uuidService.generate(),
+      customerId,
+      items,
+      OrderStatus.PENDING,
+      uuidService,
+      now,
+      now
+    );
+  }
+
+  private validateId(id: string, uuidService?: UUIDService): void {
     if (!id || id.trim().length === 0) {
       throw new Error("Order ID cannot be empty");
     }
-    if (!uuidValidate(id)) {
-      throw new Error("Order ID must be a valid UUID");
+    if (uuidService) {
+      if (!uuidService.validate(id)) {
+        throw new Error("Order ID must be a valid UUID");
+      }
     }
   }
 
-  private validateCustomerId(customerId: string): void {
+  private validateCustomerId(customerId: string, uuidService?: UUIDService): void {
     if (!customerId || customerId.trim().length === 0) {
       throw new Error("Customer ID cannot be empty");
     }
-    if (!uuidValidate(customerId)) {
-      throw new Error("Customer ID must be a valid UUID");
+    if (uuidService) {
+      if (!uuidService.validate(customerId)) {
+        throw new Error("Customer ID must be a valid UUID");
+      }
     }
   }
 
@@ -100,11 +124,11 @@ class Order {
   }
 
   get createdAt(): Date {
-    return new Date(this._createdAt);
+    return this._createdAt;
   }
 
   get updatedAt(): Date {
-    return new Date(this._updatedAt);
+    return this._updatedAt;
   }
 
   // Status transition methods
@@ -223,19 +247,7 @@ class Order {
     this._updatedAt = new Date();
   }
 
-  // Utility method to convert to plain object
-  toJSON() {
-    return {
-      id: this._id,
-      customerId: this._customerId,
-      items: this._items.map((item) => item.toJSON()),
-      status: this._status,
-      totalAmount: this._totalAmount,
-      createdAt: this._createdAt,
-      updatedAt: this._updatedAt,
-    };
-  }
+  // Remove toJSON method for clean architecture
 }
 
-export { OrderStatus };
 export default Order;

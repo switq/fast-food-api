@@ -1,38 +1,59 @@
-import { v4 as uuidv4, validate as uuidValidate } from "uuid";
-import CPF from "./CPF";
-import Phone from "./Phone";
+import { UUIDService } from "../services/UUIDService";
+import CPF from "../value-objects/CPF";
+import Phone from "../value-objects/Phone";
+import { BaseEntity } from "./BaseEntity";
 
-class Customer {
+
+class Customer implements BaseEntity {
   private _id: string;
   private _name: string;
   private _email: string;
   private _phone?: Phone;
   private _cpf: CPF;
+  private _createdAt: Date;
+  private _updatedAt: Date;
 
   constructor(
-    id: string = uuidv4(),
+    id: string,
     name: string,
     email: string,
     cpf: string,
-    phone?: string
+    phone?: string,
+    uuidService?: UUIDService,
+    createdAt?: Date,
+    updatedAt?: Date
   ) {
-    this.validateId(id);
+    this.validateId(id, uuidService);
     this.validateName(name);
     this.validateEmail(email);
-
     this._id = id;
     this._name = name;
     this._email = email;
     this._cpf = new CPF(cpf);
     this._phone = phone ? new Phone(phone) : undefined;
+    this._createdAt = createdAt ?? new Date();
+    this._updatedAt = updatedAt ?? new Date();
   }
 
-  private validateId(id: string): void {
+  static create(
+    name: string,
+    email: string,
+    cpf: string,
+    phone: string | undefined,
+    uuidService: UUIDService
+  ): Customer {
+    const now = new Date();
+    return new Customer(uuidService.generate(), name, email, cpf, phone, uuidService, now, now);
+  }
+
+  private validateId(id: string, uuidService?: UUIDService): void {
     if (!id || id.trim().length === 0) {
       throw new Error("Customer ID cannot be empty");
     }
-    if (!uuidValidate(id)) {
-      throw new Error("Customer ID must be a valid UUID");
+    if (uuidService) {
+      if (!uuidService.validate(id)) {
+        throw new Error("Customer ID must be a valid UUID");
+      }
     }
   }
 
@@ -59,8 +80,17 @@ class Customer {
   }
 
   // Getters
+
   get id(): string {
     return this._id;
+  }
+
+  get createdAt(): Date {
+    return this._createdAt;
+  }
+
+  get updatedAt(): Date {
+    return this._updatedAt;
   }
 
   get name(): string {
@@ -100,16 +130,6 @@ class Customer {
 
   // Note: No setter for ID as it should be immutable after creation
 
-  // Utility method to convert to plain object
-  toJSON() {
-    return {
-      id: this._id,
-      name: this._name,
-      email: this._email,
-      phone: this._phone?.value,
-      cpf: this._cpf.value,
-    };
-  }
 }
 
 export default Customer;

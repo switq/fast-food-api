@@ -1,47 +1,81 @@
-import { v4 as uuidv4, validate as uuidValidate } from "uuid";
+import { UUIDService } from "../services/UUIDService";
+import { BaseEntity } from "./BaseEntity";
 
-class Product {
+import URLValueObject from "../value-objects/URLValueObject";
+
+class Product implements BaseEntity {
   private _id: string;
   private _name: string;
   private _description: string;
   private _price: number;
   private _categoryId: string;
-  private _imageUrl?: string;
+  private _imageUrl?: URLValueObject;
   private _isAvailable: boolean;
+  private _createdAt: Date;
+  private _updatedAt: Date;
 
   constructor(
-    id: string = uuidv4(),
+    id: string,
     name: string,
     description: string,
     price: number,
     categoryId: string,
     imageUrl?: string,
-    isAvailable: boolean = true
+    isAvailable: boolean = true,
+    uuidService?: UUIDService,
+    createdAt?: Date,
+    updatedAt?: Date
   ) {
-    this.validateId(id);
+    this.validateId(id, uuidService);
     this.validateName(name);
     this.validateDescription(description);
     this.validatePrice(price);
     this.validateCategoryId(categoryId);
     if (imageUrl) {
-      this.validateImageUrl(imageUrl);
+      this._imageUrl = new URLValueObject(imageUrl);
     }
-
     this._id = id;
     this._name = name;
     this._description = description;
     this._price = price;
     this._categoryId = categoryId;
-    this._imageUrl = imageUrl;
     this._isAvailable = isAvailable;
+    this._createdAt = createdAt ?? new Date();
+    this._updatedAt = updatedAt ?? new Date();
   }
 
-  private validateId(id: string): void {
+  static create(
+    name: string,
+    description: string,
+    price: number,
+    categoryId: string,
+    imageUrl: string | undefined,
+    isAvailable: boolean,
+    uuidService: UUIDService
+  ): Product {
+    const now = new Date();
+    return new Product(
+      uuidService.generate(),
+      name,
+      description,
+      price,
+      categoryId,
+      imageUrl,
+      isAvailable,
+      uuidService,
+      now,
+      now
+    );
+  }
+
+  private validateId(id: string, uuidService?: UUIDService): void {
     if (!id || id.trim().length === 0) {
       throw new Error("Product ID cannot be empty");
     }
-    if (!uuidValidate(id)) {
-      throw new Error("Product ID must be a valid UUID");
+    if (uuidService) {
+      if (!uuidService.validate(id)) {
+        throw new Error("Product ID must be a valid UUID");
+      }
     }
   }
 
@@ -81,18 +115,19 @@ class Product {
     }
   }
 
-  private validateImageUrl(imageUrl: string): void {
-    // Only validate URL format if a value is provided
-    try {
-      new URL(imageUrl);
-    } catch {
-      throw new Error("Invalid image URL format");
-    }
-  }
+  // No longer needed: imageUrl validation is handled by URLValueObject
 
   // Getters
   get id(): string {
     return this._id;
+  }
+
+  get createdAt(): Date {
+    return this._createdAt;
+  }
+
+  get updatedAt(): Date {
+    return this._updatedAt;
   }
 
   get name(): string {
@@ -112,7 +147,7 @@ class Product {
   }
 
   get imageUrl(): string | undefined {
-    return this._imageUrl;
+    return this._imageUrl?.value;
   }
 
   get isAvailable(): boolean {
@@ -142,9 +177,10 @@ class Product {
 
   set imageUrl(imageUrl: string | undefined) {
     if (imageUrl) {
-      this.validateImageUrl(imageUrl);
+      this._imageUrl = new URLValueObject(imageUrl);
+    } else {
+      this._imageUrl = undefined;
     }
-    this._imageUrl = imageUrl;
   }
 
   set isAvailable(isAvailable: boolean) {
@@ -153,18 +189,7 @@ class Product {
 
   // Note: No setter for ID as it should be immutable after creation
 
-  // Utility method to convert to plain object
-  toJSON() {
-    return {
-      id: this._id,
-      name: this._name,
-      description: this._description,
-      price: this._price,
-      categoryId: this._categoryId,
-      imageUrl: this._imageUrl,
-      isAvailable: this._isAvailable,
-    };
-  }
+  // Remove toJSON method for clean architecture
 }
 
 export default Product;

@@ -1,6 +1,7 @@
-import { v4 as uuidv4, validate as uuidValidate } from "uuid";
+import { UUIDService } from "../services/UUIDService";
+import { BaseEntity } from "./BaseEntity";
 
-class OrderItem {
+class OrderItem implements BaseEntity {
   private _id: string;
   private _orderId: string;
   private _productId: string;
@@ -8,24 +9,28 @@ class OrderItem {
   private _unitPrice: number;
   private _totalPrice: number;
   private _observation?: string;
+  private _createdAt: Date;
+  private _updatedAt: Date;
 
   constructor(
-    id: string = uuidv4(),
+    id: string,
     orderId: string,
     productId: string,
     quantity: number,
     unitPrice: number,
-    observation?: string
+    observation?: string,
+    uuidService?: UUIDService,
+    createdAt?: Date,
+    updatedAt?: Date
   ) {
-    this.validateId(id);
-    this.validateOrderId(orderId);
-    this.validateProductId(productId);
+    this.validateId(id, uuidService);
+    this.validateOrderId(orderId, uuidService);
+    this.validateProductId(productId, uuidService);
     this.validateQuantity(quantity);
     this.validateUnitPrice(unitPrice);
     if (observation) {
       this.validateObservation(observation);
     }
-
     this._id = id;
     this._orderId = orderId;
     this._productId = productId;
@@ -33,32 +38,62 @@ class OrderItem {
     this._unitPrice = unitPrice;
     this._totalPrice = this.calculateTotalPrice();
     this._observation = observation;
+    this._createdAt = createdAt ?? new Date();
+    this._updatedAt = updatedAt ?? new Date();
   }
 
-  private validateId(id: string): void {
+  static create(
+    orderId: string,
+    productId: string,
+    quantity: number,
+    unitPrice: number,
+    observation: string | undefined,
+    uuidService: UUIDService
+  ): OrderItem {
+    const now = new Date();
+    return new OrderItem(
+      uuidService.generate(),
+      orderId,
+      productId,
+      quantity,
+      unitPrice,
+      observation,
+      uuidService,
+      now,
+      now
+    );
+  }
+
+  private validateId(id: string, uuidService?: UUIDService): void {
     if (!id || id.trim().length === 0) {
       throw new Error("OrderItem ID cannot be empty");
     }
-    if (!uuidValidate(id)) {
-      throw new Error("OrderItem ID must be a valid UUID");
+    if (uuidService) {
+      if (!uuidService.validate(id)) {
+        throw new Error("OrderItem ID must be a valid UUID");
+      }
     }
   }
 
-  private validateOrderId(orderId: string): void {
+  private validateOrderId(orderId: string, uuidService?: UUIDService): void {
     if (!orderId || orderId.trim().length === 0) {
       throw new Error("Order ID cannot be empty");
     }
-    if (!uuidValidate(orderId)) {
-      throw new Error("Order ID must be a valid UUID");
+    if (uuidService) {
+      if (!uuidService.validate(orderId)) {
+        throw new Error("Order ID must be a valid UUID");
+      }
     }
   }
 
-  private validateProductId(productId: string): void {
+  private validateProductId(productId: string, uuidService?: UUIDService): void {
     if (!productId || productId.trim().length === 0) {
       throw new Error("Product ID cannot be empty");
     }
-    if (!uuidValidate(productId)) {
-      throw new Error("Product ID must be a valid UUID");
+    if (uuidService) {
+      if (!uuidService.validate(productId)) {
+        throw new Error("Product ID must be a valid UUID");
+      }
     }
   }
 
@@ -122,6 +157,14 @@ class OrderItem {
     return this._observation;
   }
 
+  get createdAt(): Date {
+    return this._createdAt;
+  }
+
+  get updatedAt(): Date {
+    return this._updatedAt;
+  }
+
   // Setters
   set quantity(quantity: number) {
     this.validateQuantity(quantity);
@@ -144,18 +187,7 @@ class OrderItem {
 
   // Note: No setters for id, orderId, and productId as they should be immutable after creation
 
-  // Utility method to convert to plain object
-  toJSON() {
-    return {
-      id: this._id,
-      orderId: this._orderId,
-      productId: this._productId,
-      quantity: this._quantity,
-      unitPrice: this._unitPrice,
-      totalPrice: this._totalPrice,
-      observation: this._observation,
-    };
-  }
+  // Remove toJSON method for clean architecture
 }
 
 export default OrderItem;

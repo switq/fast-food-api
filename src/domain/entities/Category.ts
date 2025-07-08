@@ -1,26 +1,48 @@
-import { v4 as uuidv4, validate as uuidValidate } from "uuid";
+import { UUIDService } from "../services/UUIDService";
+import { BaseEntity } from "./BaseEntity";
 
-class Category {
+class Category implements BaseEntity {
   private _id: string;
   private _name: string;
   private _description: string;
+  private _createdAt: Date;
+  private _updatedAt: Date;
 
-  constructor(id: string = uuidv4(), name: string, description: string) {
-    this.validateId(id);
+  constructor(
+    id: string,
+    name: string,
+    description: string,
+    uuidService?: UUIDService,
+    createdAt?: Date,
+    updatedAt?: Date
+  ) {
+    this.validateId(id, uuidService);
     this.validateName(name);
     this.validateDescription(description);
-
     this._id = id;
     this._name = name;
     this._description = description;
+    this._createdAt = createdAt ?? new Date();
+    this._updatedAt = updatedAt ?? new Date();
   }
 
-  private validateId(id: string): void {
+  static create(
+    name: string,
+    description: string,
+    uuidService: UUIDService
+  ): Category {
+    const now = new Date();
+    return new Category(uuidService.generate(), name, description, uuidService, now, now);
+  }
+
+  private validateId(id: string, uuidService?: UUIDService): void {
     if (!id || id.trim().length === 0) {
       throw new Error("Category ID cannot be empty");
     }
-    if (!uuidValidate(id)) {
-      throw new Error("Category ID must be a valid UUID");
+    if (uuidService) {
+      if (!uuidService.validate(id)) {
+        throw new Error("Category ID must be a valid UUID");
+      }
     }
   }
 
@@ -50,6 +72,14 @@ class Category {
     return this._id;
   }
 
+  get createdAt(): Date {
+    return this._createdAt;
+  }
+
+  get updatedAt(): Date {
+    return this._updatedAt;
+  }
+
   get name(): string {
     return this._name;
   }
@@ -72,13 +102,7 @@ class Category {
   // Note: No setter for ID as it should be immutable after creation
 
   // Utility method to convert to plain object
-  toJSON() {
-    return {
-      id: this._id,
-      name: this._name,
-      description: this._description,
-    };
-  }
 }
+
 
 export default Category;
