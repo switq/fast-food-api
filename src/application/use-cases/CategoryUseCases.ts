@@ -1,5 +1,5 @@
 import Category from "../../domain/entities/Category";
-import { ICategoryRepository } from "@src/domain/repositories/ICategoryRepository";
+import { ICategoryRepository } from "../../domain/repositories/ICategoryRepository";
 
 export class CategoryUseCases {
   private readonly repository: ICategoryRepository;
@@ -16,7 +16,6 @@ export class CategoryUseCases {
     if (existingCategory) {
       throw new Error("A category with this name already exists");
     }
-
     const category = new Category(undefined, name, description);
     return this.repository.create(category);
   }
@@ -50,8 +49,6 @@ export class CategoryUseCases {
     if (!existingCategory) {
       throw new Error("Category not found");
     }
-
-    // Check if the new name conflicts with another category
     if (name !== undefined && name !== existingCategory.name) {
       const categoryWithSameName = await this.repository.findByName(name);
       if (categoryWithSameName) {
@@ -59,12 +56,9 @@ export class CategoryUseCases {
       }
       existingCategory.name = name;
     }
-
-    // Update description only if provided
     if (description !== undefined) {
       existingCategory.description = description;
     }
-
     return this.repository.update(existingCategory);
   }
 
@@ -73,7 +67,6 @@ export class CategoryUseCases {
     if (!category) {
       throw new Error("Category not found");
     }
-
     await this.repository.delete(id);
   }
 }

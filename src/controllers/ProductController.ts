@@ -1,74 +1,97 @@
-import { ProductPresenter } from "../presenters/ProductPresenter";
+import { Request, Response } from "express";
 import ProductUseCases from "../application/use-cases/ProductUseCases";
-import { DbConnection } from "@src/interfaces/dbconnection";
-import { ProductGateway } from "@gateways/ProductGateway";
+import { ProductPresenter } from "../presenters/ProductPresenter";
+import { IProductRepository } from "../domain/repositories/IProductRepository";
+import { ICategoryRepository } from "../domain/repositories/ICategoryRepository";
 
 export class ProductController {
-  static async listAll(dbconnection: DbConnection): Promise<any> {
-    const gateway = new ProductGateway(dbconnection);
-    const useCase = new ProductUseCases();
-    const output = await useCase.findAllProducts(gateway);
-    return ProductPresenter.listToHttp(output);
+  private readonly productUseCases: ProductUseCases;
+  private readonly productRepository: IProductRepository;
+  private readonly categoryRepository: ICategoryRepository;
+
+  constructor(
+    productUseCases: ProductUseCases,
+    productRepository: IProductRepository,
+    categoryRepository: ICategoryRepository
+  ) {
+    this.productUseCases = productUseCases;
+    this.productRepository = productRepository;
+    this.categoryRepository = categoryRepository;
   }
 
-  static async getById(id: string, dbconnection: DbConnection): Promise<any> {
-    const gateway = new ProductGateway(dbconnection);
-    const useCase = new ProductUseCases();
-    const output = await useCase.findProductById(id, gateway);
-    return ProductPresenter.toHttp(output);
+  public async listAll(_req: Request, res: Response): Promise<Response> {
+    try {
+      const output = await this.productUseCases.findAllProducts(
+        this.productRepository
+      );
+      return res.status(200).json(ProductPresenter.listToHttp(output));
+    } catch (error) {
+      return res.status(500).json({ message: "Internal server error" });
+    }
   }
 
-  static async create(
-    name: string,
-    description: string,
-    price: number,
-    categoryId: string,
-    imageUrl: string,
-    dbconnection: DbConnection
-  ): Promise<any> {
-    const productGateway = new ProductGateway(dbconnection);
-    const categoryGateway = new (await import("@gateways/CategoryGateway")).CategoryGateway(dbconnection);
-    const useCase = new ProductUseCases();
-    const output = await useCase.createProduct(
-      name,
-      description,
-      price,
-      categoryId,
-      imageUrl,
-      productGateway,
-      categoryGateway
-    );
-    return ProductPresenter.toHttp(output);
+  public async getById(req: Request, res: Response): Promise<Response> {
+    try {
+      const { id } = req.params;
+      const output = await this.productUseCases.findProductById(
+        id,
+        this.productRepository
+      );
+      if (!output) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+      return res.status(200).json(ProductPresenter.toHttp(output));
+    } catch (error) {
+      return res.status(500).json({ message: "Internal server error" });
+    }
   }
 
-  static async update(
-    id: string,
-    name: string | undefined,
-    description: string | undefined,
-    price: number | undefined,
-    categoryId: string | undefined,
-    imageUrl: string | undefined,
-    isAvailable: boolean | undefined,
-    dbconnection: DbConnection
-  ): Promise<any> {
-    const gateway = new ProductGateway(dbconnection);
-    const useCase = new ProductUseCases();
-    const output = await useCase.updateProduct(
-      id,
-      name,
-      description,
-      price,
-      categoryId,
-      imageUrl,
-      isAvailable,
-      gateway
-    );
-    return ProductPresenter.toHttp(output);
+  public async create(req: Request, res: Response): Promise<Response> {
+    try {
+      const { name, description, price, categoryId, imageUrl } = req.body;
+      const output = await this.productUseCases.createProduct(
+        name,
+        description,
+        price,
+        categoryId,
+        imageUrl,
+        this.productRepository,
+        this.categoryRepository
+      );
+      return res.status(201).json(ProductPresenter.toHttp(output));
+    } catch (error: any) {
+      return res.status(400).json({ message: error.message });
+    }
   }
 
-  static async remove(id: string, dbconnection: DbConnection): Promise<void> {
-    const gateway = new ProductGateway(dbconnection);
-    const useCase = new ProductUseCases();
-    await useCase.deleteProduct(id, gateway);
+  public async update(req: Request, res: Response): Promise<Response> {
+    try {
+      const { id } = req.params;
+      const { name, description, price, categoryId, imageUrl, isAvailable } =
+        req.body;
+      const output = await this.productUseCases.updateProduct(
+        id,
+        name,
+        description,
+        price,
+        categoryId,
+        imageUrl,
+        isAvailable,
+        this.productRepository
+      );
+      return res.status(200).json(ProductPresenter.toHttp(output));
+    } catch (error: any) {
+      return res.status(400).json({ message: error.message });
+    }
+  }
+
+  public async remove(req: Request, res: Response): Promise<Response> {
+    try {
+      const { id } = req.params;
+      await this.productUseCases.deleteProduct(id, this.productRepository);
+      return res.status(204).send();
+    } catch (error: any) {
+      return res.status(400).json({ message: error.message });
+    }
   }
 }

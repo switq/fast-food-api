@@ -1,31 +1,63 @@
-import { OrderPresenter } from "../presenters/OrderPresenter";
+import { Request, Response } from "express";
 import OrderUseCases from "../application/use-cases/OrderUseCases";
-import { DbConnection } from "@src/interfaces/dbconnection";
-import { OrderGateway } from "@gateways/OrderGateway";
-import { ProductGateway } from "@gateways/ProductGateway";
-import { CustomerGateway } from "@gateways/CustomerGateway";
+import { OrderPresenter } from "../presenters/OrderPresenter";
+import { IOrderRepository } from "../domain/repositories/IOrderRepository";
+import { IProductRepository } from "../domain/repositories/IProductRepository";
+import { ICustomerRepository } from "../domain/repositories/ICustomerRepository";
 
 export class OrderController {
-  static async listAll(dbconnection: DbConnection): Promise<any> {
-    const gateway = new OrderGateway(dbconnection);
-    const useCase = new OrderUseCases();
-    const output = await useCase.findAllOrders(gateway);
-    return OrderPresenter.listToHttp(output);
+  private readonly orderUseCases: OrderUseCases;
+  private readonly orderRepository: IOrderRepository;
+  private readonly productRepository: IProductRepository;
+  private readonly customerRepository: ICustomerRepository;
+
+  constructor(
+    orderUseCases: OrderUseCases,
+    orderRepository: IOrderRepository,
+    productRepository: IProductRepository,
+    customerRepository: ICustomerRepository
+  ) {
+    this.orderUseCases = orderUseCases;
+    this.orderRepository = orderRepository;
+    this.productRepository = productRepository;
+    this.customerRepository = customerRepository;
   }
 
-  static async getById(id: string, dbconnection: DbConnection): Promise<any> {
-    const gateway = new OrderGateway(dbconnection);
-    const useCase = new OrderUseCases();
-    const output = await useCase.findOrderById(id, gateway);
-    return OrderPresenter.toHttp(output);
+  public async listAll(_req: Request, res: Response): Promise<Response> {
+    try {
+      const output = await this.orderUseCases.findAllOrders(this.orderRepository);
+      return res.status(200).json(OrderPresenter.listToHttp(output));
+    } catch (error) {
+      return res.status(500).json({ message: "Internal server error" });
+    }
   }
 
-  static async create(customerId: string, items: any[], dbconnection: DbConnection): Promise<any> {
-    const orderGateway = new OrderGateway(dbconnection);
-    const productGateway = new ProductGateway(dbconnection);
-    const customerGateway = new CustomerGateway(dbconnection);
-    const useCase = new OrderUseCases();
-    const output = await useCase.createOrder(items, orderGateway, productGateway, customerId, customerGateway);
-    return OrderPresenter.toHttp(output);
+  public async getById(req: Request, res: Response): Promise<Response> {
+    try {
+      const { id } = req.params;
+      const output = await this.orderUseCases.findOrderById(id, this.orderRepository);
+      if (!output) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+      return res.status(200).json(OrderPresenter.toHttp(output));
+    } catch (error) {
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  }
+
+  public async create(req: Request, res: Response): Promise<Response> {
+    try {
+      const { customerId, items } = req.body;
+      const output = await this.orderUseCases.createOrder(
+        items,
+        this.orderRepository,
+        this.productRepository,
+        customerId,
+        this.customerRepository
+      );
+      return res.status(201).json(OrderPresenter.toHttp(output));
+    } catch (error: any) {
+      return res.status(400).json({ message: error.message });
+    }
   }
 }

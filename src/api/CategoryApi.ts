@@ -1,17 +1,18 @@
+import { Router } from "express";
 import { CategoryController } from "@controllers/CategoryController";
-import { Express, Request, Response } from "express";
-import { DbConnection } from "@interfaces/dbconnection";
 
 /**
  * @openapi
  * /api/categories:
  *   get:
  *     summary: Lista todas as categorias
+ *     tags: [Categories]
  *     responses:
  *       200:
  *         description: Lista de categorias
  *   post:
  *     summary: Cria uma nova categoria
+ *     tags: [Categories]
  *     requestBody:
  *       required: true
  *       content:
@@ -26,10 +27,13 @@ import { DbConnection } from "@interfaces/dbconnection";
  *     responses:
  *       201:
  *         description: Categoria criada
+ *       400:
+ *         description: Erro na requisicao
  *
  * /api/categories/{id}:
  *   get:
  *     summary: Busca uma categoria por ID
+ *     tags: [Categories]
  *     parameters:
  *       - in: path
  *         name: id
@@ -42,34 +46,11 @@ import { DbConnection } from "@interfaces/dbconnection";
  *       404:
  *         description: Categoria não encontrada
  */
-export function CategoryApi(app: Express,dbconnection: DbConnection) {
-
-  app.get("/api/categories", async (req: Request, res: Response) => {
-    try {
-      const result = await CategoryController.listAll(dbconnection);
-      res.json(result);
-    } catch (err: any) {
-      res.status(500).json({ error: err.message });
-    }
-  });
-
-  app.get("/api/categories/:id", async (req: Request, res: Response) => {
-    try {
-      const result = await CategoryController.getById(req.params.id, dbconnection);
-      if (!result) return res.status(404).json({ error: "Category not found" });
-      res.json(result);
-    } catch (err: any) {
-      res.status(500).json({ error: err.message });
-    }
-  });
-
-  app.post("/api/categories", async (req: Request, res: Response) => {
-    try {
-      const { name, description } = req.body;
-      const result = await CategoryController.create(name, description, dbconnection);
-      res.status(201).json(result);
-    } catch (err: any) {
-      res.status(400).json({ error: err.message });
-    }
-  });
+export function setupCategoryRoutes(controller: CategoryController) {
+  const router = Router();
+  router.get("/categories", controller.listAll.bind(controller));
+  router.get("/categories/:id", controller.getById.bind(controller));
+  router.post("/categories", controller.create.bind(controller));
+  // Adicione os outros métodos (PUT, DELETE) aqui...
+  return router;
 }

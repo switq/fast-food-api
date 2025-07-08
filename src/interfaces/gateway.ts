@@ -38,5 +38,5 @@ export interface OrderGatewayInterface {
   add(order: Order): Promise<Order>;
   update(order: Order): Promise<Order>;
   remove(id: string): Promise<void>;
-  findByCustomerId?(customerId: string): Promise<Order[]>;
+  findByCustomerId(customerId: string): Promise<Order[]>;
 }
