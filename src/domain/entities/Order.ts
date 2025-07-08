@@ -46,14 +46,13 @@ class Order implements BaseEntity {
 
   static create(
     customerId: string | undefined,
-    items: OrderItem[],
     uuidService: UUIDService
   ): Order {
     const now = new Date();
     return new Order(
       uuidService.generate(),
       customerId,
-      items,
+      [],
       OrderStatus.PENDING,
       uuidService,
       now,

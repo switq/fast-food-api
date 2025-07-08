@@ -1,69 +1,67 @@
-import Product from "../../domain/entities/Product";
-import { IProductRepository } from "../../domain/repositories/IProductRepository";
-import { ICategoryRepository } from "../../domain/repositories/ICategoryRepository";
+import Product from "../../../domain/entities/Product";
+import { IProductRepository } from "../../repositories/IProductRepository";
+import { ICategoryRepository } from "../../repositories/ICategoryRepository";
+import { UUIDService } from "../../../domain/services/UUIDService";
 
 class ProductUseCases {
+  constructor(
+    private readonly productRepository: IProductRepository,
+    private readonly categoryRepository: ICategoryRepository,
+    private readonly uuidService: UUIDService
+  ) {}
+
   async createProduct(
     name: string,
     description: string,
     price: number,
     categoryId: string,
     imageUrl: string | undefined,
-    repository: IProductRepository,
-    categoryRepository: ICategoryRepository
+    isAvailable: boolean = true
   ): Promise<Product> {
-    const existingProduct = await repository.findByName(name);
+    const existingProduct = await this.productRepository.findByName(name);
     if (existingProduct) {
       throw new Error("A product with this name already exists");
     }
 
-    const category = await categoryRepository.findById(categoryId);
+    const category = await this.categoryRepository.findById(categoryId);
     if (!category) {
       throw new Error("Category not found");
     }
 
-    const product = new Product(
-      undefined,
+    const product = Product.create(
       name,
       description,
       price,
       categoryId,
-      imageUrl
+      imageUrl,
+      isAvailable,
+      this.uuidService
     );
-    return repository.create(product);
+    return this.productRepository.create(product);
   }
 
-  async findProductById(
-    id: string,
-    repository: IProductRepository
-  ): Promise<Product> {
-    const product = await repository.findById(id);
+  async findProductById(id: string): Promise<Product> {
+    const product = await this.productRepository.findById(id);
     if (!product) {
       throw new Error("Product not found");
     }
     return product;
   }
 
-  async findProductByName(
-    name: string,
-    repository: IProductRepository
-  ): Promise<Product> {
-    const product = await repository.findByName(name);
+  async findProductByName(name: string): Promise<Product> {
+    const product = await this.productRepository.findByName(name);
     if (!product) {
       throw new Error("Product not found");
     }
     return product;
   }
 
-  async findProductsByCategory(
-    categoryId: string,
-    repository: IProductRepository
-  ): Promise<Product[]> {
-    return repository.findByCategory(categoryId);
+  async findProductsByCategory(categoryId: string): Promise<Product[]> {
+    return this.productRepository.findByCategory(categoryId);
   }
 
-  async findAllProducts(repository: IProductRepository): Promise<Product[]> {
-    return repository.findAll();
+  async findAllProducts(): Promise<Product[]> {
+    return this.productRepository.findAll();
   }
 
   async updateProduct(
@@ -73,17 +71,16 @@ class ProductUseCases {
     price: number | undefined,
     categoryId: string | undefined,
     imageUrl: string | undefined,
-    isAvailable: boolean | undefined,
-    repository: IProductRepository
+    isAvailable: boolean | undefined
   ): Promise<Product> {
-    const existingProduct = await repository.findById(id);
+    const existingProduct = await this.productRepository.findById(id);
     if (!existingProduct) {
       throw new Error("Product not found");
     }
 
     // Check if the new name conflicts with another product
     if (name !== undefined && name !== existingProduct.name) {
-      const productWithSameName = await repository.findByName(name);
+      const productWithSameName = await this.productRepository.findByName(name);
       if (productWithSameName) {
         throw new Error("A product with this name already exists");
       }
@@ -107,19 +104,15 @@ class ProductUseCases {
       existingProduct.isAvailable = isAvailable;
     }
 
-    return repository.update(existingProduct);
+    return this.productRepository.update(existingProduct);
   }
 
-  async deleteProduct(
-    id: string,
-    repository: IProductRepository
-  ): Promise<void> {
-    const product = await repository.findById(id);
+  async deleteProduct(id: string): Promise<void> {
+    const product = await this.productRepository.findById(id);
     if (!product) {
       throw new Error("Product not found");
     }
-
-    await repository.delete(id);
+    await this.productRepository.delete(id);
   }
 }
 
