@@ -11,7 +11,14 @@
     "resolveJsonModule": true,
     "paths": {
       "@src/*": ["src/*"],
-      "@tests/*": ["tests/*"]
+      "@tests/*": ["tests/*"],
+      "@entities/*": ["src/domain/entities/*"],
+      "@gateways/*": ["src/gateways/*"],
+      "@interfaces/*": ["src/interfaces/*"],
+      "@types/*": ["src/types/*"],
+      "@presenters/*": ["src/presenters/*"],
+      "@controllers/*": ["src/controllers/*"],
+      "@usecases/*": ["src/application/use-cases/*"]
     },
     "baseUrl": "./"
   },

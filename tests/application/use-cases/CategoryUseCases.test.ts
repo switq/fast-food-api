@@ -16,7 +16,7 @@ describe("CategoryUseCases", () => {
       findByName: jest.fn(),
     };
 
-    categoryUseCases = new CategoryUseCases();
+    categoryUseCases = new CategoryUseCases(mockCategoryRepository);
   });
 
   describe("createCategory", () => {
@@ -31,8 +31,7 @@ describe("CategoryUseCases", () => {
 
       const result = await categoryUseCases.createCategory(
         "Burgers",
-        "Delicious burgers",
-        mockCategoryRepository
+        "Delicious burgers"
       );
 
       expect(result).toBe(category);
@@ -50,8 +49,7 @@ describe("CategoryUseCases", () => {
       mockCategoryRepository.findById.mockResolvedValue(category);
 
       const result = await categoryUseCases.findCategoryById(
-        "category-id",
-        mockCategoryRepository
+        "category-id"
       );
 
       expect(result).toBe(category);
@@ -65,8 +63,7 @@ describe("CategoryUseCases", () => {
 
       await expect(
         categoryUseCases.findCategoryById(
-          "non-existent-category",
-          mockCategoryRepository
+          "non-existent-category"
         )
       ).rejects.toThrow("Category not found");
     });
@@ -86,8 +83,7 @@ describe("CategoryUseCases", () => {
       const result = await categoryUseCases.updateCategory(
         "category-id",
         "Premium Burgers",
-        "Premium quality burgers",
-        mockCategoryRepository
+        "Premium quality burgers"
       );
 
       expect(result).toBe(category);
@@ -101,8 +97,7 @@ describe("CategoryUseCases", () => {
         categoryUseCases.updateCategory(
           "non-existent-category",
           "Premium Burgers",
-          "Premium quality burgers",
-          mockCategoryRepository
+          "Premium quality burgers"
         )
       ).rejects.toThrow("Category not found");
     });
@@ -117,10 +112,7 @@ describe("CategoryUseCases", () => {
       );
       mockCategoryRepository.findById.mockResolvedValue(category);
 
-      await categoryUseCases.deleteCategory(
-        "category-id",
-        mockCategoryRepository
-      );
+      await categoryUseCases.deleteCategory("category-id");
 
       expect(mockCategoryRepository.delete).toHaveBeenCalledWith("category-id");
     });
@@ -129,10 +121,7 @@ describe("CategoryUseCases", () => {
       mockCategoryRepository.findById.mockResolvedValue(null);
 
       await expect(
-        categoryUseCases.deleteCategory(
-          "non-existent-category",
-          mockCategoryRepository
-        )
+        categoryUseCases.deleteCategory("non-existent-category")
       ).rejects.toThrow("Category not found");
     });
   });
@@ -153,9 +142,7 @@ describe("CategoryUseCases", () => {
       ];
       mockCategoryRepository.findAll.mockResolvedValue(categories);
 
-      const result = await categoryUseCases.findAllCategories(
-        mockCategoryRepository
-      );
+      const result = await categoryUseCases.findAllCategories();
 
       expect(result).toBe(categories);
       expect(mockCategoryRepository.findAll).toHaveBeenCalled();

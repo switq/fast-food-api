@@ -81,7 +81,6 @@ class ProductUseCases {
       throw new Error("Product not found");
     }
 
-    // Check if the new name conflicts with another product
     if (name !== undefined && name !== existingProduct.name) {
       const productWithSameName = await repository.findByName(name);
       if (productWithSameName) {
@@ -89,8 +88,6 @@ class ProductUseCases {
       }
       existingProduct.name = name;
     }
-
-    // Update other fields if provided
     if (description !== undefined) {
       existingProduct.description = description;
     }
@@ -106,7 +103,6 @@ class ProductUseCases {
     if (isAvailable !== undefined) {
       existingProduct.isAvailable = isAvailable;
     }
-
     return repository.update(existingProduct);
   }
 
@@ -118,7 +114,6 @@ class ProductUseCases {
     if (!product) {
       throw new Error("Product not found");
     }
-
     await repository.delete(id);
   }
 }
