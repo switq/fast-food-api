@@ -24,39 +24,40 @@ describe("Category Entity", () => {
 
     it("should throw error when ID is invalid", () => {
       expect(() => {
-        new Category("invalid-uuid", validName, validDescription);
+        // purposely not assigning the instance, we want the constructor to throw
+        return new Category("invalid-uuid", validName, validDescription);
       }).toThrow("Category ID must be a valid UUID");
     });
 
     it("should throw error when name is empty", () => {
       expect(() => {
-        new Category(validId, "", validDescription);
+        return new Category(validId, "", validDescription);
       }).toThrow("Category name cannot be empty");
     });
 
     it("should throw error when name is too short", () => {
       expect(() => {
-        new Category(validId, "Ab", validDescription);
+        return new Category(validId, "Ab", validDescription);
       }).toThrow("Category name must be at least 3 characters long");
     });
 
     it("should throw error when name is too long", () => {
       const longName = "A".repeat(51);
       expect(() => {
-        new Category(validId, longName, validDescription);
+        return new Category(validId, longName, validDescription);
       }).toThrow("Category name cannot exceed 50 characters");
     });
 
     it("should throw error when description is empty", () => {
       expect(() => {
-        new Category(validId, validName, "");
+        return new Category(validId, validName, "");
       }).toThrow("Category description cannot be empty");
     });
 
     it("should throw error when description is too long", () => {
       const longDescription = "A".repeat(256);
       expect(() => {
-        new Category(validId, validName, longDescription);
+        return new Category(validId, validName, longDescription);
       }).toThrow("Category description cannot exceed 255 characters");
     });
   });

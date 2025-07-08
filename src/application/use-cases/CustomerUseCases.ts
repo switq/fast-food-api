@@ -17,7 +17,6 @@ class CustomerUseCases {
     if (existingCPF) {
       throw new Error("A customer with this CPF already exists");
     }
-
     const customer = new Customer(undefined, name, email, cpf, phone);
     return repository.create(customer);
   }
@@ -71,8 +70,6 @@ class CustomerUseCases {
     if (!existingCustomer) {
       throw new Error("Customer not found");
     }
-
-    // Check if the new email conflicts with another customer
     if (email !== undefined && email !== existingCustomer.email) {
       const customerWithSameEmail = await repository.findByEmail(email);
       if (customerWithSameEmail) {
@@ -80,8 +77,6 @@ class CustomerUseCases {
       }
       existingCustomer.email = email;
     }
-
-    // Check if the new CPF conflicts with another customer
     if (cpf !== undefined && cpf !== existingCustomer.cpf) {
       const customerWithSameCPF = await repository.findByCPF(cpf);
       if (customerWithSameCPF) {
@@ -89,15 +84,12 @@ class CustomerUseCases {
       }
       existingCustomer.cpf = cpf;
     }
-
-    // Update other fields if provided
     if (name !== undefined) {
       existingCustomer.name = name;
     }
     if (phone !== undefined) {
       existingCustomer.phone = phone;
     }
-
     return repository.update(existingCustomer);
   }
 
@@ -109,7 +101,6 @@ class CustomerUseCases {
     if (!customer) {
       throw new Error("Customer not found");
     }
-
     await repository.delete(id);
   }
 }

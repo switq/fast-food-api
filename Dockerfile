@@ -7,7 +7,6 @@ RUN apk add --no-cache openssl
 
 # Copiar arquivos de dependências
 COPY package*.json ./
-COPY prisma ./prisma/
 
 # Instalar dependências
 RUN npm install
