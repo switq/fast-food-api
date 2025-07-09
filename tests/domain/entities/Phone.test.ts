@@ -1,4 +1,4 @@
-import Phone from "../../../src/domain/entities/Phone";
+import Phone from "../../../src/domain/value-objects/Phone";
 
 describe("Phone Entity", () => {
   describe("Constructor", () => {

@@ -1,5 +1,5 @@
 import { BaseRepository } from "./BaseRepository";
-import { IOrderRepository } from "../../../../domain/repositories/IOrderRepository";
+import { IOrderRepository } from "../../../../application/repositories/IOrderRepository";
 import Order, { OrderStatus } from "../../../../domain/entities/Order";
 import OrderItem from "../../../../domain/entities/OrderItem";
 import { PrismaClient } from "@prisma/client";

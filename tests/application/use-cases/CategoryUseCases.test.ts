@@ -1,6 +1,6 @@
 import CategoryUseCases from "../../../src/application/use-cases/CategoryUseCases";
 import Category from "../../../src/domain/entities/Category";
-import { ICategoryRepository } from "../../../src/domain/repositories/ICategoryRepository";
+import { ICategoryRepository } from "../../../src/application/repositories/ICategoryRepository";
 
 describe("CategoryUseCases", () => {
   let categoryUseCases: CategoryUseCases;
@@ -48,9 +48,7 @@ describe("CategoryUseCases", () => {
       );
       mockCategoryRepository.findById.mockResolvedValue(category);
 
-      const result = await categoryUseCases.findCategoryById(
-        "category-id"
-      );
+      const result = await categoryUseCases.findCategoryById("category-id");
 
       expect(result).toBe(category);
       expect(mockCategoryRepository.findById).toHaveBeenCalledWith(
@@ -62,9 +60,7 @@ describe("CategoryUseCases", () => {
       mockCategoryRepository.findById.mockResolvedValue(null);
 
       await expect(
-        categoryUseCases.findCategoryById(
-          "non-existent-category"
-        )
+        categoryUseCases.findCategoryById("non-existent-category")
       ).rejects.toThrow("Category not found");
     });
   });

@@ -1,5 +1,5 @@
 import { BaseRepository } from "./BaseRepository";
-import { IProductRepository } from "../../../../domain/repositories/IProductRepository";
+import { IProductRepository } from "../../../../application/repositories/IProductRepository";
 import Product from "../../../../domain/entities/Product";
 import { PrismaClient } from "@prisma/client";
 
