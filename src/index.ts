@@ -1,4 +1,4 @@
-import { FastFoodApp } from "./api";
+import { FastFoodApp } from "./infrastructure/api";
 
 const fastFoodApp = new FastFoodApp();
 fastFoodApp.start();

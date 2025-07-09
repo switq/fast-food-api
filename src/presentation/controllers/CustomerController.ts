@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import CustomerUseCases from "../application/use-cases/CustomerUseCases";
 import { CustomerPresenter } from "../presenters/CustomerPresenter";
-import { ICustomerRepository } from "../domain/repositories/ICustomerRepository";
+import { ICustomerRepository } from "../application/repositories/ICustomerRepository";
 
 export class CustomerController {
   private readonly customerUseCases: CustomerUseCases;

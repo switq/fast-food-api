@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 import OrderUseCases from "../application/use-cases/OrderUseCases";
 import { OrderPresenter } from "../presenters/OrderPresenter";
-import { IOrderRepository } from "../domain/repositories/IOrderRepository";
-import { IProductRepository } from "../domain/repositories/IProductRepository";
-import { ICustomerRepository } from "../domain/repositories/ICustomerRepository";
+import { IOrderRepository } from "../application/repositories/IOrderRepository";
+import { IProductRepository } from "../application/repositories/IProductRepository";
+import { ICustomerRepository } from "../application/repositories/ICustomerRepository";
 
 export class OrderController {
   private readonly orderUseCases: OrderUseCases;
@@ -25,7 +25,9 @@ export class OrderController {
 
   public async listAll(_req: Request, res: Response): Promise<Response> {
     try {
-      const output = await this.orderUseCases.findAllOrders(this.orderRepository);
+      const output = await this.orderUseCases.findAllOrders(
+        this.orderRepository
+      );
       return res.status(200).json(OrderPresenter.listToHttp(output));
     } catch (error) {
       return res.status(500).json({ message: "Internal server error" });
@@ -35,7 +37,10 @@ export class OrderController {
   public async getById(req: Request, res: Response): Promise<Response> {
     try {
       const { id } = req.params;
-      const output = await this.orderUseCases.findOrderById(id, this.orderRepository);
+      const output = await this.orderUseCases.findOrderById(
+        id,
+        this.orderRepository
+      );
       if (!output) {
         return res.status(404).json({ message: "Order not found" });
       }

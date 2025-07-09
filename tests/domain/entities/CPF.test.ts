@@ -1,4 +1,4 @@
-import CPF from "../../../src/domain/entities/CPF";
+import CPF from "../../../src/domain/value-objects/CPF";
 
 describe("CPF Entity", () => {
   describe("Constructor", () => {
