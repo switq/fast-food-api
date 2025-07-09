@@ -1,5 +1,5 @@
 import Category from "../../domain/entities/Category";
-import { ICategoryRepository } from "../../domain/repositories/ICategoryRepository";
+import { ICategoryRepository } from "../repositories/ICategoryRepository";
 
 export class CategoryUseCases {
   private readonly repository: ICategoryRepository;
@@ -8,10 +8,7 @@ export class CategoryUseCases {
     this.repository = repository;
   }
 
-  async createCategory(
-    name: string,
-    description: string
-  ): Promise<Category> {
+  async createCategory(name: string, description: string): Promise<Category> {
     const existingCategory = await this.repository.findByName(name);
     if (existingCategory) {
       throw new Error("A category with this name already exists");

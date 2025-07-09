@@ -16,8 +16,8 @@
       "@gateways/*": ["src/gateways/*"],
       "@interfaces/*": ["src/interfaces/*"],
       "@types/*": ["src/types/*"],
-      "@presenters/*": ["src/presenters/*"],
-      "@controllers/*": ["src/controllers/*"],
+      "@presenters/*": ["src/presentation/presenters/*"],
+      "@src/presentation/controllers/*": ["src/controllers/*"],
       "@usecases/*": ["src/application/use-cases/*"]
     },
     "baseUrl": "./"

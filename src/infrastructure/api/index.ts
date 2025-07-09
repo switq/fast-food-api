@@ -5,18 +5,18 @@ import { setupOrderRoutes } from "./OrderApi";
 import express from "express";
 import swaggerUi from "swagger-ui-express";
 import swaggerJsdoc from "swagger-jsdoc";
-import { CategoryRepository } from "../infrastructure/database/prisma/implementations/CategoryRepository";
-import { ProductRepository } from "../infrastructure/database/prisma/implementations/ProductRepository";
-import { CustomerRepository } from "../infrastructure/database/prisma/implementations/CustomerRepository";
-import { OrderRepository } from "../infrastructure/database/prisma/implementations/OrderRepository";
-import { CategoryUseCases } from "../application/use-cases/CategoryUseCases";
-import ProductUseCases from "../application/use-cases/ProductUseCases";
-import CustomerUseCases from "../application/use-cases/CustomerUseCases";
-import OrderUseCases from "../application/use-cases/OrderUseCases";
-import { CategoryController } from "../controllers/CategoryController";
-import { ProductController } from "../controllers/ProductController";
-import { CustomerController } from "../controllers/CustomerController";
-import { OrderController } from "../controllers/OrderController";
+import { CategoryRepository } from "../database/prisma/implementations/CategoryRepository";
+import { ProductRepository } from "../database/prisma/implementations/ProductRepository";
+import { CustomerRepository } from "../database/prisma/implementations/CustomerRepository";
+import { OrderRepository } from "../database/prisma/implementations/OrderRepository";
+import { CategoryUseCases } from "../../application/use-cases/CategoryUseCases";
+import ProductUseCases from "../../application/use-cases/ProductUseCases";
+import CustomerUseCases from "../../application/use-cases/CustomerUseCases";
+import OrderUseCases from "../../application/use-cases/OrderUseCases";
+import { CategoryController } from "../../presentation/controllers/CategoryController";
+import { ProductController } from "../../presentation/controllers/ProductController";
+import { CustomerController } from "../../presentation/controllers/CustomerController";
+import { OrderController } from "../../presentation/controllers/OrderController";
 
 export class FastFoodApp {
   start() {
@@ -33,10 +33,7 @@ export class FastFoodApp {
           version: "1.0.0",
         },
       },
-      apis: [
-        "src/api/*.ts",
-        "src/controllers/*.ts"
-      ],
+      apis: ["src/api/*.ts", "src/controllers/*.ts"],
     };
     const swaggerSpec = swaggerJsdoc(swaggerOptions);
     app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
@@ -55,9 +52,21 @@ export class FastFoodApp {
 
     // Instantiate controllers
     const categoryController = new CategoryController(categoryUseCases);
-    const productController = new ProductController(productUseCases, productRepository, categoryRepository);
-    const customerController = new CustomerController(customerUseCases, customerRepository);
-    const orderController = new OrderController(orderUseCases, orderRepository, productRepository, customerRepository);
+    const productController = new ProductController(
+      productUseCases,
+      productRepository,
+      categoryRepository
+    );
+    const customerController = new CustomerController(
+      customerUseCases,
+      customerRepository
+    );
+    const orderController = new OrderController(
+      orderUseCases,
+      orderRepository,
+      productRepository,
+      customerRepository
+    );
 
     // Mount routers
     app.use("/api", setupCategoryRoutes(categoryController));

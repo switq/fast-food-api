@@ -1,6 +1,6 @@
 import { v4 as uuidv4, validate as uuidValidate } from "uuid";
-import CPF from "./CPF";
-import Phone from "./Phone";
+import CPF from "../value-objects/CPF";
+import Phone from "../value-objects/Phone";
 
 class Customer {
   private _id: string;

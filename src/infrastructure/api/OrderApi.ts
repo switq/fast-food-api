@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { OrderController } from "@controllers/OrderController";
+import { OrderController } from "../../presentation/controllers/OrderController";
 
 /**
  * @openapi

@@ -1,4 +1,4 @@
-import Customer from "../entities/Customer";
+import Customer from "../../domain/entities/Customer";
 
 export interface ICustomerRepository {
   create(customer: Customer): Promise<Customer>;

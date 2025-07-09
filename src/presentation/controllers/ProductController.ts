@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import ProductUseCases from "../application/use-cases/ProductUseCases";
 import { ProductPresenter } from "../presenters/ProductPresenter";
-import { IProductRepository } from "../domain/repositories/IProductRepository";
-import { ICategoryRepository } from "../domain/repositories/ICategoryRepository";
+import { IProductRepository } from "../application/repositories/IProductRepository";
+import { ICategoryRepository } from "../application/repositories/ICategoryRepository";
 
 export class ProductController {
   private readonly productUseCases: ProductUseCases;
