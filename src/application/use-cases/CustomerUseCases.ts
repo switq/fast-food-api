@@ -1,5 +1,5 @@
 import Customer from "../../domain/entities/Customer";
-import { ICustomerRepository } from "../../domain/repositories/ICustomerRepository";
+import { ICustomerRepository } from "../repositories/ICustomerRepository";
 
 class CustomerUseCases {
   async createCustomer(

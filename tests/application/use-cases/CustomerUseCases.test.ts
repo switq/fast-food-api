@@ -1,6 +1,6 @@
 import CustomerUseCases from "../../../src/application/use-cases/CustomerUseCases";
 import Customer from "../../../src/domain/entities/Customer";
-import { ICustomerRepository } from "../../../src/domain/repositories/ICustomerRepository";
+import { ICustomerRepository } from "../../../src/application/repositories/ICustomerRepository";
 
 describe("CustomerUseCases", () => {
   let customerUseCases: CustomerUseCases;

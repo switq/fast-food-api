@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { CustomerController } from "@controllers/CustomerController";
+import { CustomerController } from "../../presentation/controllers/CustomerController";
 
 /**
  * @openapi

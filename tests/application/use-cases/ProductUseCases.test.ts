@@ -1,7 +1,7 @@
 import ProductUseCases from "../../../src/application/use-cases/ProductUseCases";
 import Product from "../../../src/domain/entities/Product";
-import { IProductRepository } from "../../../src/domain/repositories/IProductRepository";
-import { ICategoryRepository } from "../../../src/domain/repositories/ICategoryRepository";
+import { IProductRepository } from "../../../src/application/repositories/IProductRepository";
+import { ICategoryRepository } from "../../../src/application/repositories/ICategoryRepository";
 import Category from "../../../src/domain/entities/Category";
 
 describe("ProductUseCases", () => {
