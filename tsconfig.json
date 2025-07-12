@@ -4,6 +4,7 @@
     "module": "commonjs",
     "lib": ["es2020"],
     "outDir": "./dist",
+    "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -13,19 +14,15 @@
       "@src/*": ["src/*"],
       "@tests/*": ["tests/*"],
       "@entities/*": ["src/domain/entities/*"],
-      "@gateways/*": ["src/gateways/*"],
+      "@gateways/*": ["src/infrastructure/gateways/*"],
       "@interfaces/*": ["src/interfaces/*"],
       "@types/*": ["src/types/*"],
       "@presenters/*": ["src/presentation/presenters/*"],
-      "@src/presentation/controllers/*": ["src/controllers/*"],
+      "@controllers/*": ["src/presentation/controllers/*"],
       "@usecases/*": ["src/application/use-cases/*"]
     },
     "baseUrl": "./"
   },
-  "include": [
-    "src/**/*",
-    "src/infrastructure/database/prisma/prisma",
-    "tests/infrastructure/database/prisma/implementations/repositoryImplementationTests.ts"
-  ],
-  "exclude": ["node_modules"]
+  "include": ["src"],
+  "exclude": ["node_modules", "tests"]
 }

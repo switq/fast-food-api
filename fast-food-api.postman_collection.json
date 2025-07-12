@@ -1,0 +1,31 @@
+{
+	"info": {
+		"_postman_id": "a8c1c1f5-4dc3-4e8a-9c8b-9c8d8e8f8g8h",
+		"name": "Fast Food API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Test Payment",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/api/test/payment",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"test",
+						"payment"
+					]
+				},
+				"description": "Creates a test payment and returns a QR code."
+			},
+			"response": []
+		}
+	]
+}

@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import OrderUseCases from "../application/use-cases/OrderUseCases";
+import OrderUseCases from "../../application/use-cases/OrderUseCases";
 import { OrderPresenter } from "../presenters/OrderPresenter";
-import { IOrderRepository } from "../application/repositories/IOrderRepository";
-import { IProductRepository } from "../application/repositories/IProductRepository";
-import { ICustomerRepository } from "../application/repositories/ICustomerRepository";
+import { IOrderRepository } from "../../application/repositories/IOrderRepository";
+import { IProductRepository } from "../../application/repositories/IProductRepository";
+import { ICustomerRepository } from "../../application/repositories/ICustomerRepository";
 
 export class OrderController {
   private readonly orderUseCases: OrderUseCases;
