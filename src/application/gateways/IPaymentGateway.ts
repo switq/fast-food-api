@@ -13,7 +13,15 @@ export interface PaymentCreationResult {
   // outros campos conforme o método de pagamento
 }
 
+export enum PaymentStatus {
+  PENDING = 'pending',
+  APPROVED = 'approved',
+  REJECTED = 'rejected',
+  CANCELLED = 'cancelled',
+  ERROR = 'error',
+}
+
 export interface IPaymentGateway {
   createPayment(data: PaymentCreationData): Promise<PaymentCreationResult>;
-  // TODO: outros métodos (consultar status, etc.)
+  getPaymentStatus(paymentId: string): Promise<PaymentStatus>;
 }
