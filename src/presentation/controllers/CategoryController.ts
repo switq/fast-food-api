@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { CategoryUseCases } from "../application/use-cases/CategoryUseCases";
+import { CategoryUseCases } from "../../application/use-cases/CategoryUseCases";
 import { CategoryPresenter } from "../presenters/CategoryPresenter";
 
 export class CategoryController {

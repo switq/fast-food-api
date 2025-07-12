@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { setupCategoryRoutes } from "./CategoryApi";
 import { setupProductRoutes } from "./ProductApi";
 import { setupCustomerRoutes } from "./CustomerApi";
@@ -17,6 +18,7 @@ import { CategoryController } from "../../presentation/controllers/CategoryContr
 import { ProductController } from "../../presentation/controllers/ProductController";
 import { CustomerController } from "../../presentation/controllers/CustomerController";
 import { OrderController } from "../../presentation/controllers/OrderController";
+import testApi from "./testApi";
 
 export class FastFoodApp {
   start() {
@@ -73,6 +75,7 @@ export class FastFoodApp {
     app.use("/api", setupProductRoutes(productController));
     app.use("/api", setupCustomerRoutes(customerController));
     app.use("/api", setupOrderRoutes(orderController));
+    app.use("/api", testApi);
 
     // Health check
     app.get("/health", (req, res) => {
