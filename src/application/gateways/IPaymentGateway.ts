@@ -21,7 +21,12 @@ export enum PaymentStatus {
   ERROR = 'error',
 }
 
+export interface PaymentStatusResult {
+  status: PaymentStatus;
+  externalReference?: string;
+}
+
 export interface IPaymentGateway {
   createPayment(data: PaymentCreationData): Promise<PaymentCreationResult>;
-  getPaymentStatus(paymentId: string): Promise<PaymentStatus>;
+  getPaymentStatus(paymentId: string): Promise<PaymentStatusResult>;
 }
