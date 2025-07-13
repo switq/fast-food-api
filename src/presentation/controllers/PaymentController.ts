@@ -4,6 +4,14 @@ import { MercadoPagoGateway } from "../../infrastructure/gateways/MercadoPagoGat
 import PaymentUseCases from "../../application/use-cases/PaymentUseCases";
 
 class PaymentController {
+  static async getPaymentStatus(
+    orderId: string,
+    dbConnection: IDatabaseConnection
+  ) {
+    const orderGateway = new OrderGateway(dbConnection);
+    return PaymentUseCases.getPaymentStatus(orderId, orderGateway);
+  }
+
   static async handleWebhookNotification(
     paymentId: string,
     dbConnection: IDatabaseConnection
