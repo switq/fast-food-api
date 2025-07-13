@@ -1,46 +1,68 @@
-import { Request, Response } from "express";
-import { CategoryUseCases } from "../../application/use-cases/CategoryUseCases";
-import { CategoryPresenter } from "../presenters/CategoryPresenter";
+import { IDatabaseConnection } from "@src/interfaces/IDbConnection";
+import { CategoryGateway } from "../gateways/CategoryGateway";
+import CategoryUseCases from "../../application/use-cases/CategoryUseCases";
+import CategoryPresenter from "../presenters/CategoryPresenter";
 
-export class CategoryController {
-  private categoryUseCases: CategoryUseCases;
-
-  constructor(categoryUseCases: CategoryUseCases) {
-    this.categoryUseCases = categoryUseCases;
+class CategoryController {
+  static async createCategory(
+    name: string,
+    description: string,
+    dbConnection: IDatabaseConnection
+  ) {
+    const gateway = new CategoryGateway(dbConnection);
+    const category = await CategoryUseCases.createCategory(
+      name,
+      description,
+      gateway
+    );
+    return CategoryPresenter.toJSON(category);
   }
 
-  public async listAll(_req: Request, res: Response): Promise<Response> {
-    try {
-      const output = await this.categoryUseCases.findAllCategories();
-      const presenter = new CategoryPresenter();
-      return res.status(200).json(presenter.listToHttp(output));
-    } catch (error) {
-      return res.status(500).json({ message: "Internal server error" });
-    }
+  static async getCategoryById(id: string, dbConnection: IDatabaseConnection) {
+    const gateway = new CategoryGateway(dbConnection);
+    const category = await CategoryUseCases.findCategoryById(id, gateway);
+    return CategoryPresenter.toJSON(category);
   }
 
-  public async getById(req: Request, res: Response): Promise<Response> {
-    try {
-      const { id } = req.params;
-      const output = await this.categoryUseCases.findCategoryById(id);
-      if (!output) {
-        return res.status(404).json({ message: "Category not found" });
-      }
-      const presenter = new CategoryPresenter();
-      return res.status(200).json(presenter.toHttp(output));
-    } catch (error) {
-      return res.status(500).json({ message: "Internal server error" });
-    }
+  static async getCategoryByName(
+    name: string,
+    dbConnection: IDatabaseConnection
+  ) {
+    const gateway = new CategoryGateway(dbConnection);
+    const category = await CategoryUseCases.findCategoryByName(name, gateway);
+    return CategoryPresenter.toJSON(category);
   }
 
-  public async create(req: Request, res: Response): Promise<Response> {
-    try {
-      const { name, description } = req.body;
-      const output = await this.categoryUseCases.createCategory(name, description);
-      const presenter = new CategoryPresenter();
-      return res.status(201).json(presenter.toHttp(output));
-    } catch (error: any) {
-      return res.status(400).json({ message: error.message });
-    }
+  static async getAllCategories(dbConnection: IDatabaseConnection) {
+    const gateway = new CategoryGateway(dbConnection);
+    const categories = await CategoryUseCases.findAllCategories(gateway);
+    return CategoryPresenter.toJSONArray(categories);
+  }
+
+  static async updateCategory(
+    id: string,
+    name: string | undefined,
+    description: string | undefined,
+    dbConnection: IDatabaseConnection
+  ) {
+    const gateway = new CategoryGateway(dbConnection);
+    const category = await CategoryUseCases.updateCategory(
+      id,
+      name,
+      description,
+      gateway
+    );
+    return CategoryPresenter.toJSON(category);
+  }
+
+  static async deleteCategoryById(
+    id: string,
+    dbConnection: IDatabaseConnection
+  ) {
+    const gateway = new CategoryGateway(dbConnection);
+    await CategoryUseCases.deleteCategory(id, gateway);
+    return { message: "Category deleted successfully" };
   }
 }
+
+export default CategoryController;

@@ -1,8 +1,8 @@
 import Customer from "../../domain/entities/Customer";
-import { ICustomerRepository } from "../repositories/ICustomerRepository";
+import { ICustomerRepository } from "../../interfaces/repositories/ICustomerRepository";
 
 class CustomerUseCases {
-  async createCustomer(
+  static async createCustomer(
     name: string,
     email: string,
     cpf: string,
@@ -21,7 +21,7 @@ class CustomerUseCases {
     return repository.create(customer);
   }
 
-  async findCustomerById(
+  static async findCustomerById(
     id: string,
     repository: ICustomerRepository
   ): Promise<Customer> {
@@ -32,7 +32,7 @@ class CustomerUseCases {
     return customer;
   }
 
-  async findCustomerByEmail(
+  static async findCustomerByEmail(
     email: string,
     repository: ICustomerRepository
   ): Promise<Customer> {
@@ -43,7 +43,7 @@ class CustomerUseCases {
     return customer;
   }
 
-  async findCustomerByCPF(
+  static async findCustomerByCPF(
     cpf: string,
     repository: ICustomerRepository
   ): Promise<Customer> {
@@ -54,11 +54,13 @@ class CustomerUseCases {
     return customer;
   }
 
-  async findAllCustomers(repository: ICustomerRepository): Promise<Customer[]> {
+  static async findAllCustomers(
+    repository: ICustomerRepository
+  ): Promise<Customer[]> {
     return repository.findAll();
   }
 
-  async updateCustomer(
+  static async updateCustomer(
     id: string,
     name: string | undefined,
     email: string | undefined,
@@ -93,7 +95,7 @@ class CustomerUseCases {
     return repository.update(existingCustomer);
   }
 
-  async deleteCustomer(
+  static async deleteCustomer(
     id: string,
     repository: ICustomerRepository
   ): Promise<void> {

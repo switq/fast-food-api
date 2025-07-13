@@ -1,60 +1,85 @@
-import { Request, Response } from "express";
+import { IDatabaseConnection } from "@src/interfaces/IDbConnection";
+import { CustomerGateway } from "../gateways/CustomerGateway";
 import CustomerUseCases from "../../application/use-cases/CustomerUseCases";
-import { CustomerPresenter } from "../presenters/CustomerPresenter";
-import { ICustomerRepository } from "../../application/repositories/ICustomerRepository";
+import CustomerPresenter from "../presenters/CustomerPresenter";
 
-export class CustomerController {
-  private readonly customerUseCases: CustomerUseCases;
-  private readonly customerRepository: ICustomerRepository;
-
-  constructor(
-    customerUseCases: CustomerUseCases,
-    customerRepository: ICustomerRepository
+class CustomerController {
+  static async createCustomer(
+    name: string,
+    email: string,
+    cpf: string,
+    phone: string | undefined,
+    dbConnection: IDatabaseConnection
   ) {
-    this.customerUseCases = customerUseCases;
-    this.customerRepository = customerRepository;
+    const gateway = new CustomerGateway(dbConnection);
+    const customer = await CustomerUseCases.createCustomer(
+      name,
+      email,
+      cpf,
+      phone,
+      gateway
+    );
+    return CustomerPresenter.toJSON(customer);
   }
 
-  public async listAll(_req: Request, res: Response): Promise<Response> {
-    try {
-      const output = await this.customerUseCases.findAllCustomers(
-        this.customerRepository
-      );
-      return res.status(200).json(CustomerPresenter.listToHttp(output));
-    } catch (error) {
-      return res.status(500).json({ message: "Internal server error" });
-    }
+  static async getCustomerById(id: string, dbConnection: IDatabaseConnection) {
+    const gateway = new CustomerGateway(dbConnection);
+    const customer = await CustomerUseCases.findCustomerById(id, gateway);
+    return CustomerPresenter.toJSON(customer);
   }
 
-  public async getById(req: Request, res: Response): Promise<Response> {
-    try {
-      const { id } = req.params;
-      const output = await this.customerUseCases.findCustomerById(
-        id,
-        this.customerRepository
-      );
-      if (!output) {
-        return res.status(404).json({ message: "Customer not found" });
-      }
-      return res.status(200).json(CustomerPresenter.toHttp(output));
-    } catch (error) {
-      return res.status(500).json({ message: "Internal server error" });
-    }
+  static async getCustomerByEmail(
+    email: string,
+    dbConnection: IDatabaseConnection
+  ) {
+    const gateway = new CustomerGateway(dbConnection);
+    const customer = await CustomerUseCases.findCustomerByEmail(email, gateway);
+    return CustomerPresenter.toJSON(customer);
   }
 
-  public async create(req: Request, res: Response): Promise<Response> {
-    try {
-      const { name, email, cpf, phone } = req.body;
-      const output = await this.customerUseCases.createCustomer(
-        name,
-        email,
-        cpf,
-        phone,
-        this.customerRepository
-      );
-      return res.status(201).json(CustomerPresenter.toHttp(output));
-    } catch (error: any) {
-      return res.status(400).json({ message: error.message });
-    }
+  static async getCustomerByCPF(
+    cpf: string,
+    dbConnection: IDatabaseConnection
+  ) {
+    const gateway = new CustomerGateway(dbConnection);
+    const customer = await CustomerUseCases.findCustomerByCPF(cpf, gateway);
+    return CustomerPresenter.toJSON(customer);
+  }
+
+  static async getAllCustomers(dbConnection: IDatabaseConnection) {
+    const gateway = new CustomerGateway(dbConnection);
+    const customers = await CustomerUseCases.findAllCustomers(gateway);
+    return CustomerPresenter.toJSONArray(customers);
+  }
+
+  static async updateCustomer(
+    id: string,
+    name: string | undefined,
+    email: string | undefined,
+    cpf: string | undefined,
+    phone: string | undefined,
+    dbConnection: IDatabaseConnection
+  ) {
+    const gateway = new CustomerGateway(dbConnection);
+    const customer = await CustomerUseCases.updateCustomer(
+      id,
+      name,
+      email,
+      cpf,
+      phone,
+      gateway
+    );
+    return CustomerPresenter.toJSON(customer);
+  }
+
+  static async deleteCustomerById(
+    id: string,
+    dbConnection: IDatabaseConnection
+  ) {
+    const gateway = new CustomerGateway(dbConnection);
+    await CustomerUseCases.deleteCustomer(id, gateway);
+    return { message: "Customer deleted successfully" };
   }
 }
+
+export default CustomerController;
