@@ -66,6 +66,7 @@ model Order {
   id          String      @id @default(uuid())
   customerId  String?
   status      OrderStatus @default(PENDING)
+  paymentStatus String @default("pending")
   totalAmount Float
 
   // Relations
