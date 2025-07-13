@@ -157,14 +157,20 @@ export class OrderGateway implements IOrderRepository {
   async findAllSorted(): Promise<Order[]> {
     const allOrders = await this.findAll();
 
-    const filteredOrders = allOrders.filter(
-      (order) => order.status !== OrderStatus.DELIVERED
+    const kitchenStatuses = [
+      OrderStatus.PAYMENT_CONFIRMED,
+      OrderStatus.PREPARING,
+      OrderStatus.READY,
+    ];
+
+    const filteredOrders = allOrders.filter((order) =>
+      kitchenStatuses.includes(order.status)
     );
 
     const statusOrder: { [key: string]: number } = {
       [OrderStatus.READY]: 1,
       [OrderStatus.PREPARING]: 2,
-      [OrderStatus.CONFIRMED]: 3,
+      [OrderStatus.PAYMENT_CONFIRMED]: 3,
     };
 
     const sortedOrders = filteredOrders.sort((a, b) => {

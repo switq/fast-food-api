@@ -3,6 +3,7 @@ import { setupCategoryRoutes } from "./CategoryApi";
 import { setupProductRoutes } from "./ProductApi";
 import { setupCustomerRoutes } from "./CustomerApi";
 import { setupOrderRoutes } from "./OrderApi";
+import { setupKitchenRoutes } from "./KitchenApi";
 import express from "express";
 import swaggerUi from "swagger-ui-express";
 import swaggerJsdoc from "swagger-jsdoc";
@@ -37,6 +38,7 @@ export class FastFoodApp {
     app.use("/api", setupProductRoutes(dbConnection));
     app.use("/api", setupCustomerRoutes(dbConnection));
     app.use("/api", setupOrderRoutes(dbConnection));
+    app.use("/api", setupKitchenRoutes(dbConnection));
     app.use("/api", testApi);
 
     // Health check
