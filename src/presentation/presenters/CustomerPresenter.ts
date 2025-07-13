@@ -1,20 +1,11 @@
+import Customer from "../../domain/entities/Customer";
 
-export class CustomerPresenter {
-  static toHttp(customer: any) {
-    return {
-      id: customer.id,
-      name: customer.name,
-      email: customer.email,
-      cpf: customer.cpf,
-      phone: customer.phone,
-    };
+export default class CustomerPresenter {
+  static toJSON(customer: Customer) {
+    return customer.toJSON();
   }
 
-  static listToHttp(customers: any[]) {
-    return customers.map(CustomerPresenter.toHttp);
-  }
-
-  static error(error: any) {
-    return { error: error.message };
+  static toJSONArray(customers: Customer[]) {
+    return customers.map((customer) => customer.toJSON());
   }
 }

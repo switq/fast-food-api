@@ -1,9 +1,9 @@
 import Product from "../../domain/entities/Product";
-import { IProductRepository } from "../repositories/IProductRepository";
-import { ICategoryRepository } from "../repositories/ICategoryRepository";
+import { IProductRepository } from "../../interfaces/repositories/IProductRepository";
+import { ICategoryRepository } from "../../interfaces/repositories/ICategoryRepository";
 
 class ProductUseCases {
-  async createProduct(
+  static async createProduct(
     name: string,
     description: string,
     price: number,
@@ -33,7 +33,7 @@ class ProductUseCases {
     return repository.create(product);
   }
 
-  async findProductById(
+  static async findProductById(
     id: string,
     repository: IProductRepository
   ): Promise<Product> {
@@ -44,7 +44,7 @@ class ProductUseCases {
     return product;
   }
 
-  async findProductByName(
+  static async findProductByName(
     name: string,
     repository: IProductRepository
   ): Promise<Product> {
@@ -55,18 +55,20 @@ class ProductUseCases {
     return product;
   }
 
-  async findProductsByCategory(
+  static async findProductsByCategory(
     categoryId: string,
     repository: IProductRepository
   ): Promise<Product[]> {
     return repository.findByCategory(categoryId);
   }
 
-  async findAllProducts(repository: IProductRepository): Promise<Product[]> {
+  static async findAllProducts(
+    repository: IProductRepository
+  ): Promise<Product[]> {
     return repository.findAll();
   }
 
-  async updateProduct(
+  static async updateProduct(
     id: string,
     name: string | undefined,
     description: string | undefined,
@@ -106,7 +108,7 @@ class ProductUseCases {
     return repository.update(existingProduct);
   }
 
-  async deleteProduct(
+  static async deleteProduct(
     id: string,
     repository: IProductRepository
   ): Promise<void> {

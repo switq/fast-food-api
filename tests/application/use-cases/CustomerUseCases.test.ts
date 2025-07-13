@@ -1,9 +1,8 @@
 import CustomerUseCases from "../../../src/application/use-cases/CustomerUseCases";
 import Customer from "../../../src/domain/entities/Customer";
-import { ICustomerRepository } from "../../../src/application/repositories/ICustomerRepository";
+import { ICustomerRepository } from "../../../src/interfaces/repositories/ICustomerRepository";
 
 describe("CustomerUseCases", () => {
-  let customerUseCases: CustomerUseCases;
   let mockCustomerRepository: jest.Mocked<ICustomerRepository>;
 
   beforeEach(() => {
@@ -16,8 +15,6 @@ describe("CustomerUseCases", () => {
       findByCPF: jest.fn(),
       findAll: jest.fn(),
     };
-
-    customerUseCases = new CustomerUseCases();
   });
 
   describe("createCustomer", () => {
@@ -33,7 +30,7 @@ describe("CustomerUseCases", () => {
       mockCustomerRepository.findByEmail.mockResolvedValue(null);
       mockCustomerRepository.findByCPF.mockResolvedValue(null);
 
-      const result = await customerUseCases.createCustomer(
+      const result = await CustomerUseCases.createCustomer(
         "John Doe",
         "john@example.com",
         "52998224725",
@@ -57,7 +54,7 @@ describe("CustomerUseCases", () => {
       );
       mockCustomerRepository.findById.mockResolvedValue(customer);
 
-      const result = await customerUseCases.findCustomerById(
+      const result = await CustomerUseCases.findCustomerById(
         "customer-id",
         mockCustomerRepository
       );
@@ -72,7 +69,7 @@ describe("CustomerUseCases", () => {
       mockCustomerRepository.findById.mockResolvedValue(null);
 
       await expect(
-        customerUseCases.findCustomerById(
+        CustomerUseCases.findCustomerById(
           "non-existent-customer",
           mockCustomerRepository
         )
@@ -94,7 +91,7 @@ describe("CustomerUseCases", () => {
       mockCustomerRepository.findByCPF.mockResolvedValue(null);
       mockCustomerRepository.update.mockResolvedValue(customer);
 
-      const result = await customerUseCases.updateCustomer(
+      const result = await CustomerUseCases.updateCustomer(
         "customer-id",
         "John Updated",
         "john.updated@example.com",
@@ -111,7 +108,7 @@ describe("CustomerUseCases", () => {
       mockCustomerRepository.findById.mockResolvedValue(null);
 
       await expect(
-        customerUseCases.updateCustomer(
+        CustomerUseCases.updateCustomer(
           "non-existent-customer",
           "John Updated",
           "john.updated@example.com",
@@ -134,7 +131,7 @@ describe("CustomerUseCases", () => {
       );
       mockCustomerRepository.findById.mockResolvedValue(customer);
 
-      await customerUseCases.deleteCustomer(
+      await CustomerUseCases.deleteCustomer(
         "customer-id",
         mockCustomerRepository
       );
@@ -146,7 +143,7 @@ describe("CustomerUseCases", () => {
       mockCustomerRepository.findById.mockResolvedValue(null);
 
       await expect(
-        customerUseCases.deleteCustomer(
+        CustomerUseCases.deleteCustomer(
           "non-existent-customer",
           mockCustomerRepository
         )

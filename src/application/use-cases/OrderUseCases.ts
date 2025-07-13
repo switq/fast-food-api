@@ -1,11 +1,11 @@
 import Order, { OrderStatus } from "../../domain/entities/Order";
 import OrderItem from "../../domain/entities/OrderItem";
-import { IOrderRepository } from "../repositories/IOrderRepository";
-import { IProductRepository } from "../repositories/IProductRepository";
-import { ICustomerRepository } from "../repositories/ICustomerRepository";
+import { IOrderRepository } from "../../interfaces/repositories/IOrderRepository";
+import { IProductRepository } from "../../interfaces/repositories/IProductRepository";
+import { ICustomerRepository } from "../../interfaces/repositories/ICustomerRepository";
 
 class OrderUseCases {
-  async createOrder(
+  static async createOrder(
     items: OrderItem[],
     orderRepository: IOrderRepository,
     productRepository: IProductRepository,
@@ -40,7 +40,7 @@ class OrderUseCases {
     return orderRepository.update(createdOrder);
   }
 
-  async findOrderById(
+  static async findOrderById(
     id: string,
     repository: IOrderRepository
   ): Promise<Order> {
@@ -51,18 +51,18 @@ class OrderUseCases {
     return order;
   }
 
-  async findOrdersByCustomer(
+  static async findOrdersByCustomer(
     customerId: string,
     repository: IOrderRepository
   ): Promise<Order[]> {
     return repository.findByCustomerId(customerId);
   }
 
-  async findAllOrders(repository: IOrderRepository): Promise<Order[]> {
+  static async findAllOrders(repository: IOrderRepository): Promise<Order[]> {
     return repository.findAll();
   }
 
-  async updateOrderStatus(
+  static async updateOrderStatus(
     id: string,
     status: OrderStatus,
     repository: IOrderRepository
@@ -99,7 +99,7 @@ class OrderUseCases {
     return repository.update(order);
   }
 
-  async addItemsToOrder(
+  static async addItemsToOrder(
     id: string,
     items: OrderItem[],
     orderRepository: IOrderRepository,
@@ -129,7 +129,7 @@ class OrderUseCases {
     return orderRepository.update(order);
   }
 
-  async updateItemQuantity(
+  static async updateItemQuantity(
     orderId: string,
     itemId: string,
     quantity: number,
@@ -144,7 +144,10 @@ class OrderUseCases {
     return repository.update(order);
   }
 
-  async deleteOrder(id: string, repository: IOrderRepository): Promise<void> {
+  static async deleteOrder(
+    id: string,
+    repository: IOrderRepository
+  ): Promise<void> {
     const order = await repository.findById(id);
     if (!order) {
       throw new Error("Order not found");

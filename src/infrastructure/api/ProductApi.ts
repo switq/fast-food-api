@@ -1,9 +1,10 @@
 import { Router } from "express";
-import { ProductController } from "../../presentation/controllers/ProductController";
+import { IDatabaseConnection } from "@src/interfaces/IDbConnection";
+import ProductController from "../../presentation/controllers/ProductController";
 
 /**
  * @openapi
- * /products:
+ * /api/products:
  *   get:
  *     tags: [Products]
  *     summary: Lista todos os produtos
@@ -34,7 +35,7 @@ import { ProductController } from "../../presentation/controllers/ProductControl
  *       201:
  *         description: Produto criado
  *
- * /products/{id}:
+ * /api/products/{id}:
  *   get:
  *     tags: [Products]
  *     summary: Busca um produto por ID
@@ -93,12 +94,90 @@ import { ProductController } from "../../presentation/controllers/ProductControl
  *       204:
  *         description: Produto removido
  */
-export function setupProductRoutes(controller: ProductController) {
+export function setupProductRoutes(dbConnection: IDatabaseConnection) {
   const router = Router();
-  router.get("/products", controller.listAll.bind(controller));
-  router.get("/products/:id", controller.getById.bind(controller));
-  router.post("/products", controller.create.bind(controller));
-  router.put("/products/:id", controller.update.bind(controller));
-  router.delete("/products/:id", controller.remove.bind(controller));
+
+  router.get("/products", async (req, res) => {
+    try {
+      const result = await ProductController.getAllProducts(dbConnection);
+      res.json(result);
+    } catch (err) {
+      res.status(400).json({ error: (err as Error).message });
+    }
+  });
+
+  router.get("/products/:id", async (req, res) => {
+    try {
+      const result = await ProductController.getProductById(
+        req.params.id,
+        dbConnection
+      );
+      res.json(result);
+    } catch (err) {
+      res.status(404).json({ error: (err as Error).message });
+    }
+  });
+
+  router.post("/products", async (req, res) => {
+    try {
+      const { name, description, price, categoryId, imageUrl } = req.body;
+      const result = await ProductController.createProduct(
+        name,
+        description,
+        price,
+        categoryId,
+        imageUrl,
+        dbConnection
+      );
+      res.status(201).json(result);
+    } catch (err) {
+      res.status(400).json({ error: (err as Error).message });
+    }
+  });
+
+  router.put("/products/:id", async (req, res) => {
+    try {
+      const { name, description, price, categoryId, imageUrl, isAvailable } =
+        req.body;
+      const result = await ProductController.updateProduct(
+        req.params.id,
+        name,
+        description,
+        price,
+        categoryId,
+        imageUrl,
+        isAvailable,
+        dbConnection
+      );
+      res.json(result);
+    } catch (err) {
+      res.status(400).json({ error: (err as Error).message });
+    }
+  });
+
+  router.delete("/products/:id", async (req, res) => {
+    try {
+      const result = await ProductController.deleteProductById(
+        req.params.id,
+        dbConnection
+      );
+      res.json(result);
+    } catch (err) {
+      res.status(404).json({ error: (err as Error).message });
+    }
+  });
+
+  router.get("/category/:categoryId/products", async (req, res) => {
+    try {
+      const result = await ProductController.getProductsByCategory(
+        req.params.categoryId,
+        dbConnection
+      );
+      res.json(result);
+    } catch (err) {
+      res.status(400).json({ error: (err as Error).message });
+    }
+  });
+
   return router;
 }
