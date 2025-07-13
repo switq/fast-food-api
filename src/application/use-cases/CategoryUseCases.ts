@@ -1,8 +1,8 @@
 import Category from "../../domain/entities/Category";
-import { ICategoryRepository } from "../repositories/ICategoryRepository";
+import { ICategoryRepository } from "../../interfaces/repositories/ICategoryRepository";
 
 export class CategoryUseCases {
-  async createCategory(
+  static async createCategory(
     name: string,
     description: string,
     repository: ICategoryRepository
@@ -15,7 +15,7 @@ export class CategoryUseCases {
     return repository.create(category);
   }
 
-  async findCategoryById(
+  static async findCategoryById(
     id: string,
     repository: ICategoryRepository
   ): Promise<Category> {
@@ -26,7 +26,7 @@ export class CategoryUseCases {
     return category;
   }
 
-  async findCategoryByName(
+  static async findCategoryByName(
     name: string,
     repository: ICategoryRepository
   ): Promise<Category> {
@@ -37,13 +37,13 @@ export class CategoryUseCases {
     return category;
   }
 
-  async findAllCategories(
+  static async findAllCategories(
     repository: ICategoryRepository
   ): Promise<Category[]> {
     return repository.findAll();
   }
 
-  async updateCategory(
+  static async updateCategory(
     id: string,
     name: string | undefined,
     description: string | undefined,
@@ -66,7 +66,7 @@ export class CategoryUseCases {
     return repository.update(existingCategory);
   }
 
-  async deleteCategory(
+  static async deleteCategory(
     id: string,
     repository: ICategoryRepository
   ): Promise<void> {

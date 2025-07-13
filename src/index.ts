@@ -1,4 +1,12 @@
 import { FastFoodApp } from "./infrastructure/api";
+import PrismaDBConnection from "./infrastructure/database/prisma/PrismaDBConnection";
 
-const fastFoodApp = new FastFoodApp();
-fastFoodApp.start();
+async function init() {
+    const fastFoodApp = new FastFoodApp();
+    const dbConnection = new PrismaDBConnection();
+    await dbConnection.connect()
+    
+    fastFoodApp.start(dbConnection);
+}
+
+init();

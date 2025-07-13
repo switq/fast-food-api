@@ -1,9 +1,8 @@
 import CategoryUseCases from "../../../src/application/use-cases/CategoryUseCases";
 import Category from "../../../src/domain/entities/Category";
-import { ICategoryRepository } from "../../../src/application/repositories/ICategoryRepository";
+import { ICategoryRepository } from "../../../src/interfaces/repositories/ICategoryRepository";
 
 describe("CategoryUseCases", () => {
-  let categoryUseCases: CategoryUseCases;
   let mockCategoryRepository: jest.Mocked<ICategoryRepository>;
 
   beforeEach(() => {
@@ -15,8 +14,6 @@ describe("CategoryUseCases", () => {
       findAll: jest.fn(),
       findByName: jest.fn(),
     };
-
-    categoryUseCases = new CategoryUseCases();
   });
 
   describe("createCategory", () => {
@@ -29,7 +26,7 @@ describe("CategoryUseCases", () => {
       mockCategoryRepository.create.mockResolvedValue(category);
       mockCategoryRepository.findByName.mockResolvedValue(null);
 
-      const result = await categoryUseCases.createCategory(
+      const result = await CategoryUseCases.createCategory(
         "Burgers",
         "Delicious burgers",
         mockCategoryRepository
@@ -49,7 +46,7 @@ describe("CategoryUseCases", () => {
       );
       mockCategoryRepository.findById.mockResolvedValue(category);
 
-      const result = await categoryUseCases.findCategoryById(
+      const result = await CategoryUseCases.findCategoryById(
         "category-id",
         mockCategoryRepository
       );
@@ -64,7 +61,7 @@ describe("CategoryUseCases", () => {
       mockCategoryRepository.findById.mockResolvedValue(null);
 
       await expect(
-        categoryUseCases.findCategoryById(
+        CategoryUseCases.findCategoryById(
           "non-existent-category",
           mockCategoryRepository
         )
@@ -83,7 +80,7 @@ describe("CategoryUseCases", () => {
       mockCategoryRepository.findByName.mockResolvedValue(null);
       mockCategoryRepository.update.mockResolvedValue(category);
 
-      const result = await categoryUseCases.updateCategory(
+      const result = await CategoryUseCases.updateCategory(
         "category-id",
         "Premium Burgers",
         "Premium quality burgers",
@@ -98,7 +95,7 @@ describe("CategoryUseCases", () => {
       mockCategoryRepository.findById.mockResolvedValue(null);
 
       await expect(
-        categoryUseCases.updateCategory(
+        CategoryUseCases.updateCategory(
           "non-existent-category",
           "Premium Burgers",
           "Premium quality burgers",
@@ -117,7 +114,7 @@ describe("CategoryUseCases", () => {
       );
       mockCategoryRepository.findById.mockResolvedValue(category);
 
-      await categoryUseCases.deleteCategory(
+      await CategoryUseCases.deleteCategory(
         "category-id",
         mockCategoryRepository
       );
@@ -129,7 +126,7 @@ describe("CategoryUseCases", () => {
       mockCategoryRepository.findById.mockResolvedValue(null);
 
       await expect(
-        categoryUseCases.deleteCategory(
+        CategoryUseCases.deleteCategory(
           "non-existent-category",
           mockCategoryRepository
         )
@@ -153,7 +150,7 @@ describe("CategoryUseCases", () => {
       ];
       mockCategoryRepository.findAll.mockResolvedValue(categories);
 
-      const result = await categoryUseCases.findAllCategories(
+      const result = await CategoryUseCases.findAllCategories(
         mockCategoryRepository
       );
 

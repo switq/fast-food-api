@@ -1,21 +1,11 @@
+import Order from "../../domain/entities/Order";
 
-export class OrderPresenter {
-  static toHttp(order: any) {
-    return {
-      id: order.id,
-      customerId: order.customerId,
-      status: order.status,
-      items: order.items,
-      createdAt: order.createdAt,
-      updatedAt: order.updatedAt,
-    };
+export default class OrderPresenter {
+  static toJSON(order: Order) {
+    return order.toJSON();
   }
 
-  static listToHttp(orders: any[]) {
-    return orders.map(OrderPresenter.toHttp);
-  }
-
-  static error(error: any) {
-    return { error: error.message };
+  static toJSONArray(orders: Order[]) {
+    return orders.map((order) => order.toJSON());
   }
 }
