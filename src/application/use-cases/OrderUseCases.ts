@@ -62,6 +62,12 @@ class OrderUseCases {
     return repository.findAll();
   }
 
+  static async listSortedOrders(
+    repository: IOrderRepository
+  ): Promise<Order[]> {
+    return repository.findAllSorted();
+  }
+
   static async updateOrderStatus(
     id: string,
     status: OrderStatus,

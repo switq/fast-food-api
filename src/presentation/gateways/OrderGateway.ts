@@ -154,6 +154,33 @@ export class OrderGateway implements IOrderRepository {
     return result;
   }
 
+  async findAllSorted(): Promise<Order[]> {
+    const allOrders = await this.findAll();
+
+    const filteredOrders = allOrders.filter(
+      (order) => order.status !== OrderStatus.DELIVERED
+    );
+
+    const statusOrder: { [key: string]: number } = {
+      [OrderStatus.READY]: 1,
+      [OrderStatus.PREPARING]: 2,
+      [OrderStatus.CONFIRMED]: 3,
+    };
+
+    const sortedOrders = filteredOrders.sort((a, b) => {
+      const statusA = statusOrder[a.status] || 4;
+      const statusB = statusOrder[b.status] || 4;
+
+      if (statusA !== statusB) {
+        return statusA - statusB;
+      }
+
+      return a.createdAt.getTime() - b.createdAt.getTime();
+    });
+
+    return sortedOrders;
+  }
+
   async findByCustomerId(customerId: string): Promise<Order[]> {
     const orders = await this.dbConnection.findByField<OrderData>(
       this.orderTable,
