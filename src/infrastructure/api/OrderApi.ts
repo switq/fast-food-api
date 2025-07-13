@@ -4,6 +4,28 @@ import OrderController from "../../presentation/controllers/OrderController";
 
 /**
  * @openapi
+ * /orders/sorted:
+ *   get:
+ *     tags: [Orders]
+ *     summary: Lista todos os pedidos em andamento, ordenados por status e data
+ *     responses:
+ *       200:
+ *         description: Lista de pedidos ordenada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Order'
+ *       400:
+ *         description: Erro ao buscar pedidos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
  * /orders:
  *   get:
  *     tags: [Orders]
@@ -313,6 +335,15 @@ import OrderController from "../../presentation/controllers/OrderController";
  */
 export function setupOrderRoutes(dbConnection: IDatabaseConnection) {
   const router = Router();
+
+  router.get("/orders/sorted", async (req, res) => {
+    try {
+      const result = await OrderController.listSortedOrders(dbConnection);
+      res.json(result);
+    } catch (err) {
+      res.status(400).json({ error: (err as Error).message });
+    }
+  });
 
   router.get("/orders", async (req, res) => {
     try {
