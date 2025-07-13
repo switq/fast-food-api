@@ -1,14 +1,13 @@
 import OrderUseCases from "../../../src/application/use-cases/OrderUseCases";
 import Order, { OrderStatus } from "../../../src/domain/entities/Order";
 import OrderItem from "../../../src/domain/entities/OrderItem";
-import { IOrderRepository } from "../../../src/application/repositories/IOrderRepository";
-import { IProductRepository } from "../../../src/application/repositories/IProductRepository";
-import { ICustomerRepository } from "../../../src/application/repositories/ICustomerRepository";
+import { IOrderRepository } from "../../../src/interfaces/repositories/IOrderRepository";
+import { IProductRepository } from "../../../src/interfaces/repositories/IProductRepository";
+import { ICustomerRepository } from "../../../src/interfaces/repositories/ICustomerRepository";
 import Customer from "../../../src/domain/entities/Customer";
 import Product from "../../../src/domain/entities/Product";
 
 describe("OrderUseCases", () => {
-  let orderUseCases: OrderUseCases;
   let mockOrderRepository: jest.Mocked<IOrderRepository>;
   let mockProductRepository: jest.Mocked<IProductRepository>;
   let mockCustomerRepository: jest.Mocked<ICustomerRepository>;
@@ -42,8 +41,6 @@ describe("OrderUseCases", () => {
       findByCPF: jest.fn(),
       findAll: jest.fn(),
     };
-
-    orderUseCases = new OrderUseCases();
   });
 
   describe("createOrder", () => {
@@ -83,7 +80,7 @@ describe("OrderUseCases", () => {
       mockOrderRepository.create.mockResolvedValue(order);
       mockOrderRepository.update.mockResolvedValue(order);
 
-      const result = await orderUseCases.createOrder(
+      const result = await OrderUseCases.createOrder(
         [orderItem],
         mockOrderRepository,
         mockProductRepository,
@@ -108,7 +105,7 @@ describe("OrderUseCases", () => {
       );
 
       await expect(
-        orderUseCases.createOrder(
+        OrderUseCases.createOrder(
           [orderItem],
           mockOrderRepository,
           mockProductRepository,
@@ -138,7 +135,7 @@ describe("OrderUseCases", () => {
       mockProductRepository.findById.mockResolvedValue(null);
 
       await expect(
-        orderUseCases.createOrder(
+        OrderUseCases.createOrder(
           [orderItem],
           mockOrderRepository,
           mockProductRepository,
@@ -167,7 +164,7 @@ describe("OrderUseCases", () => {
       );
       mockOrderRepository.findById.mockResolvedValue(order);
 
-      const result = await orderUseCases.findOrderById(
+      const result = await OrderUseCases.findOrderById(
         "order-id",
         mockOrderRepository
       );
@@ -180,7 +177,7 @@ describe("OrderUseCases", () => {
       mockOrderRepository.findById.mockResolvedValue(null);
 
       await expect(
-        orderUseCases.findOrderById("non-existent-order", mockOrderRepository)
+        OrderUseCases.findOrderById("non-existent-order", mockOrderRepository)
       ).rejects.toThrow("Order not found");
     });
   });
@@ -202,7 +199,7 @@ describe("OrderUseCases", () => {
       mockOrderRepository.findById.mockResolvedValue(order);
       mockOrderRepository.update.mockResolvedValue(order);
 
-      const result = await orderUseCases.updateOrderStatus(
+      const result = await OrderUseCases.updateOrderStatus(
         "order-id",
         OrderStatus.CONFIRMED,
         mockOrderRepository
@@ -216,7 +213,7 @@ describe("OrderUseCases", () => {
       mockOrderRepository.findById.mockResolvedValue(null);
 
       await expect(
-        orderUseCases.updateOrderStatus(
+        OrderUseCases.updateOrderStatus(
           "non-existent-order",
           OrderStatus.CONFIRMED,
           mockOrderRepository
@@ -260,7 +257,7 @@ describe("OrderUseCases", () => {
       mockProductRepository.findById.mockResolvedValue(product);
       mockOrderRepository.update.mockResolvedValue(order);
 
-      const result = await orderUseCases.addItemsToOrder(
+      const result = await OrderUseCases.addItemsToOrder(
         "order-id",
         [newOrderItem],
         mockOrderRepository,
@@ -297,7 +294,7 @@ describe("OrderUseCases", () => {
       mockOrderRepository.findById.mockResolvedValue(order);
 
       await expect(
-        orderUseCases.addItemsToOrder(
+        OrderUseCases.addItemsToOrder(
           "order-id",
           [newOrderItem],
           mockOrderRepository,
@@ -323,7 +320,7 @@ describe("OrderUseCases", () => {
       );
       mockOrderRepository.findById.mockResolvedValue(order);
 
-      await orderUseCases.deleteOrder("order-id", mockOrderRepository);
+      await OrderUseCases.deleteOrder("order-id", mockOrderRepository);
 
       expect(mockOrderRepository.delete).toHaveBeenCalledWith("order-id");
     });
@@ -346,7 +343,7 @@ describe("OrderUseCases", () => {
       mockOrderRepository.findById.mockResolvedValue(order);
 
       await expect(
-        orderUseCases.deleteOrder("order-id", mockOrderRepository)
+        OrderUseCases.deleteOrder("order-id", mockOrderRepository)
       ).rejects.toThrow("Cannot delete an order that is not pending");
     });
   });

@@ -1,11 +1,10 @@
 import ProductUseCases from "../../../src/application/use-cases/ProductUseCases";
 import Product from "../../../src/domain/entities/Product";
-import { IProductRepository } from "../../../src/application/repositories/IProductRepository";
-import { ICategoryRepository } from "../../../src/application/repositories/ICategoryRepository";
+import { IProductRepository } from "../../../src/interfaces/repositories/IProductRepository";
+import { ICategoryRepository } from "../../../src/interfaces/repositories/ICategoryRepository";
 import Category from "../../../src/domain/entities/Category";
 
 describe("ProductUseCases", () => {
-  let productUseCases: ProductUseCases;
   let mockProductRepository: jest.Mocked<IProductRepository>;
   let mockCategoryRepository: jest.Mocked<ICategoryRepository>;
 
@@ -28,8 +27,6 @@ describe("ProductUseCases", () => {
       delete: jest.fn(),
       findAll: jest.fn(),
     };
-
-    productUseCases = new ProductUseCases();
   });
 
   describe("createProduct", () => {
@@ -52,7 +49,7 @@ describe("ProductUseCases", () => {
       mockCategoryRepository.findById.mockResolvedValue(category);
       mockProductRepository.create.mockResolvedValue(product);
 
-      const result = await productUseCases.createProduct(
+      const result = await ProductUseCases.createProduct(
         "Cheeseburger",
         "Classic cheeseburger",
         12.99,
@@ -70,7 +67,7 @@ describe("ProductUseCases", () => {
       mockCategoryRepository.findById.mockResolvedValue(null);
 
       await expect(
-        productUseCases.createProduct(
+        ProductUseCases.createProduct(
           "Cheeseburger",
           "Classic cheeseburger",
           12.99,
@@ -96,7 +93,7 @@ describe("ProductUseCases", () => {
       );
       mockProductRepository.findById.mockResolvedValue(product);
 
-      const result = await productUseCases.findProductById(
+      const result = await ProductUseCases.findProductById(
         "product-id",
         mockProductRepository
       );
@@ -109,7 +106,7 @@ describe("ProductUseCases", () => {
       mockProductRepository.findById.mockResolvedValue(null);
 
       await expect(
-        productUseCases.findProductById(
+        ProductUseCases.findProductById(
           "non-existent-product",
           mockProductRepository
         )
@@ -131,7 +128,7 @@ describe("ProductUseCases", () => {
       mockProductRepository.findById.mockResolvedValue(product);
       mockProductRepository.update.mockResolvedValue(product);
 
-      const result = await productUseCases.updateProduct(
+      const result = await ProductUseCases.updateProduct(
         "product-id",
         "Double Cheeseburger",
         "Double patty cheeseburger",
@@ -150,7 +147,7 @@ describe("ProductUseCases", () => {
       mockProductRepository.findById.mockResolvedValue(null);
 
       await expect(
-        productUseCases.updateProduct(
+        ProductUseCases.updateProduct(
           "non-existent-product",
           "Double Cheeseburger",
           "Double patty cheeseburger",
@@ -177,7 +174,7 @@ describe("ProductUseCases", () => {
       );
       mockProductRepository.findById.mockResolvedValue(product);
 
-      await productUseCases.deleteProduct("product-id", mockProductRepository);
+      await ProductUseCases.deleteProduct("product-id", mockProductRepository);
 
       expect(mockProductRepository.delete).toHaveBeenCalledWith("product-id");
     });
@@ -186,7 +183,7 @@ describe("ProductUseCases", () => {
       mockProductRepository.findById.mockResolvedValue(null);
 
       await expect(
-        productUseCases.deleteProduct(
+        ProductUseCases.deleteProduct(
           "non-existent-product",
           mockProductRepository
         )
@@ -218,7 +215,7 @@ describe("ProductUseCases", () => {
       ];
       mockProductRepository.findAll.mockResolvedValue(products);
 
-      const result = await productUseCases.findAllProducts(
+      const result = await ProductUseCases.findAllProducts(
         mockProductRepository
       );
 
