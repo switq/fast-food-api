@@ -243,7 +243,7 @@ async function main() {
       data: {
         name: "João Silva",
         email: "joao.silva@email.com",
-        cpf: "123.456.789-01",
+        cpf: "705.503.180-03",
         phone: "+5511999999999",
       },
     }),
@@ -251,7 +251,7 @@ async function main() {
       data: {
         name: "Maria Santos",
         email: "maria.santos@email.com",
-        cpf: "987.654.321-00",
+        cpf: "386.060.270-57",
         phone: "+5511888888888",
       },
     }),
@@ -259,7 +259,7 @@ async function main() {
       data: {
         name: "Pedro Oliveira",
         email: "pedro.oliveira@email.com",
-        cpf: "111.222.333-44",
+        cpf: "985.933.640-71",
         phone: "+5511777777777",
       },
     }),
@@ -267,7 +267,7 @@ async function main() {
       data: {
         name: "Ana Costa",
         email: "ana.costa@email.com",
-        cpf: "555.666.777-88",
+        cpf: "086.456.340-07",
         phone: "+5511666666666",
       },
     }),
@@ -275,7 +275,7 @@ async function main() {
       data: {
         name: "Carlos Ferreira",
         email: "carlos.ferreira@email.com",
-        cpf: "999.888.777-66",
+        cpf: "761.606.950-96",
         phone: "+5511555555555",
       },
     }),
