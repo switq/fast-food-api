@@ -8,6 +8,7 @@ class Product {
   private _categoryId: string;
   private _imageUrl?: string;
   private _isAvailable: boolean;
+  private _stock: number = 0;
 
   constructor(
     id: string = uuidv4(),
@@ -16,7 +17,8 @@ class Product {
     price: number,
     categoryId: string,
     imageUrl?: string,
-    isAvailable: boolean = true
+    isAvailable: boolean = true,
+    stock: number = 0
   ) {
     this.validateId(id);
     this.validateName(name);
@@ -34,6 +36,7 @@ class Product {
     this._categoryId = categoryId;
     this._imageUrl = imageUrl;
     this._isAvailable = isAvailable;
+    this.stock = stock;
   }
 
   private validateId(id: string): void {
@@ -90,6 +93,15 @@ class Product {
     }
   }
 
+  private validateStock(stock: number): void {
+    if (stock < 0) {
+      throw new Error("Product stock cannot be negative");
+    }
+    if (!Number.isInteger(stock)) {
+      throw new Error("Product stock must be an integer");
+    }
+  }
+
   // Getters
   get id(): string {
     return this._id;
@@ -117,6 +129,10 @@ class Product {
 
   get isAvailable(): boolean {
     return this._isAvailable;
+  }
+
+  get stock(): number {
+    return this._stock;
   }
 
   // Setters
@@ -151,6 +167,11 @@ class Product {
     this._isAvailable = isAvailable;
   }
 
+  set stock(stock: number) {
+    this.validateStock(stock);
+    this._stock = stock;
+  }
+
   // Note: No setter for ID as it should be immutable after creation
 
   // Utility method to convert to plain object
@@ -163,6 +184,7 @@ class Product {
       categoryId: this._categoryId,
       imageUrl: this._imageUrl,
       isAvailable: this._isAvailable,
+      stock: this._stock,
     };
   }
 }

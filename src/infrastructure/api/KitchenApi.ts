@@ -42,6 +42,10 @@ import KitchenController from "../../presentation/controllers/KitchenController"
  *               properties:
  *                 error:
  *                   type: string
+ *     x-business-logic:
+ *       - only allow status transition from PREPARING to READY
+ *       - order must be in PREPARING status to be marked as READY
+ *       - respond with 400 Bad Request if business rules are violated
  */
 export function setupKitchenRoutes(dbConnection: IDatabaseConnection) {
   const router = Router();
