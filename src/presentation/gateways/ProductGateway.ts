@@ -139,4 +139,8 @@ export class ProductGateway implements IProductRepository {
       throw new Error(`Product with ID ${id} not found`);
     }
   }
+
+  async updateStock(productId: string, newStock: number): Promise<void> {
+    await this.dbConnection.update(this.tableName, productId, { stock: newStock });
+  }
 }

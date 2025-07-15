@@ -182,3 +182,47 @@ To receive webhook notifications from Mercado Pago, your local server needs to b
 2.  **Send the test request**: In the "Fast Food API" collection, send the "Test Payment" request.
 3.  **Pay with your test account**: The response will contain a QR code and a checkout URL. Scan the QR code with the Mercado Pago app (logged in with your test buyer account) or open the URL in your browser to complete the payment.
 4.  **Check for the webhook notification**: In the terminal where `docker-compose` is running, you should see the webhook notification from Mercado Pago logged to the console. This confirms that the payment was successful and your application was notified.
+
+---
+
+## Order Status Flow & Business Rules
+
+The order status transitions follow strict business rules:
+
+- **PENDING**: Order created, awaiting confirmation.
+- **CONFIRMED**: Order confirmed, awaiting payment.
+- **PAYMENT_CONFIRMED**: Payment received, ready for preparation.
+- **PREPARING**: Order is being prepared in the kitchen.
+- **READY**: Order is ready for pickup/delivery.
+- **DELIVERED**: Order has been delivered or picked up.
+- **CANCELLED**: Order was cancelled (not allowed after DELIVERED).
+
+### Allowed Transitions
+
+| From                | To                   | Rule/Condition                        |
+|---------------------|----------------------|---------------------------------------|
+| PENDING             | CONFIRMED            | Must have at least one item           |
+| CONFIRMED           | PAYMENT_CONFIRMED    | Payment must be confirmed             |
+| PAYMENT_CONFIRMED   | PREPARING            | Only after payment confirmed          |
+| PREPARING           | READY                | Only after preparation complete       |
+| READY               | DELIVERED            | Only after ready                      |
+| Any (except DELIVERED) | CANCELLED         | Can cancel unless already delivered   |
+
+### Error Responses
+
+- Invalid transition: `400 Bad Request` with message like `"Order can only be marked as delivered when it is ready"`
+- Cancel after delivered: `400 Bad Request` with message `"Cannot cancel an order that has been delivered"`
+
+---
+
+## API Documentation
+
+The full API documentation (Swagger/OpenAPI) is available at:
+
+```
+/api-docs
+```
+
+Access this endpoint in your browser after starting the application to view and test all available routes, payloads, and responses.
+
+---

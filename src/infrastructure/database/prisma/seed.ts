@@ -76,6 +76,7 @@ async function main() {
         imageUrl:
           "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400",
         isAvailable: true,
+        stock: 50, // Initial stock
       },
     }),
     prisma.product.create({
@@ -88,6 +89,7 @@ async function main() {
         imageUrl:
           "https://images.unsplash.com/photo-1553979459-d2229ba7433b?w=400",
         isAvailable: true,
+        stock: 40,
       },
     }),
     prisma.product.create({
@@ -100,6 +102,7 @@ async function main() {
         imageUrl:
           "https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=400",
         isAvailable: true,
+        stock: 30,
       },
     }),
     prisma.product.create({
@@ -112,6 +115,7 @@ async function main() {
         imageUrl:
           "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=400",
         isAvailable: true,
+        stock: 20,
       },
     }),
 
@@ -125,6 +129,7 @@ async function main() {
         imageUrl:
           "https://images.unsplash.com/photo-1629203851122-3726ecdf080e?w=400",
         isAvailable: true,
+        stock: 100,
       },
     }),
     prisma.product.create({
@@ -136,6 +141,7 @@ async function main() {
         imageUrl:
           "https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400",
         isAvailable: true,
+        stock: 80,
       },
     }),
     prisma.product.create({
@@ -147,6 +153,7 @@ async function main() {
         imageUrl:
           "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400",
         isAvailable: true,
+        stock: 150,
       },
     }),
 
@@ -160,6 +167,7 @@ async function main() {
         imageUrl:
           "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=400",
         isAvailable: true,
+        stock: 60,
       },
     }),
     prisma.product.create({
@@ -171,6 +179,7 @@ async function main() {
         imageUrl:
           "https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?w=400",
         isAvailable: true,
+        stock: 50,
       },
     }),
     prisma.product.create({
@@ -182,6 +191,7 @@ async function main() {
         imageUrl:
           "https://images.unsplash.com/photo-1562967914-608f82629710?w=400",
         isAvailable: true,
+        stock: 40,
       },
     }),
 
@@ -195,6 +205,7 @@ async function main() {
         imageUrl:
           "https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=400",
         isAvailable: true,
+        stock: 30,
       },
     }),
     prisma.product.create({
@@ -206,6 +217,7 @@ async function main() {
         imageUrl:
           "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=400",
         isAvailable: true,
+        stock: 25,
       },
     }),
 
@@ -219,6 +231,7 @@ async function main() {
         imageUrl:
           "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400",
         isAvailable: true,
+        stock: 15,
       },
     }),
     prisma.product.create({
@@ -230,6 +243,7 @@ async function main() {
         imageUrl:
           "https://images.unsplash.com/photo-1553979459-d2229ba7433b?w=400",
         isAvailable: true,
+        stock: 10,
       },
     }),
   ]);
