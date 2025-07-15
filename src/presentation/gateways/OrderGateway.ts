@@ -7,6 +7,7 @@ interface OrderData {
   id: string;
   customerId?: string;
   status: OrderStatus;
+  paymentStatus: string; // <-- fix: add paymentStatus
   totalAmount: number;
   createdAt: Date;
   updatedAt: Date;
@@ -26,14 +27,12 @@ interface OrderItemData {
 
 export class OrderGateway implements IOrderRepository {
   private readonly dbConnection: IDatabaseConnection;
-  private readonly orderTable: string = "order";
-  private readonly orderItemTable: string = "orderItem";
+  private readonly orderTable: string = "order"; // Prisma client expects lowercase model name
+  private readonly orderItemTable: string = "orderItem"; // Prisma client expects lowercase model name
 
   constructor(dbConnection: IDatabaseConnection) {
     this.dbConnection = dbConnection;
-  }
-
-  private async getOrderItems(orderId: string): Promise<OrderItem[]> {
+  }  private async getOrderItems(orderId: string): Promise<OrderItem[]> {
     const items = await this.dbConnection.findByField<OrderItemData>(
       this.orderItemTable,
       "orderId",
@@ -42,35 +41,37 @@ export class OrderGateway implements IOrderRepository {
     return items.map(
       (item) =>
         new OrderItem(
-          item.id,
-          item.orderId,
           item.productId,
           item.quantity,
           item.unitPrice,
+          item.orderId || orderId,
+          item.id,
           item.observation
         )
     );
   }
-
   async create(order: Order): Promise<Order> {
     const orderData = order.toJSON();
+    console.log("OrderGateway.create payload:", orderData);
     const createdOrder = await this.dbConnection.create<Omit<OrderData, "id">>(
       this.orderTable,
       {
         customerId: orderData.customerId,
         status: orderData.status,
         totalAmount: orderData.totalAmount,
+        paymentStatus: orderData.paymentStatus, // <-- fix: add paymentStatus
         createdAt: orderData.createdAt,
         updatedAt: orderData.updatedAt,
       }
     );
-    // Salvar os itens
+    console.log("OrderGateway.create result:", createdOrder);
+    // Salvar os itens usando o ID do pedido criado
     for (const item of order.items) {
       const itemData = item.toJSON();
       await this.dbConnection.create<Omit<OrderItemData, "id">>(
         this.orderItemTable,
         {
-          orderId: itemData.orderId,
+          orderId: (createdOrder as any).id, // Use the ID from the created order
           productId: itemData.productId,
           quantity: itemData.quantity,
           unitPrice: itemData.unitPrice,
@@ -81,9 +82,9 @@ export class OrderGateway implements IOrderRepository {
         }
       );
     }
-    const items = await this.getOrderItems(orderData.id);
+    const items = await this.getOrderItems((createdOrder as any).id);
     return new Order(
-      orderData.id,
+      (createdOrder as any).id,
       orderData.customerId,
       items,
       orderData.status
@@ -106,13 +107,12 @@ export class OrderGateway implements IOrderRepository {
     const existingItems = await this.getOrderItems(order.id);
     for (const item of existingItems) {
       await this.dbConnection.delete(this.orderItemTable, item.id);
-    }
-    for (const item of order.items) {
+    }    for (const item of order.items) {
       const itemData = item.toJSON();
       await this.dbConnection.create<Omit<OrderItemData, "id">>(
         this.orderItemTable,
         {
-          orderId: itemData.orderId,
+          orderId: itemData.orderId || order.id,
           productId: itemData.productId,
           quantity: itemData.quantity,
           unitPrice: itemData.unitPrice,
