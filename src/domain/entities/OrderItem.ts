@@ -2,36 +2,25 @@ import { v4 as uuidv4, validate as uuidValidate } from "uuid";
 
 class OrderItem {
   private _id: string;
-  private _orderId: string;
+  private _orderId?: string; // now optional
   private _productId: string;
   private _quantity: number;
   private _unitPrice: number;
-  private _totalPrice: number;
   private _observation?: string;
 
   constructor(
-    id: string = uuidv4(),
-    orderId: string,
     productId: string,
     quantity: number,
     unitPrice: number,
+    orderId?: string,
+    id?: string,
     observation?: string
   ) {
-    this.validateId(id);
-    this.validateOrderId(orderId);
-    this.validateProductId(productId);
-    this.validateQuantity(quantity);
-    this.validateUnitPrice(unitPrice);
-    if (observation) {
-      this.validateObservation(observation);
-    }
-
-    this._id = id;
+    this._id = id ?? uuidv4();
     this._orderId = orderId;
     this._productId = productId;
     this._quantity = quantity;
     this._unitPrice = unitPrice;
-    this._totalPrice = this.calculateTotalPrice();
     this._observation = observation;
   }
 
@@ -90,7 +79,7 @@ class OrderItem {
   }
 
   private calculateTotalPrice(): number {
-    return this._quantity * this._unitPrice;
+    return this.quantity * this.unitPrice;
   }
 
   // Getters
@@ -98,7 +87,7 @@ class OrderItem {
     return this._id;
   }
 
-  get orderId(): string {
+  get orderId(): string | undefined {
     return this._orderId;
   }
 
@@ -115,7 +104,7 @@ class OrderItem {
   }
 
   get totalPrice(): number {
-    return this._totalPrice;
+    return this._quantity * this._unitPrice;
   }
 
   get observation(): string | undefined {
@@ -126,13 +115,11 @@ class OrderItem {
   set quantity(quantity: number) {
     this.validateQuantity(quantity);
     this._quantity = quantity;
-    this._totalPrice = this.calculateTotalPrice();
   }
 
   set unitPrice(unitPrice: number) {
     this.validateUnitPrice(unitPrice);
     this._unitPrice = unitPrice;
-    this._totalPrice = this.calculateTotalPrice();
   }
 
   set observation(observation: string | undefined) {
@@ -147,13 +134,13 @@ class OrderItem {
   // Utility method to convert to plain object
   toJSON() {
     return {
-      id: this._id,
-      orderId: this._orderId,
-      productId: this._productId,
-      quantity: this._quantity,
-      unitPrice: this._unitPrice,
-      totalPrice: this._totalPrice,
-      observation: this._observation,
+      id: this.id,
+      orderId: this.orderId,
+      productId: this.productId,
+      quantity: this.quantity,
+      unitPrice: this.unitPrice,
+      totalPrice: this.totalPrice,
+      observation: this.observation,
     };
   }
 }

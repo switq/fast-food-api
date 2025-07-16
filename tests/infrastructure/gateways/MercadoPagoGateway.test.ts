@@ -72,13 +72,15 @@ describe('MercadoPagoGateway', () => {
     const paymentResponse = {
       id: 12345,
       status: 'approved',
+      external_reference: 'order-1',
     };
     mockPayment.get = jest.fn().mockResolvedValue(paymentResponse);
 
     const result = await gateway.getPaymentStatus('12345');
 
     expect(mockPayment.get).toHaveBeenCalledWith({ id: '12345' });
-    expect(result).toBe(PaymentStatus.APPROVED);
+    expect(result.status).toBe(PaymentStatus.APPROVED);
+    expect(result.externalReference).toBe('order-1');
   });
 
   it('should handle different payment statuses', async () => {
@@ -96,7 +98,7 @@ describe('MercadoPagoGateway', () => {
         .fn()
         .mockResolvedValue({ id: 123, status: scenario.apiStatus });
       const result = await gateway.getPaymentStatus('123');
-      expect(result).toBe(scenario.expectedStatus);
+      expect(result.status).toBe(scenario.expectedStatus);
     }
   });
 
@@ -105,12 +107,12 @@ describe('MercadoPagoGateway', () => {
       .fn()
       .mockRejectedValue(new Error('API Error'));
     const result = await gateway.getPaymentStatus('123');
-    expect(result).toBe(PaymentStatus.ERROR);
+    expect(result.status).toBe(PaymentStatus.ERROR);
   });
 
   it('should handle no status in payment response', async () => {
     mockPayment.get = jest.fn().mockResolvedValue({ id: 123 });
     const result = await gateway.getPaymentStatus('123');
-    expect(result).toBe(PaymentStatus.ERROR);
+    expect(result.status).toBe(PaymentStatus.ERROR);
   });
 });

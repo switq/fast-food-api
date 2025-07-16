@@ -22,6 +22,7 @@ describe("Order Entity", () => {
       expect(order.customerId).toBe(validCustomerId);
       expect(order.items).toHaveLength(1);
       expect(order.status).toBe(OrderStatus.PENDING);
+      expect(order.paymentStatus).toBe("pending");
       expect(order.totalAmount).toBe(validOrderItem.totalPrice);
       expect(order.createdAt).toBeInstanceOf(Date);
       expect(order.updatedAt).toBeInstanceOf(Date);
@@ -272,10 +273,21 @@ describe("Order Entity", () => {
         customerId: validCustomerId,
         items: [validOrderItem.toJSON()],
         status: OrderStatus.PENDING,
+        paymentStatus: "pending",
         totalAmount: validOrderItem.totalPrice,
         createdAt: expect.any(Date),
         updatedAt: expect.any(Date),
       });
+    });
+  });
+
+  describe("Payment Status", () => {
+    it("should set payment status", () => {
+      const order = new Order(validId, validCustomerId, [validOrderItem]);
+      const newPaymentStatus = "approved";
+
+      order.setPaymentStatus(newPaymentStatus);
+      expect(order.paymentStatus).toBe(newPaymentStatus);
     });
   });
 });

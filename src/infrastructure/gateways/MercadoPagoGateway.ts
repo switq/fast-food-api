@@ -4,6 +4,7 @@ import {
   PaymentCreationData,
   PaymentCreationResult,
   PaymentStatus,
+  PaymentStatusResult,
 } from '../../application/gateways/IPaymentGateway';
 import * as qrcode from 'qrcode';
 
@@ -14,8 +15,7 @@ export class MercadoPagoGateway implements IPaymentGateway {
     this.client = new MercadoPagoConfig({
       accessToken: process.env.MERCADO_PAGO_ACCESS_TOKEN || '',
     });
-  }
-
+  }  
   async createPayment(
     data: PaymentCreationData,
   ): Promise<PaymentCreationResult> {
@@ -49,33 +49,42 @@ export class MercadoPagoGateway implements IPaymentGateway {
 
     return result;
   }
-
-  async getPaymentStatus(paymentId: string): Promise<PaymentStatus> {
+  async getPaymentStatus(paymentId: string): Promise<PaymentStatusResult> {
     const payment = new Payment(this.client);
     try {
       const response = await payment.get({ id: paymentId });
 
+      let status: PaymentStatus;
       if (!response.status) {
-        return PaymentStatus.ERROR;
+        status = PaymentStatus.ERROR;
+      } else {
+        switch (response.status) {
+          case 'pending':
+          case 'in_process':
+            status = PaymentStatus.PENDING;
+            break;
+          case 'approved':
+          case 'authorized':
+            status = PaymentStatus.APPROVED;
+            break;
+          case 'rejected':
+            status = PaymentStatus.REJECTED;
+            break;
+          case 'cancelled':
+            status = PaymentStatus.CANCELLED;
+            break;
+          default:
+            status = PaymentStatus.ERROR;
+        }
       }
 
-      switch (response.status) {
-        case 'pending':
-        case 'in_process':
-          return PaymentStatus.PENDING;
-        case 'approved':
-        case 'authorized':
-          return PaymentStatus.APPROVED;
-        case 'rejected':
-          return PaymentStatus.REJECTED;
-        case 'cancelled':
-          return PaymentStatus.CANCELLED;
-        default:
-          return PaymentStatus.ERROR;
-      }
+      return {
+        status,
+        externalReference: response.external_reference,
+      };
     } catch (error) {
       console.error('Error getting payment status from Mercado Pago:', error);
-      return PaymentStatus.ERROR;
+      return { status: PaymentStatus.ERROR };
     }
   }
 }

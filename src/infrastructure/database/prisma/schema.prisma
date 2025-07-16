@@ -50,6 +50,7 @@ model Product {
   categoryId  String
   imageUrl    String?
   isAvailable Boolean @default(true)
+  stock       Int     @default(100) // Initial stock, can be changed in seed
 
   // Relations
   category   Category    @relation(fields: [categoryId], references: [id])
@@ -66,6 +67,7 @@ model Order {
   id          String      @id @default(uuid())
   customerId  String?
   status      OrderStatus @default(PENDING)
+  paymentStatus String @default("pending")
   totalAmount Float
 
   // Relations
