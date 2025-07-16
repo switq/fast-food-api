@@ -138,50 +138,38 @@ Copy `env.example` to `.env` and configure the following variables:
 - `LOG_LEVEL`: Logging level (optional)
 - `CORS_origin`: CORS origin (optional)
 
-## Testing the Payment Flow
+## Payment Flow (Mercado Pago)
 
-To test the end-to-end payment flow with Mercado Pago, follow these steps:
+The API supports a complete payment flow using Mercado Pago, including QR code generation and webhook integration for status updates.
 
-### 1. Configure Your Environment
+### How to Test the Payment Flow
 
-1.  **Create a `.env` file** by copying the `env.example` file:
-    ```bash
-    cp env.example .env
-    ```
-2.  **Add your Mercado Pago test credentials** to the `.env` file. You will need your test "Access Token". You can find this in your Mercado Pago developer dashboard under "Your applications" > "Credentials".
-    ```env
-    MERCADO_PAGO_ACCESS_TOKEN=YOUR_TEST_ACCESS_TOKEN
-    ```
+1. **Configure Mercado Pago Credentials**
+   - Add your test `MERCADO_PAGO_ACCESS_TOKEN` to `.env`.
+   - Set `MERCADO_PAGO_NOTIFICATION_URL` to your public webhook endpoint (use ngrok for local development).
 
-### 2. Expose Your Local Server with ngrok
+2. **Create an Order**
+   - Use `POST /api/orders` with a valid customer and product.
 
-To receive webhook notifications from Mercado Pago, your local server needs to be accessible from the internet.
+3. **Generate Payment (QR Code)**
+   - Use `POST /api/orders/:orderId/payment` (body is optional, e.g. `{}` or `{ "paymentMethodId": "pix" }`).
+   - The response includes a QR code URL and a base64 QR code for Mercado Pago checkout.
 
-1.  **Install ngrok**: Follow the instructions on the [official website](https://ngrok.com/download).
-2.  **Start ngrok**: Open a new terminal and run the following command to expose your local port 3000:
-    ```bash
-    ngrok http 3000
-    ```
-3.  **Get the public URL**: ngrok will give you a public URL that looks something like `https://<random-string>.ngrok-free.app`.
-4.  **Add the notification URL to your `.env` file**:
-    ```env
-    MERCADO_PAGO_NOTIFICATION_URL=https://<your-ngrok-url>.ngrok-free.app/api/test/webhook
-    ```
+4. **Complete Payment**
+   - Scan the QR code or open the payment URL with your Mercado Pago test buyer account.
 
-### 3. Run the Application with Docker
+5. **Webhook Notification**
+   - Mercado Pago will POST to your webhook endpoint when payment status changes.
+   - The API updates the order status automatically.
 
-1.  **Start the application** with Docker Compose:
-    ```bash
-    docker-compose up --build
-    ```
-    This will start the application and the database in Docker containers.
+### Example Postman Collection
 
-### 4. Test with Postman
+Import `fast-food-api.postman_collection.json` into Postman for ready-to-use requests, including payment flow.
 
-1.  **Import the Postman collection**: Import the `fast-food-api.postman_collection.json` file into Postman.
-2.  **Send the test request**: In the "Fast Food API" collection, send the "Test Payment" request.
-3.  **Pay with your test account**: The response will contain a QR code and a checkout URL. Scan the QR code with the Mercado Pago app (logged in with your test buyer account) or open the URL in your browser to complete the payment.
-4.  **Check for the webhook notification**: In the terminal where `docker-compose` is running, you should see the webhook notification from Mercado Pago logged to the console. This confirms that the payment was successful and your application was notified.
+### Scripts for Automated Testing
+
+- Bash: `scripts/test_payment_endpoint.sh`
+- PowerShell: `scripts/test_payment_endpoint.ps1`
 
 ---
 
