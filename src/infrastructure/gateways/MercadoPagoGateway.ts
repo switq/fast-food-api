@@ -15,8 +15,7 @@ export class MercadoPagoGateway implements IPaymentGateway {
     this.client = new MercadoPagoConfig({
       accessToken: process.env.MERCADO_PAGO_ACCESS_TOKEN || '',
     });
-  }
-
+  }  
   async createPayment(
     data: PaymentCreationData,
   ): Promise<PaymentCreationResult> {
@@ -50,7 +49,6 @@ export class MercadoPagoGateway implements IPaymentGateway {
 
     return result;
   }
-
   async getPaymentStatus(paymentId: string): Promise<PaymentStatusResult> {
     const payment = new Payment(this.client);
     try {

@@ -1,6 +1,7 @@
 import { IDatabaseConnection } from "@src/interfaces/IDbConnection";
 import { Router } from "express";
 import OrderController from "../../presentation/controllers/OrderController";
+import PaymentController from "../../presentation/controllers/PaymentController";
 import Order from "../../domain/entities/Order";
 import OrderItem from "../../domain/entities/OrderItem";
 import { OrderGateway } from "../../presentation/gateways/OrderGateway";
@@ -297,6 +298,73 @@ import OrderPresenter from "../../presentation/presenters/OrderPresenter";
  *               properties:
  *                 error:
  *                   type: string
+ * /orders/{orderId}/payment:
+ *   post:
+ *     tags: [Orders]
+ *     summary: Gera QR Code para pagamento de um pedido
+ *     description: |
+ *       Cria um pagamento para o pedido especificado usando o Mercado Pago.
+ *       O cliente poderá escolher entre todas as opções de pagamento disponíveis.
+ *     parameters:
+ *       - in: path
+ *         name: orderId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID do pedido para o qual o pagamento será gerado
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               paymentMethodId:
+ *                 type: string
+ *                 example: pix
+ *                 description: Opcional - para futuras integrações com outros gateways
+ *     responses:
+ *       200:
+ *         description: Pagamento criado com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 orderId:
+ *                   type: string
+ *                   example: "order-123"
+ *                   description: ID do pedido
+ *                 paymentProviderId:
+ *                   type: string
+ *                   example: "pref-456"
+ *                   description: ID da preferência no Mercado Pago
+ *                 qrCode:
+ *                   type: string
+ *                   example: "https://www.mercadopago.com/checkout/v1/..."
+ *                   description: URL para pagamento (pode ser usada como QR code)
+ *                 qrCodeBase64:
+ *                   type: string
+ *                   example: "iVBORw0KGgoAAAANSUhEUgAA..."
+ *                   description: QR code em base64
+ *       400:
+ *         description: Erro ao gerar pagamento
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *       404:
+ *         description: Pedido não encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
  *
  * components:
  *   schemas:
@@ -479,6 +547,23 @@ export function setupOrderRoutes(dbConnection: IDatabaseConnection) {
       res.json(result);
     } catch (err) {
       res.status(404).json({ error: (err as Error).message });
+    }
+  });
+  router.post("/orders/:orderId/payment", async (req, res) => {
+    try {
+      const { paymentMethodId = "all" } = req.body || {};
+      const result = await PaymentController.createPayment(
+        req.params.orderId,
+        paymentMethodId,
+        dbConnection
+      );
+      res.json(result);
+    } catch (err) {
+      if ((err as Error).message === "Order not found") {
+        res.status(404).json({ error: (err as Error).message });
+      } else {
+        res.status(400).json({ error: (err as Error).message });
+      }
     }
   });
 
