@@ -1,7 +1,7 @@
 import { UUIDService } from "../services/UUIDService";
 import { BaseEntity } from "./BaseEntity";
 
-import URLValueObject from "../value-objects/URLValueObject";
+import URLValueObject from "../value-objects/URL";
 
 class Product implements BaseEntity {
   private _id: string;

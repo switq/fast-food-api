@@ -135,6 +135,12 @@ class Payment implements BaseEntity {
     this._paidAt = date;
     this._updatedAt = new Date();
   }
+
+  set amount(amount: number) {
+    this.validateAmount(amount);
+    this._amount = amount;
+    this._updatedAt = new Date();
+  }
 }
 
 export default Payment;
