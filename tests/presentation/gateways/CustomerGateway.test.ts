@@ -37,7 +37,7 @@ describe("CustomerGateway", () => {
   it("should create a customer", async () => {
     mockDb.create.mockResolvedValue(customerData);
     const result = await gateway.create(customer);
-    expect(mockDb.create).toHaveBeenCalledWith("customers", customer.toJSON());
+    expect(mockDb.create).toHaveBeenCalledWith("customer", customer.toJSON());
     expect(result).toBeInstanceOf(Customer);
     expect(result.id).toBe(customerData.id);
   });
@@ -45,7 +45,7 @@ describe("CustomerGateway", () => {
   it("should find a customer by id", async () => {
     mockDb.findById.mockResolvedValue(customerData);
     const result = await gateway.findById(customerData.id);
-    expect(mockDb.findById).toHaveBeenCalledWith("customers", customerData.id);
+    expect(mockDb.findById).toHaveBeenCalledWith("customer", customerData.id);
     expect(result).toBeInstanceOf(Customer);
     expect(result?.id).toBe(customerData.id);
   });
@@ -60,7 +60,7 @@ describe("CustomerGateway", () => {
     mockDb.findByField.mockResolvedValue([customerData]);
     const result = await gateway.findByEmail(customerData.email);
     expect(mockDb.findByField).toHaveBeenCalledWith(
-      "customers",
+      "customer",
       "email",
       customerData.email
     );
@@ -78,7 +78,7 @@ describe("CustomerGateway", () => {
     mockDb.findByField.mockResolvedValue([customerData]);
     const result = await gateway.findByCPF(customerData.cpf);
     expect(mockDb.findByField).toHaveBeenCalledWith(
-      "customers",
+      "customer",
       "cpf",
       customerData.cpf
     );
@@ -95,7 +95,7 @@ describe("CustomerGateway", () => {
   it("should find all customers", async () => {
     mockDb.findAll.mockResolvedValue([customerData]);
     const result = await gateway.findAll();
-    expect(mockDb.findAll).toHaveBeenCalledWith("customers");
+    expect(mockDb.findAll).toHaveBeenCalledWith("customer");
     expect(result).toHaveLength(1);
     expect(result[0]).toBeInstanceOf(Customer);
   });
@@ -104,7 +104,7 @@ describe("CustomerGateway", () => {
     mockDb.update.mockResolvedValue(customerData);
     const result = await gateway.update(customer);
     expect(mockDb.update).toHaveBeenCalledWith(
-      "customers",
+      "customer",
       customer.id,
       customer.toJSON()
     );
@@ -115,7 +115,7 @@ describe("CustomerGateway", () => {
   it("should delete a customer", async () => {
     mockDb.delete.mockResolvedValue(true);
     await expect(gateway.delete(customerData.id)).resolves.toBeUndefined();
-    expect(mockDb.delete).toHaveBeenCalledWith("customers", customerData.id);
+    expect(mockDb.delete).toHaveBeenCalledWith("customer", customerData.id);
   });
 
   it("should throw if delete returns false", async () => {
