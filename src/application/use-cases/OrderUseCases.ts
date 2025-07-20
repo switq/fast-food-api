@@ -24,7 +24,7 @@ class OrderUseCases {
     const order = new Order(undefined, customerId);
     const createdOrder = await orderRepository.create(order);
 
-    // Validate products for each order item
+    // Validate products for each order item and check stock
     for (const orderItem of items) {
       const product = await productRepository.findById(orderItem.productId);
       if (!product) {
@@ -32,6 +32,20 @@ class OrderUseCases {
       }
       if (!product.isAvailable) {
         throw new Error(`Product ${product.name} is not available`);
+      }
+      if (product.stock < orderItem.quantity) {
+        throw new Error(`Insufficient stock for product ${product.name}`);
+      }
+    }
+
+    // Decrease stock for each product
+    for (const orderItem of items) {
+      const product = await productRepository.findById(orderItem.productId);
+      if (product) {
+        await productRepository.updateStock(
+          product.id,
+          product.stock - orderItem.quantity
+        );
       }
     }
 
@@ -60,6 +74,12 @@ class OrderUseCases {
 
   static async findAllOrders(repository: IOrderRepository): Promise<Order[]> {
     return repository.findAll();
+  }
+
+  static async listSortedOrders(
+    repository: IOrderRepository
+  ): Promise<Order[]> {
+    return repository.findAllSorted();
   }
 
   static async updateOrderStatus(

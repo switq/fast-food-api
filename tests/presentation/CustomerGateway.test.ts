@@ -9,7 +9,7 @@ describe("CustomerGateway", () => {
     id: "b3b8c7e2-8c2a-4e2a-9b2a-2b2a2b2a2b2a",
     name: "João Silva",
     email: "joao@email.com",
-    cpf: "123.456.789-09",
+    cpf: "705.503.180-03",
     phone: "+5511999999999",
   };
   const customer = new Customer(

@@ -20,6 +20,7 @@ describe("OrderUseCases", () => {
       delete: jest.fn(),
       findByCustomerId: jest.fn(),
       findAll: jest.fn(),
+      findAllSorted: jest.fn(),
     };
 
     mockProductRepository = {
@@ -345,6 +346,47 @@ describe("OrderUseCases", () => {
       await expect(
         OrderUseCases.deleteOrder("order-id", mockOrderRepository)
       ).rejects.toThrow("Cannot delete an order that is not pending");
+    });
+  });
+
+  describe("listSortedOrders", () => {
+    it("should return sorted orders", async () => {
+      const orders = [
+        new Order(
+          "550e8400-e29b-41d4-a716-446655440003",
+          "550e8400-e29b-41d4-a716-446655440013",
+          [],
+          OrderStatus.READY,
+          "approved"
+        ),
+        new Order(
+          "550e8400-e29b-41d4-a716-446655440002",
+          "550e8400-e29b-41d4-a716-446655440012",
+          [],
+          OrderStatus.PREPARING,
+          "approved"
+        ),
+        new Order(
+          "550e8400-e29b-41d4-a716-446655440005",
+          "550e8400-e29b-41d4-a716-446655440015",
+          [],
+          OrderStatus.PREPARING,
+          "approved"
+        ),
+        new Order(
+          "550e8400-e29b-41d4-a716-446655440004",
+          "550e8400-e29b-41d4-a716-446655440014",
+          [],
+          OrderStatus.CONFIRMED,
+          "approved"
+        ),
+      ];
+      mockOrderRepository.findAllSorted.mockResolvedValue(orders);
+
+      const result = await OrderUseCases.listSortedOrders(mockOrderRepository);
+
+      expect(result).toEqual(orders);
+      expect(mockOrderRepository.findAllSorted).toHaveBeenCalled();
     });
   });
 });

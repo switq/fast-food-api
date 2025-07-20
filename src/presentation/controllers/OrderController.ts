@@ -50,6 +50,12 @@ class OrderController {
     return OrderPresenter.toJSONArray(orders);
   }
 
+  static async listSortedOrders(dbConnection: IDatabaseConnection) {
+    const orderGateway = new OrderGateway(dbConnection);
+    const orders = await OrderUseCases.listSortedOrders(orderGateway);
+    return OrderPresenter.toJSONArray(orders);
+  }
+
   static async updateOrderStatus(
     id: string,
     status: OrderStatus,

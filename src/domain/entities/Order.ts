@@ -16,6 +16,7 @@ class Order {
   private _customerId?: string;
   private _items: OrderItem[];
   private _status: OrderStatus;
+  private _paymentStatus: string; // Could be an enum in the future
   private _totalAmount: number;
   private _createdAt: Date;
   private _updatedAt: Date;
@@ -24,7 +25,8 @@ class Order {
     id: string = uuidv4(),
     customerId?: string,
     items: OrderItem[] = [],
-    status: OrderStatus = OrderStatus.PENDING
+    status: OrderStatus = OrderStatus.PENDING,
+    paymentStatus: string = "pending"
   ) {
     this.validateId(id);
     if (customerId) {
@@ -36,6 +38,7 @@ class Order {
     this._customerId = customerId;
     this._items = items;
     this._status = status;
+    this._paymentStatus = paymentStatus;
     this._totalAmount = this.calculateTotalAmount();
     this._createdAt = new Date();
     this._updatedAt = new Date();
@@ -93,6 +96,10 @@ class Order {
 
   get status(): OrderStatus {
     return this._status;
+  }
+
+  get paymentStatus(): string {
+    return this._paymentStatus;
   }
 
   get totalAmount(): number {
@@ -223,6 +230,11 @@ class Order {
     this._updatedAt = new Date();
   }
 
+  setPaymentStatus(status: string): void {
+    this._paymentStatus = status;
+    this._updatedAt = new Date();
+  }
+
   // Utility method to convert to plain object
   toJSON() {
     return {
@@ -230,6 +242,7 @@ class Order {
       customerId: this._customerId,
       items: this._items.map((item) => item.toJSON()),
       status: this._status,
+      paymentStatus: this._paymentStatus,
       totalAmount: this._totalAmount,
       createdAt: this._createdAt,
       updatedAt: this._updatedAt,

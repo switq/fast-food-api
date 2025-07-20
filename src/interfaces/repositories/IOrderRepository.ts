@@ -5,6 +5,7 @@ export interface IOrderRepository {
   update(order: Order): Promise<Order>;
   findById(id: string): Promise<Order | null>;
   findAll(): Promise<Order[]>;
+  findAllSorted(): Promise<Order[]>;
   findByCustomerId(customerId: string): Promise<Order[]>;
   delete(id: string): Promise<void>;
 }

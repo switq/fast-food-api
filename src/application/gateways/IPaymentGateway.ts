@@ -3,13 +3,14 @@ export interface PaymentCreationData {
   description: string;
   orderId: string;
   customerEmail: string;
-  paymentMethodId: string; // 'pix', 'credit_card', 'ticket', etc.
+  paymentMethodId?: string; // Opcional - para futuras integrações com outros gateways
 }
 
 export interface PaymentCreationResult {
   paymentProviderId: string;
   qrCode?: string;
   qrCodeBase64?: string;
+  paymentUrl?: string; // URL para redirecionamento (útil para cartão de crédito)
   // outros campos conforme o método de pagamento
 }
 
@@ -21,7 +22,12 @@ export enum PaymentStatus {
   ERROR = 'error',
 }
 
+export interface PaymentStatusResult {
+  status: PaymentStatus;
+  externalReference?: string;
+}
+
 export interface IPaymentGateway {
   createPayment(data: PaymentCreationData): Promise<PaymentCreationResult>;
-  getPaymentStatus(paymentId: string): Promise<PaymentStatus>;
+  getPaymentStatus(paymentId: string): Promise<PaymentStatusResult>;
 }
