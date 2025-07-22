@@ -128,6 +128,31 @@ The database is automatically seeded with:
 - `npm run db:reset` - Reset database and seed with sample data
 - `npm run db:studio` - Open Prisma Studio (database GUI)
 
+## Docker Commands
+
+- **Start all services (app + database):**
+  ```bash
+  docker-compose up --build
+  ```
+- **Stop all services:**
+  ```bash
+  docker-compose down
+  ```
+- **View logs:**
+  ```bash
+  docker-compose logs -f
+  ```
+- **Rebuild containers:**
+  ```bash
+  docker-compose up --build --force-recreate
+  ```
+- **Access a running container (bash):**
+  ```bash
+  docker-compose exec app bash
+  ```
+
+---
+
 ## Environment Variables
 
 Copy `env.example` to `.env` and configure the following variables:
@@ -142,34 +167,290 @@ Copy `env.example` to `.env` and configure the following variables:
 
 The API supports a complete payment flow using Mercado Pago, including QR code generation and webhook integration for status updates.
 
-### How to Test the Payment Flow
+### 🚀 **Complete Setup Guide**
 
-1. **Configure Mercado Pago Credentials**
-   - Add your test `MERCADO_PAGO_ACCESS_TOKEN` to `.env`.
-   - Set `MERCADO_PAGO_NOTIFICATION_URL` to your public webhook endpoint (use ngrok for local development).
+#### **1. Configure Environment Variables**
 
-2. **Create an Order**
-   - Use `POST /api/orders` with a valid customer and product.
+Add the following to your `.env` file:
 
-3. **Generate Payment (QR Code)**
-   - Use `POST /api/orders/:orderId/payment` (body is optional, e.g. `{}` or `{ "paymentMethodId": "pix" }`).
-   - The response includes a QR code URL and a base64 QR code for Mercado Pago checkout.
+```env
+# Mercado Pago Configuration
+MERCADO_PAGO_ACCESS_TOKEN=TEST-your-access-token-here
+MERCADO_PAGO_NOTIFICATION_URL=https://your-ngrok-url.ngrok-free.app/api/payments/webhook
 
-4. **Complete Payment**
-   - Scan the QR code or open the payment URL with your Mercado Pago test buyer account.
+# Database
+DATABASE_URL="postgresql://user:password@localhost:5432/fastfood?schema=public"
 
-5. **Webhook Notification**
-   - Mercado Pago will POST to your webhook endpoint when payment status changes.
-   - The API updates the order status automatically.
+# Server
+PORT=3000
+NODE_ENV=development
+```
 
-### Example Postman Collection
+#### **2. Setup ngrok for Webhook (Required for Local Development)**
 
-Import `fast-food-api.postman_collection.json` into Postman for ready-to-use requests, including payment flow.
+**Install ngrok:**
+- Download from: https://ngrok.com/download
+- Or install via package manager: `npm install -g ngrok`
 
-### Scripts for Automated Testing
+**Configure ngrok:**
+```bash
+# Authenticate (get token from ngrok.com)
+ngrok config add-authtoken YOUR_NGROK_TOKEN
 
-- Bash: `scripts/test_payment_endpoint.sh`
-- PowerShell: `scripts/test_payment_endpoint.ps1`
+# Start tunnel for port 3000
+ngrok http 3000
+```
+
+**Get your webhook URL:**
+```bash
+# Check active tunnels
+curl http://localhost:4040/api/tunnels
+
+# Your webhook URL will be something like:
+# https://abc123.ngrok-free.app/api/payments/webhook
+```
+
+#### **3. Configure Mercado Pago Webhook**
+
+1. **Access Mercado Pago Developer Panel:**
+   - Go to: https://www.mercadopago.com.br/developers/panel
+   - Navigate to: Applications → Your App → Webhooks
+
+2. **Add Webhook Configuration:**
+   ```
+   URL: https://your-ngrok-url.ngrok-free.app/api/payments/webhook
+   Events: payment.created, payment.updated
+   ```
+
+3. **Test Webhook:**
+   - Use the "Test" button in Mercado Pago panel
+   - Or use Postman collection provided
+
+#### **4. Start the Application**
+
+```bash
+# Start with Docker (recommended)
+docker-compose up --build
+
+# Or start locally
+npm install
+npm run dev
+```
+
+#### **5. Verify Setup**
+
+**Check if everything is running:**
+```bash
+# Test application
+curl http://localhost:3000/api/health
+
+# Test ngrok tunnel
+curl https://your-ngrok-url.ngrok-free.app/api/health
+
+# Test webhook endpoint
+curl -X POST https://your-ngrok-url.ngrok-free.app/api/payments/webhook \
+  -H "Content-Type: application/json" \
+  -d '{"data":{"id":"test"}}'
+```
+
+### 🔄 **Payment Flow Testing**
+
+#### **Step 1: Create Customer and Order**
+
+```bash
+# Create customer
+POST /api/customers
+{
+  "name": "João Silva",
+  "email": "joao@example.com",
+  "cpf": "12345678901",
+  "phone": "11999999999"
+}
+
+# Create order
+POST /api/orders
+{
+  "customerId": "customer-id-from-above",
+  "items": [
+    {
+      "productId": "product-id",
+      "quantity": 1
+    }
+  ]
+}
+```
+
+#### **Step 2: Generate Payment QR Code**
+
+```bash
+# Generate payment
+POST /api/orders/{orderId}/payment
+{
+  "paymentMethodId": "pix"
+}
+
+# Response includes:
+{
+  "orderId": "...",
+  "paymentProviderId": "...",
+  "qrCode": "https://mercadopago.com/...",
+  "qrCodeBase64": "data:image/png;base64,..."
+}
+```
+
+#### **Step 3: Complete Payment**
+
+1. **Scan QR Code** with Mercado Pago test account
+2. **Complete payment** in Mercado Pago interface
+3. **Webhook automatically updates** order status
+
+#### **Step 4: Monitor Payment Status**
+
+```bash
+# Check order status (from database)
+GET /api/payments/order/{orderId}/status
+
+# Check real-time status (from Mercado Pago)
+GET /api/payments/order/{orderId}/status?provider=true
+
+# Monitor logs
+docker-compose logs -f app
+```
+
+### 🛠️ **Troubleshooting**
+
+#### **ngrok Issues**
+
+If you get `ERR_NGROK_3004` error:
+
+```bash
+# 1. Stop ngrok
+taskkill /f /im ngrok.exe  # Windows
+# or
+pkill ngrok  # Linux/Mac
+
+# 2. Restart ngrok correctly
+ngrok http 3000
+
+# 3. Update webhook URL in Mercado Pago panel
+```
+
+**Run diagnostic script:**
+```bash
+# Windows
+.\diagnose_ngrok.ps1
+
+# Check if ngrok is pointing to http://localhost:3000 (not https)
+```
+
+#### **Webhook Not Receiving**
+
+1. **Check ngrok status:**
+   ```bash
+   curl http://localhost:4040/api/tunnels
+   ```
+
+2. **Test webhook manually:**
+   ```bash
+   curl -X POST https://your-ngrok-url.ngrok-free.app/api/payments/webhook \
+     -H "Content-Type: application/json" \
+     -d '{"data":{"id":"119538917962"}}'
+   ```
+
+3. **Check application logs:**
+   ```bash
+   docker-compose logs -f app
+   ```
+
+#### **Payment Status Not Updating**
+
+1. **Verify webhook URL** in Mercado Pago panel
+2. **Check order exists** in database
+3. **Verify payment ID** is correct
+4. **Check logs** for error messages
+
+### 📚 **Documentation and Tools**
+
+#### **Postman Collections**
+
+Import these collections for testing:
+
+1. **`fast-food-api.postman_collection.json`** - Complete API testing
+2. **`mercado-pago-monitoring.postman_collection.json`** - Payment monitoring
+
+#### **Testing Scripts**
+
+- **PowerShell**: `scripts/test_payment_endpoint.ps1`
+- **Bash**: `scripts/test_payment_endpoint.sh`
+- **Node.js**: `test_payment_flow.js`
+
+#### **Monitoring Tools**
+
+- **ngrok Interface**: http://localhost:4040
+- **Application Logs**: `docker-compose logs -f app`
+- **Mercado Pago Panel**: https://www.mercadopago.com.br/developers/panel
+
+#### **Alternative Testing (if ngrok fails)**
+
+Use **webhook.site** for temporary testing:
+
+1. Go to: https://webhook.site
+2. Copy the unique URL
+3. Configure in Mercado Pago temporarily
+4. View webhook requests in real-time
+5. Copy payload to test locally
+
+### 🎯 **Order Status Flow**
+
+The payment webhook automatically manages order status transitions:
+
+```
+PENDING → CONFIRMED → PAYMENT_CONFIRMED → PREPARING → READY → DELIVERED
+```
+
+**Webhook Processing:**
+1. Receives payment notification from Mercado Pago
+2. Fetches payment status from Mercado Pago API
+3. Finds order by external reference
+4. Updates payment status
+5. Transitions order status if payment approved:
+   - `PENDING` → `CONFIRMED` → `PAYMENT_CONFIRMED`
+
+### 🔧 **Environment Setup Checklist**
+
+- [ ] Docker installed and running
+- [ ] ngrok installed and authenticated
+- [ ] Mercado Pago test account created
+- [ ] Access token configured in `.env`
+- [ ] ngrok tunnel started (`ngrok http 3000`)
+- [ ] Webhook URL configured in Mercado Pago panel
+- [ ] Application running (`docker-compose up`)
+- [ ] Webhook tested and receiving requests
+- [ ] Payment flow tested end-to-end
+
+### 📞 **Quick Commands Reference**
+
+```bash
+# Start everything
+docker-compose up --build
+ngrok http 3000
+
+# Check status
+docker-compose ps
+curl http://localhost:4040/api/tunnels
+
+# View logs
+docker-compose logs -f app
+
+# Test webhook
+curl -X POST http://localhost:3000/api/payments/webhook \
+  -H "Content-Type: application/json" \
+  -d '{"data":{"id":"119538917962"}}'
+
+# Restart if needed
+docker-compose restart
+taskkill /f /im ngrok.exe && ngrok http 3000
+```
 
 ---
 

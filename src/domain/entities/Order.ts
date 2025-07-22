@@ -20,13 +20,15 @@ class Order {
   private _totalAmount: number;
   private _createdAt: Date;
   private _updatedAt: Date;
+  private _paymentProviderId?: string; // new field
 
   constructor(
     id: string = uuidv4(),
     customerId?: string,
     items: OrderItem[] = [],
     status: OrderStatus = OrderStatus.PENDING,
-    paymentStatus: string = "pending"
+    paymentStatus: string = "pending",
+    paymentProviderId?: string // new field
   ) {
     this.validateId(id);
     if (customerId) {
@@ -39,6 +41,7 @@ class Order {
     this._items = items;
     this._status = status;
     this._paymentStatus = paymentStatus;
+    this._paymentProviderId = paymentProviderId;
     this._totalAmount = this.calculateTotalAmount();
     this._createdAt = new Date();
     this._updatedAt = new Date();
@@ -112,6 +115,10 @@ class Order {
 
   get updatedAt(): Date {
     return new Date(this._updatedAt);
+  }
+
+  get paymentProviderId(): string | undefined {
+    return this._paymentProviderId;
   }
 
   // Status transition methods
@@ -235,6 +242,11 @@ class Order {
     this._updatedAt = new Date();
   }
 
+  setPaymentProviderId(id: string): void {
+    this._paymentProviderId = id;
+    this._updatedAt = new Date();
+  }
+
   // Utility method to convert to plain object
   toJSON() {
     return {
@@ -246,6 +258,7 @@ class Order {
       totalAmount: this._totalAmount,
       createdAt: this._createdAt,
       updatedAt: this._updatedAt,
+      paymentProviderId: this._paymentProviderId,
     };
   }
 }
