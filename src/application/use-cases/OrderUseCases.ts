@@ -12,15 +12,14 @@ class OrderUseCases {
     customerId?: string,
     customerRepository?: ICustomerRepository
   ): Promise<Order> {
-    // Validate customer if provided
+    // Se customerId for informado, valida se existe
     if (customerId && customerRepository) {
       const customer = await customerRepository.findById(customerId);
       if (!customer) {
         throw new Error("Customer not found");
       }
     }
-
-    // Create order first to get its ID
+    // Cria o pedido já com os itens e customerId opcional
     const order = new Order(undefined, customerId);
     const createdOrder = await orderRepository.create(order);
 
@@ -178,6 +177,78 @@ class OrderUseCases {
     }
 
     await repository.delete(id);
+  }
+
+  static async confirmOrder(
+    id: string,
+    repository: IOrderRepository
+  ): Promise<Order> {
+    const order = await repository.findById(id);
+    if (!order) {
+      throw new Error("Order not found");
+    }
+    order.confirm();
+    return repository.update(order);
+  }
+
+  static async confirmPayment(
+    id: string,
+    repository: IOrderRepository
+  ): Promise<Order> {
+    const order = await repository.findById(id);
+    if (!order) {
+      throw new Error("Order not found");
+    }
+    order.confirmPayment();
+    return repository.update(order);
+  }
+
+  static async startPreparingOrder(
+    id: string,
+    repository: IOrderRepository
+  ): Promise<Order> {
+    const order = await repository.findById(id);
+    if (!order) {
+      throw new Error("Order not found");
+    }
+    order.startPreparing();
+    return repository.update(order);
+  }
+
+  static async markOrderAsReady(
+    id: string,
+    repository: IOrderRepository
+  ): Promise<Order> {
+    const order = await repository.findById(id);
+    if (!order) {
+      throw new Error("Order not found");
+    }
+    order.markAsReady();
+    return repository.update(order);
+  }
+
+  static async markOrderAsDelivered(
+    id: string,
+    repository: IOrderRepository
+  ): Promise<Order> {
+    const order = await repository.findById(id);
+    if (!order) {
+      throw new Error("Order not found");
+    }
+    order.markAsDelivered();
+    return repository.update(order);
+  }
+
+  static async cancelOrder(
+    id: string,
+    repository: IOrderRepository
+  ): Promise<Order> {
+    const order = await repository.findById(id);
+    if (!order) {
+      throw new Error("Order not found");
+    }
+    order.cancel();
+    return repository.update(order);
   }
 }
 
