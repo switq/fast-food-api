@@ -7,8 +7,9 @@ interface OrderData {
   id: string;
   customerId?: string;
   status: OrderStatus;
-  paymentStatus: string; // <-- fix: add paymentStatus
+  paymentStatus: string;
   totalAmount: number;
+  paymentProviderId?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -59,7 +60,8 @@ export class OrderGateway implements IOrderRepository {
         customerId: orderData.customerId,
         status: orderData.status,
         totalAmount: orderData.totalAmount,
-        paymentStatus: orderData.paymentStatus, // <-- fix: add paymentStatus
+        paymentStatus: orderData.paymentStatus,
+        paymentProviderId: orderData.paymentProviderId,
         createdAt: orderData.createdAt,
         updatedAt: orderData.updatedAt,
       }
@@ -100,6 +102,8 @@ export class OrderGateway implements IOrderRepository {
         customerId: orderData.customerId,
         status: orderData.status,
         totalAmount: orderData.totalAmount,
+        paymentStatus: orderData.paymentStatus,
+        paymentProviderId: orderData.paymentProviderId,
         updatedAt: new Date(),
       }
     );
@@ -141,7 +145,7 @@ export class OrderGateway implements IOrderRepository {
       return null;
     }
     const items = await this.getOrderItems(order.id);
-    return new Order(order.id, order.customerId, items, order.status);
+    return new Order(order.id, order.customerId, items, order.status, order.paymentStatus, order.paymentProviderId);
   }
 
   async findAll(): Promise<Order[]> {
