@@ -69,6 +69,7 @@ model Order {
   status      OrderStatus @default(PENDING)
   paymentStatus String @default("pending")
   totalAmount Float
+  paymentProviderId String? // Mercado Pago payment_id
 
   // Relations
   customer   Customer?   @relation(fields: [customerId], references: [id])

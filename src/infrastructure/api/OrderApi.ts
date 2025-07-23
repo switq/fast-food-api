@@ -446,20 +446,15 @@ export function setupOrderRoutes(dbConnection: IDatabaseConnection) {
       const orderGateway = new OrderGateway(dbConnection);
       const productGateway = new ProductGateway(dbConnection);
       const customerGateway = new CustomerGateway(dbConnection);
-      // Valida customerId
-      if (
-        !customerId ||
-        typeof customerId !== "string" ||
-        customerId.trim().length === 0
-      ) {
-        throw new Error(
-          "customerId is required and must be a valid UUID string"
-        );
-      }
-      // Verifica se o cliente existe
-      const customer = await customerGateway.findById(customerId);
-      if (!customer) {
-        throw new Error("Customer not found");
+      // Se customerId for informado, valida se existe
+      if (customerId) {
+        if (typeof customerId !== "string" || customerId.trim().length === 0) {
+          throw new Error("customerId must be a valid UUID string if provided");
+        }
+        const customer = await customerGateway.findById(customerId);
+        if (!customer) {
+          throw new Error("Customer not found");
+        }
       }
       // Instancia os itens antes de criar o pedido
       const orderItems = await Promise.all(
@@ -481,7 +476,7 @@ export function setupOrderRoutes(dbConnection: IDatabaseConnection) {
           );
         })
       );
-      // Cria o pedido já com os itens
+      // Cria o pedido já com os itens, customerId pode ser undefined
       const order = new Order(undefined, customerId, orderItems);
       const createdOrder = await orderGateway.create(order);
       res.status(201).json(OrderPresenter.toJSON(createdOrder));
@@ -508,6 +503,78 @@ export function setupOrderRoutes(dbConnection: IDatabaseConnection) {
       const result = await OrderController.updateOrderStatus(
         req.params.id,
         status,
+        dbConnection
+      );
+      res.json(result);
+    } catch (err) {
+      res.status(400).json({ error: (err as Error).message });
+    }
+  });
+
+  router.patch("/orders/:id/status/confirmOrder", async (req, res) => {
+    try {
+      const result = await OrderController.confirmOrder(
+        req.params.id,
+        dbConnection
+      );
+      res.json(result);
+    } catch (err) {
+      res.status(400).json({ error: (err as Error).message });
+    }
+  });
+
+  router.patch("/orders/:id/status/confirmPayment", async (req, res) => {
+    try {
+      const result = await OrderController.confirmPayment(
+        req.params.id,
+        dbConnection
+      );
+      res.json(result);
+    } catch (err) {
+      res.status(400).json({ error: (err as Error).message });
+    }
+  });
+
+  router.patch("/orders/:id/status/startPreparing", async (req, res) => {
+    try {
+      const result = await OrderController.startPreparingOrder(
+        req.params.id,
+        dbConnection
+      );
+      res.json(result);
+    } catch (err) {
+      res.status(400).json({ error: (err as Error).message });
+    }
+  });
+
+  router.patch("/orders/:id/status/markReady", async (req, res) => {
+    try {
+      const result = await OrderController.markOrderAsReady(
+        req.params.id,
+        dbConnection
+      );
+      res.json(result);
+    } catch (err) {
+      res.status(400).json({ error: (err as Error).message });
+    }
+  });
+
+  router.patch("/orders/:id/status/markDelivered", async (req, res) => {
+    try {
+      const result = await OrderController.markOrderAsDelivered(
+        req.params.id,
+        dbConnection
+      );
+      res.json(result);
+    } catch (err) {
+      res.status(400).json({ error: (err as Error).message });
+    }
+  });
+
+  router.patch("/orders/:id/status/cancel", async (req, res) => {
+    try {
+      const result = await OrderController.cancelOrder(
+        req.params.id,
         dbConnection
       );
       res.json(result);

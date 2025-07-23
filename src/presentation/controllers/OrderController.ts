@@ -107,6 +107,48 @@ class OrderController {
     await OrderUseCases.deleteOrder(id, orderGateway);
     return { message: "Order deleted successfully" };
   }
+
+  static async confirmOrder(id: string, dbConnection: IDatabaseConnection) {
+    const orderGateway = new OrderGateway(dbConnection);
+    const order = await OrderUseCases.confirmOrder(id, orderGateway);
+    return OrderPresenter.toJSON(order);
+  }
+
+  static async confirmPayment(id: string, dbConnection: IDatabaseConnection) {
+    const orderGateway = new OrderGateway(dbConnection);
+    const order = await OrderUseCases.confirmPayment(id, orderGateway);
+    return OrderPresenter.toJSON(order);
+  }
+
+  static async startPreparingOrder(
+    id: string,
+    dbConnection: IDatabaseConnection
+  ) {
+    const orderGateway = new OrderGateway(dbConnection);
+    const order = await OrderUseCases.startPreparingOrder(id, orderGateway);
+    return OrderPresenter.toJSON(order);
+  }
+
+  static async markOrderAsReady(id: string, dbConnection: IDatabaseConnection) {
+    const orderGateway = new OrderGateway(dbConnection);
+    const order = await OrderUseCases.markOrderAsReady(id, orderGateway);
+    return OrderPresenter.toJSON(order);
+  }
+
+  static async markOrderAsDelivered(
+    id: string,
+    dbConnection: IDatabaseConnection
+  ) {
+    const orderGateway = new OrderGateway(dbConnection);
+    const order = await OrderUseCases.markOrderAsDelivered(id, orderGateway);
+    return OrderPresenter.toJSON(order);
+  }
+
+  static async cancelOrder(id: string, dbConnection: IDatabaseConnection) {
+    const orderGateway = new OrderGateway(dbConnection);
+    const order = await OrderUseCases.cancelOrder(id, orderGateway);
+    return OrderPresenter.toJSON(order);
+  }
 }
 
 export default OrderController;

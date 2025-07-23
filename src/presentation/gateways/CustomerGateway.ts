@@ -12,7 +12,7 @@ interface CustomerData {
 
 export class CustomerGateway implements ICustomerRepository {
   private readonly dbConnection: IDatabaseConnection;
-  private readonly tableName: string = "customers";
+  private readonly tableName: string = "customer";
 
   constructor(dbConnection: IDatabaseConnection) {
     this.dbConnection = dbConnection;

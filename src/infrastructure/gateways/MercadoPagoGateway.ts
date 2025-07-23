@@ -52,7 +52,15 @@ export class MercadoPagoGateway implements IPaymentGateway {
   async getPaymentStatus(paymentId: string): Promise<PaymentStatusResult> {
     const payment = new Payment(this.client);
     try {
+      console.log(`Getting payment status for payment ID: ${paymentId}`);
       const response = await payment.get({ id: paymentId });
+
+      console.log(`Payment response:`, {
+        id: response.id,
+        status: response.status,
+        external_reference: response.external_reference,
+        status_detail: response.status_detail,
+      });
 
       let status: PaymentStatus;
       if (!response.status) {
@@ -80,11 +88,15 @@ export class MercadoPagoGateway implements IPaymentGateway {
 
       return {
         status,
-        externalReference: response.external_reference,
+        externalReference: response.external_reference || undefined,
       };
     } catch (error) {
       console.error("Error getting payment status from Mercado Pago:", error);
-      return { status: PaymentStatus.ERROR };
+      console.error("Error details:", error);
+      return {
+        status: PaymentStatus.ERROR,
+        externalReference: undefined,
+      };
     }
   }
 }
