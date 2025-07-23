@@ -171,8 +171,11 @@ O banco de dados é automaticamente preenchido com:
 **Via Docker:**
 
 ```bash
-# Acessar o container da aplicação
+# Acessar o container da aplicação (desenvolvimento)
 docker compose exec app_development sh
+
+# Acessar o container da aplicação (produção)
+docker compose exec app_production sh
 
 # Dentro do container:
 npm run db:generate    # Gera o cliente Prisma
@@ -197,25 +200,37 @@ npm run db:reset       # Reseta e preenche o banco
 
 ## Comandos Docker
 
-- **Iniciar todos os serviços (app + banco):**
+- **Iniciar todos os serviços (desenvolvimento):**
   ```bash
-  docker-compose up --build
+  docker compose --profile dev up --build
+  ```
+- **Iniciar todos os serviços (produção):**
+  ```bash
+  docker compose --profile prod up --build
   ```
 - **Parar todos os serviços:**
   ```bash
-  docker-compose down
+  docker compose down
   ```
 - **Ver logs:**
   ```bash
-  docker-compose logs -f
+  docker compose logs -f
   ```
-- **Reconstruir containers:**
+- **Reconstruir containers (desenvolvimento):**
   ```bash
-  docker-compose up --build --force-recreate
+  docker compose --profile dev up --build --force-recreate
   ```
-- **Acessar um container em execução (bash):**
+- **Reconstruir containers (produção):**
   ```bash
-  docker-compose exec app bash
+  docker compose --profile prod up --build --force-recreate
+  ```
+- **Acessar um container em execução (desenvolvimento):**
+  ```bash
+  docker compose exec app_development sh
+  ```
+- **Acessar um container em execução (produção):**
+  ```bash
+  docker compose exec app_production sh
   ```
 
 ---
@@ -296,8 +311,11 @@ curl http://localhost:4040/api/tunnels
 #### **4. Inicie a Aplicação**
 
 ```bash
-# Inicie com Docker (recomendado)
-docker-compose up --build
+# Inicie com Docker (recomendado) - Desenvolvimento
+docker compose --profile dev up --build
+
+# Ou inicie com Docker - Produção
+docker compose --profile prod up --build
 
 # Ou inicie localmente
 npm install
@@ -380,8 +398,11 @@ GET /api/payments/order/{orderId}/status
 # Verifique o status em tempo real (do Mercado Pago)
 GET /api/payments/order/{orderId}/status?provider=true
 
-# Monitore os logs
-docker-compose logs -f app
+# Monitore os logs (desenvolvimento)
+docker compose logs -f app_development
+
+# Monitore os logs (produção)
+docker compose logs -f app_production
 ```
 
 ### 🛠️ **Solução de Problemas**
@@ -426,7 +447,11 @@ ngrok http 3000
 
 3. **Verifique os logs da aplicação:**
    ```bash
-   docker-compose logs -f app
+   # Desenvolvimento
+   docker compose logs -f app_development
+   
+   # Produção
+   docker compose logs -f app_production
    ```
 
 #### **Status do Pagamento Não Atualizando**
@@ -454,7 +479,7 @@ Importe estas coleções para teste:
 #### **Ferramentas de Monitoramento**
 
 - **Interface ngrok**: http://localhost:4040
-- **Logs da Aplicação**: `docker-compose logs -f app`
+- **Logs da Aplicação**: `docker compose logs -f app_development` (dev) ou `docker compose logs -f app_production` (prod)
 - **Painel Mercado Pago**: https://www.mercadopago.com.br/developers/panel
 
 #### **Teste Alternativo (se ngrok falhar)**
@@ -491,23 +516,30 @@ PENDING → CONFIRMED → PAYMENT_CONFIRMED → PREPARING → READY → DELIVERE
 - [ ] Access token configurado no `.env`
 - [ ] Túnel ngrok iniciado (`ngrok http 3000`)
 - [ ] URL do webhook configurada no painel do Mercado Pago
-- [ ] Aplicação rodando (`docker-compose up`)
+- [ ] Aplicação rodando (`docker compose --profile dev up` ou `docker compose --profile prod up`)
 - [ ] Webhook testado e recebendo requisições
 - [ ] Fluxo de pagamento testado end-to-end
 
 ### 📞 **Referência Rápida de Comandos**
 
 ```bash
-# Iniciar tudo
-docker-compose up --build
+# Iniciar tudo (desenvolvimento)
+docker compose --profile dev up --build
+ngrok http 3000
+
+# Iniciar tudo (produção)
+docker compose --profile prod up --build
 ngrok http 3000
 
 # Verificar status
-docker-compose ps
+docker compose ps
 curl http://localhost:4040/api/tunnels
 
-# Ver logs
-docker-compose logs -f app
+# Ver logs (desenvolvimento)
+docker compose logs -f app_development
+
+# Ver logs (produção)
+docker compose logs -f app_production
 
 # Testar webhook
 curl -X POST http://localhost:3000/api/payments/webhook \
@@ -515,7 +547,7 @@ curl -X POST http://localhost:3000/api/payments/webhook \
   -d '{"data":{"id":"119538917962"}}'
 
 # Reiniciar se necessário
-docker-compose restart
+docker compose restart
 taskkill /f /im ngrok.exe && ngrok http 3000
 ```
 
