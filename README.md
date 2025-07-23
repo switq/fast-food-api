@@ -271,10 +271,12 @@ NODE_ENV=development
 #### **2. Configure ngrok para Webhook (Necessário para Desenvolvimento Local)**
 
 **Instale o ngrok:**
+
 - Baixe em: https://ngrok.com/download
 - Ou instale via gerenciador de pacotes: `npm install -g ngrok`
 
 **Configure o ngrok:**
+
 ```bash
 # Autentique (obtenha o token em ngrok.com)
 ngrok config add-authtoken SEU_NGROK_TOKEN
@@ -284,6 +286,7 @@ ngrok http 3000
 ```
 
 **Obtenha sua URL de webhook:**
+
 ```bash
 # Verifique túneis ativos
 curl http://localhost:4040/api/tunnels
@@ -299,6 +302,7 @@ curl http://localhost:4040/api/tunnels
    - Navegue para: Applications → Sua App → Webhooks
 
 2. **Adicione a Configuração do Webhook:**
+
    ```
    URL: https://sua-url-ngrok.ngrok-free.app/api/payments/webhook
    Events: payment.created, payment.updated
@@ -325,6 +329,7 @@ npm run dev
 #### **5. Verifique a Configuração**
 
 **Verifique se tudo está funcionando:**
+
 ```bash
 # Teste a aplicação
 curl http://localhost:3000/api/health
@@ -424,6 +429,7 @@ ngrok http 3000
 ```
 
 **Execute o script de diagnóstico:**
+
 ```bash
 # Windows
 .\diagnose_ngrok.ps1
@@ -434,11 +440,13 @@ ngrok http 3000
 #### **Webhook Não Recebendo**
 
 1. **Verifique o status do ngrok:**
+
    ```bash
    curl http://localhost:4040/api/tunnels
    ```
 
 2. **Teste o webhook manualmente:**
+
    ```bash
    curl -X POST https://sua-url-ngrok.ngrok-free.app/api/payments/webhook \
      -H "Content-Type: application/json" \
@@ -446,10 +454,11 @@ ngrok http 3000
    ```
 
 3. **Verifique os logs da aplicação:**
+
    ```bash
    # Desenvolvimento
    docker compose logs -f app_development
-   
+
    # Produção
    docker compose logs -f app_production
    ```
@@ -501,6 +510,7 @@ PENDING → CONFIRMED → PAYMENT_CONFIRMED → PREPARING → READY → DELIVERE
 ```
 
 **Processamento do Webhook:**
+
 1. Recebe notificação de pagamento do Mercado Pago
 2. Busca o status do pagamento na API do Mercado Pago
 3. Encontra o pedido pela referência externa
