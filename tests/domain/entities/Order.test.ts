@@ -6,12 +6,7 @@ describe("Order Entity", () => {
   const validId = uuidv4();
   const validCustomerId = uuidv4();
   const validProductId = uuidv4();
-  const validOrderItem = new OrderItem(
-    validProductId,
-    2,
-    15.99,
-    validId
-  );
+  const validOrderItem = new OrderItem(validProductId, 2, 15.99, validId);
 
   describe("Constructor", () => {
     it("should create an order with valid data", () => {

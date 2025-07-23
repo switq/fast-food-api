@@ -95,34 +95,19 @@ describe("OrderItem Entity", () => {
 
     it("should throw error when quantity is negative", () => {
       expect(() => {
-        new OrderItem(
-          validProductId,
-          -1,
-          validUnitPrice,
-          validOrderId
-        );
+        new OrderItem(validProductId, -1, validUnitPrice, validOrderId);
       }).toThrow("Quantity must be greater than zero");
     });
 
     it("should throw error when quantity is not an integer", () => {
       expect(() => {
-        new OrderItem(
-          validProductId,
-          1.5,
-          validUnitPrice,
-          validOrderId
-        );
+        new OrderItem(validProductId, 1.5, validUnitPrice, validOrderId);
       }).toThrow("Quantity must be an integer");
     });
 
     it("should throw error when unitPrice is negative", () => {
       expect(() => {
-        new OrderItem(
-          validProductId,
-          validQuantity,
-          -10,
-          validOrderId
-        );
+        new OrderItem(validProductId, validQuantity, -10, validOrderId);
       }).toThrow("Unit price cannot be negative");
     });
   });
