@@ -32,7 +32,8 @@ export class OrderGateway implements IOrderRepository {
 
   constructor(dbConnection: IDatabaseConnection) {
     this.dbConnection = dbConnection;
-  }  private async getOrderItems(orderId: string): Promise<OrderItem[]> {
+  }
+  private async getOrderItems(orderId: string): Promise<OrderItem[]> {
     const items = await this.dbConnection.findByField<OrderItemData>(
       this.orderItemTable,
       "orderId",
@@ -107,7 +108,8 @@ export class OrderGateway implements IOrderRepository {
     const existingItems = await this.getOrderItems(order.id);
     for (const item of existingItems) {
       await this.dbConnection.delete(this.orderItemTable, item.id);
-    }    for (const item of order.items) {
+    }
+    for (const item of order.items) {
       const itemData = item.toJSON();
       await this.dbConnection.create<Omit<OrderItemData, "id">>(
         this.orderItemTable,

@@ -11,12 +11,11 @@ class PaymentUseCases {
     orderRepository: IOrderRepository,
     paymentGateway: IPaymentGateway
   ) {
-    const paymentStatusResult = await paymentGateway.getPaymentStatus(paymentId);
+    const paymentStatusResult =
+      await paymentGateway.getPaymentStatus(paymentId);
 
     if (!paymentStatusResult.externalReference) {
-      console.error(
-        `Payment ${paymentId} has no external reference.`
-      );
+      console.error(`Payment ${paymentId} has no external reference.`);
       return;
     }
 
@@ -60,7 +59,7 @@ class PaymentUseCases {
     }
 
     let customerEmail = "guest@example.com";
-    
+
     if (order.customerId && customerRepository) {
       const customer = await customerRepository.findById(order.customerId);
       if (customer) {
@@ -80,7 +79,7 @@ class PaymentUseCases {
 
     // Atualizar o pedido com o ID do pagamento do provedor
     // (Você pode adicionar um campo paymentProviderId na entidade Order se necessário)
-    
+
     return {
       orderId: order.id,
       paymentProviderId: paymentResult.paymentProviderId,

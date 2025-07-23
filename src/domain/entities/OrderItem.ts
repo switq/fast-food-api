@@ -22,6 +22,18 @@ class OrderItem {
     this._quantity = quantity;
     this._unitPrice = unitPrice;
     this._observation = observation;
+
+    // Validate all parameters
+    this.validateId(this._id);
+    this.validateProductId(this._productId);
+    this.validateQuantity(this._quantity);
+    this.validateUnitPrice(this._unitPrice);
+    if (this._orderId) {
+      this.validateOrderId(this._orderId);
+    }
+    if (this._observation) {
+      this.validateObservation(this._observation);
+    }
   }
 
   private validateId(id: string): void {

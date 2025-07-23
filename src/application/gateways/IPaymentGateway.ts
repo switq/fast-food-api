@@ -15,11 +15,11 @@ export interface PaymentCreationResult {
 }
 
 export enum PaymentStatus {
-  PENDING = 'pending',
-  APPROVED = 'approved',
-  REJECTED = 'rejected',
-  CANCELLED = 'cancelled',
-  ERROR = 'error',
+  PENDING = "pending",
+  APPROVED = "approved",
+  REJECTED = "rejected",
+  CANCELLED = "cancelled",
+  ERROR = "error",
 }
 
 export interface PaymentStatusResult {

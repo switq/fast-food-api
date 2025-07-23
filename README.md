@@ -20,11 +20,13 @@ cp env.example .env
 3. Inicie a aplicação com Docker Compose:
 
 **Para Desenvolvimento:**
+
 ```bash
 docker compose --profile dev up --build
 ```
 
 **Para Produção:**
+
 ```bash
 docker compose --profile prod up --build
 ```
@@ -36,12 +38,14 @@ Isso iniciará automaticamente o banco de dados PostgreSQL e a aplicação, incl
 ### Perfis Docker
 
 **Desenvolvimento (`--profile dev`):**
+
 - API server na porta 3000
 - Prisma Studio na porta 5555
 - Hot reload automático
 - Banco de dados com dados de exemplo
 
 **Produção (`--profile prod`):**
+
 - API server otimizado na porta 3000
 - Build multi-stage para menor tamanho de imagem
 - Sem ferramentas de desenvolvimento
@@ -52,7 +56,7 @@ Isso iniciará automaticamente o banco de dados PostgreSQL e a aplicação, incl
 # Desenvolvimento
 docker compose --profile dev up --build
 
-# Produção  
+# Produção
 docker compose --profile prod up --build
 
 # Parar todos os serviços
@@ -103,6 +107,7 @@ O banco de dados é automaticamente preenchido com:
 ## Comandos do Banco de Dados
 
 **Via Docker:**
+
 ```bash
 # Acessar o container da aplicação
 docker compose exec app_development sh
@@ -115,6 +120,7 @@ npm run db:reset       # Reseta e preenche o banco
 ```
 
 **Prisma Studio:**
+
 - Disponível em `http://localhost:5555` quando usando `--profile dev`
 - Ou execute localmente: `npm run db:studio`
 
@@ -177,14 +183,14 @@ As transições de status do pedido seguem regras de negócio rigorosas:
 
 ### Transições Permitidas
 
-| De                  | Para                 | Regra/Condição                         |
-|---------------------|----------------------|----------------------------------------|
-| PENDING             | CONFIRMED            | Deve ter pelo menos um item            |
-| CONFIRMED           | PAYMENT_CONFIRMED    | Pagamento deve ser confirmado          |
-| PAYMENT_CONFIRMED   | PREPARING            | Apenas após pagamento confirmado       |
-| PREPARING           | READY                | Apenas após preparação completa        |
-| READY               | DELIVERED            | Apenas após pronto                     |
-| Qualquer (exceto DELIVERED) | CANCELLED     | Pode cancelar a menos que já entregue |
+| De                          | Para              | Regra/Condição                        |
+| --------------------------- | ----------------- | ------------------------------------- |
+| PENDING                     | CONFIRMED         | Deve ter pelo menos um item           |
+| CONFIRMED                   | PAYMENT_CONFIRMED | Pagamento deve ser confirmado         |
+| PAYMENT_CONFIRMED           | PREPARING         | Apenas após pagamento confirmado      |
+| PREPARING                   | READY             | Apenas após preparação completa       |
+| READY                       | DELIVERED         | Apenas após pronto                    |
+| Qualquer (exceto DELIVERED) | CANCELLED         | Pode cancelar a menos que já entregue |
 
 ### Respostas de Erro
 

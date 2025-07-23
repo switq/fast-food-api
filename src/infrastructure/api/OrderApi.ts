@@ -447,8 +447,14 @@ export function setupOrderRoutes(dbConnection: IDatabaseConnection) {
       const productGateway = new ProductGateway(dbConnection);
       const customerGateway = new CustomerGateway(dbConnection);
       // Valida customerId
-      if (!customerId || typeof customerId !== "string" || customerId.trim().length === 0) {
-        throw new Error("customerId is required and must be a valid UUID string");
+      if (
+        !customerId ||
+        typeof customerId !== "string" ||
+        customerId.trim().length === 0
+      ) {
+        throw new Error(
+          "customerId is required and must be a valid UUID string"
+        );
       }
       // Verifica se o cliente existe
       const customer = await customerGateway.findById(customerId);
@@ -464,7 +470,8 @@ export function setupOrderRoutes(dbConnection: IDatabaseConnection) {
             const product = await productGateway.findById(item.productId);
             if (!product) throw new Error("Product not found");
             unitPrice = product.price;
-          }          return new OrderItem(
+          }
+          return new OrderItem(
             item.productId,
             item.quantity,
             unitPrice,
