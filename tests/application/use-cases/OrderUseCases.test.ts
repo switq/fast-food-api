@@ -31,6 +31,7 @@ describe("OrderUseCases", () => {
       delete: jest.fn(),
       findByName: jest.fn(),
       findByCategory: jest.fn(),
+      updateStock: jest.fn(),
     };
 
     mockCustomerRepository = {
@@ -60,7 +61,8 @@ describe("OrderUseCases", () => {
         10.99,
         "category-id",
         undefined,
-        true
+        true,
+        10
       );
       const order = new Order(
         "550e8400-e29b-41d4-a716-446655440032",
@@ -68,11 +70,11 @@ describe("OrderUseCases", () => {
         []
       );
       const orderItem = new OrderItem(
-        "550e8400-e29b-41d4-a716-446655440033",
-        "550e8400-e29b-41d4-a716-446655440034",
         product.id,
         2,
         product.price,
+        order.id,
+        undefined,
         "Extra cheese"
       );
 
@@ -98,11 +100,12 @@ describe("OrderUseCases", () => {
       mockCustomerRepository.findById.mockResolvedValue(null);
 
       const orderItem = new OrderItem(
-        "550e8400-e29b-41d4-a716-446655440070",
-        "550e8400-e29b-41d4-a716-446655440071",
         "550e8400-e29b-41d4-a716-446655440080",
         1,
-        10.99
+        10.99,
+        undefined,
+        undefined,
+        undefined
       );
 
       await expect(
@@ -126,10 +129,11 @@ describe("OrderUseCases", () => {
       );
       const orderItem = new OrderItem(
         "550e8400-e29b-41d4-a716-446655440072",
-        "550e8400-e29b-41d4-a716-446655440073",
-        "550e8400-e29b-41d4-a716-446655440081",
         1,
-        10.99
+        10.99,
+        undefined,
+        undefined,
+        undefined
       );
 
       mockCustomerRepository.findById.mockResolvedValue(customer);
@@ -144,7 +148,7 @@ describe("OrderUseCases", () => {
           mockCustomerRepository
         )
       ).rejects.toThrow(
-        "Product with ID 550e8400-e29b-41d4-a716-446655440081 not found"
+        "Product with ID 550e8400-e29b-41d4-a716-446655440072 not found"
       );
     });
   });
@@ -153,10 +157,11 @@ describe("OrderUseCases", () => {
     it("should find order by id successfully", async () => {
       const orderItem = new OrderItem(
         "550e8400-e29b-41d4-a716-446655440044",
-        "550e8400-e29b-41d4-a716-446655440056",
-        "550e8400-e29b-41d4-a716-446655440057",
         1,
-        10.99
+        10.99,
+        undefined,
+        undefined,
+        undefined
       );
       const order = new Order(
         "550e8400-e29b-41d4-a716-446655440037",
@@ -186,11 +191,10 @@ describe("OrderUseCases", () => {
   describe("updateOrderStatus", () => {
     it("should update order status successfully", async () => {
       const orderItem = new OrderItem(
-        "550e8400-e29b-41d4-a716-446655440045",
-        "550e8400-e29b-41d4-a716-446655440058",
         "550e8400-e29b-41d4-a716-446655440059",
         1,
-        10.99
+        10.99,
+        "550e8400-e29b-41d4-a716-446655440058"
       );
       const order = new Order(
         "550e8400-e29b-41d4-a716-446655440038",
@@ -226,11 +230,12 @@ describe("OrderUseCases", () => {
   describe("addItemsToOrder", () => {
     it("should add items to order successfully", async () => {
       const orderItem = new OrderItem(
-        "550e8400-e29b-41d4-a716-446655440046",
-        "550e8400-e29b-41d4-a716-446655440060",
         "550e8400-e29b-41d4-a716-446655440061",
         1,
-        10.99
+        10.99,
+        undefined,
+        undefined,
+        undefined
       );
       const order = new Order(
         "550e8400-e29b-41d4-a716-446655440039",
@@ -247,11 +252,12 @@ describe("OrderUseCases", () => {
         true
       );
       const newOrderItem = new OrderItem(
-        "550e8400-e29b-41d4-a716-446655440074",
-        order.id,
         product.id,
         2,
-        product.price
+        product.price,
+        undefined,
+        undefined,
+        undefined
       );
 
       mockOrderRepository.findById.mockResolvedValue(order);
@@ -272,10 +278,11 @@ describe("OrderUseCases", () => {
     it("should throw error when trying to add items to non-pending order", async () => {
       const orderItem = new OrderItem(
         "550e8400-e29b-41d4-a716-446655440047",
-        "550e8400-e29b-41d4-a716-446655440062",
-        "550e8400-e29b-41d4-a716-446655440063",
         1,
-        10.99
+        10.99,
+        undefined,
+        undefined,
+        undefined
       );
       const order = new Order(
         "550e8400-e29b-41d4-a716-446655440041",
@@ -285,11 +292,12 @@ describe("OrderUseCases", () => {
       order.confirm(); // Change status from PENDING to CONFIRMED
 
       const newOrderItem = new OrderItem(
-        "550e8400-e29b-41d4-a716-446655440075",
-        order.id,
         "550e8400-e29b-41d4-a716-446655440082",
         1,
-        10.99
+        10.99,
+        undefined,
+        undefined,
+        undefined
       );
 
       mockOrderRepository.findById.mockResolvedValue(order);
@@ -309,10 +317,11 @@ describe("OrderUseCases", () => {
     it("should delete order successfully", async () => {
       const orderItem = new OrderItem(
         "550e8400-e29b-41d4-a716-446655440048",
-        "550e8400-e29b-41d4-a716-446655440064",
-        "550e8400-e29b-41d4-a716-446655440065",
         1,
-        10.99
+        10.99,
+        undefined,
+        undefined,
+        undefined
       );
       const order = new Order(
         "550e8400-e29b-41d4-a716-446655440042",
@@ -328,11 +337,12 @@ describe("OrderUseCases", () => {
 
     it("should throw error when trying to delete non-pending order", async () => {
       const orderItem = new OrderItem(
-        "550e8400-e29b-41d4-a716-446655440049",
-        "550e8400-e29b-41d4-a716-446655440066",
         "550e8400-e29b-41d4-a716-446655440067",
         1,
-        10.99
+        10.99,
+        undefined,
+        undefined,
+        undefined
       );
       const order = new Order(
         "550e8400-e29b-41d4-a716-446655440043",

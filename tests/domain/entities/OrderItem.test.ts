@@ -12,11 +12,11 @@ describe("OrderItem Entity", () => {
   describe("Constructor", () => {
     it("should create an order item with valid data", () => {
       const orderItem = new OrderItem(
-        validId,
-        validOrderId,
         validProductId,
         validQuantity,
         validUnitPrice,
+        validOrderId,
+        validId,
         validObservation
       );
 
@@ -31,11 +31,10 @@ describe("OrderItem Entity", () => {
 
     it("should generate a new UUID if no ID is provided", () => {
       const orderItem = new OrderItem(
-        undefined,
-        validOrderId,
         validProductId,
         validQuantity,
-        validUnitPrice
+        validUnitPrice,
+        validOrderId
       );
 
       expect(orderItem.id).toBeDefined();
@@ -44,11 +43,11 @@ describe("OrderItem Entity", () => {
 
     it("should create order item without observation", () => {
       const orderItem = new OrderItem(
-        validId,
-        validOrderId,
         validProductId,
         validQuantity,
-        validUnitPrice
+        validUnitPrice,
+        validOrderId,
+        validId
       );
 
       expect(orderItem.observation).toBeUndefined();
@@ -57,11 +56,11 @@ describe("OrderItem Entity", () => {
     it("should throw error when ID is invalid", () => {
       expect(() => {
         new OrderItem(
-          "invalid-uuid",
-          validOrderId,
           validProductId,
           validQuantity,
-          validUnitPrice
+          validUnitPrice,
+          validOrderId,
+          "invalid-uuid"
         );
       }).toThrow("OrderItem ID must be a valid UUID");
     });
@@ -69,11 +68,10 @@ describe("OrderItem Entity", () => {
     it("should throw error when orderId is invalid", () => {
       expect(() => {
         new OrderItem(
-          validId,
-          "invalid-uuid",
           validProductId,
           validQuantity,
-          validUnitPrice
+          validUnitPrice,
+          "invalid-uuid"
         );
       }).toThrow("Order ID must be a valid UUID");
     });
@@ -81,29 +79,27 @@ describe("OrderItem Entity", () => {
     it("should throw error when productId is invalid", () => {
       expect(() => {
         new OrderItem(
-          validId,
-          validOrderId,
           "invalid-uuid",
           validQuantity,
-          validUnitPrice
+          validUnitPrice,
+          validOrderId
         );
       }).toThrow("Product ID must be a valid UUID");
     });
 
     it("should throw error when quantity is zero", () => {
       expect(() => {
-        new OrderItem(validId, validOrderId, validProductId, 0, validUnitPrice);
+        new OrderItem(validProductId, 0, validUnitPrice, validOrderId);
       }).toThrow("Quantity must be greater than zero");
     });
 
     it("should throw error when quantity is negative", () => {
       expect(() => {
         new OrderItem(
-          validId,
-          validOrderId,
           validProductId,
           -1,
-          validUnitPrice
+          validUnitPrice,
+          validOrderId
         );
       }).toThrow("Quantity must be greater than zero");
     });
@@ -111,11 +107,10 @@ describe("OrderItem Entity", () => {
     it("should throw error when quantity is not an integer", () => {
       expect(() => {
         new OrderItem(
-          validId,
-          validOrderId,
           validProductId,
           1.5,
-          validUnitPrice
+          validUnitPrice,
+          validOrderId
         );
       }).toThrow("Quantity must be an integer");
     });
@@ -123,11 +118,10 @@ describe("OrderItem Entity", () => {
     it("should throw error when unitPrice is negative", () => {
       expect(() => {
         new OrderItem(
-          validId,
-          validOrderId,
           validProductId,
           validQuantity,
-          -10
+          -10,
+          validOrderId
         );
       }).toThrow("Unit price cannot be negative");
     });
@@ -136,11 +130,11 @@ describe("OrderItem Entity", () => {
   describe("Getters", () => {
     it("should return correct values through getters", () => {
       const orderItem = new OrderItem(
-        validId,
-        validOrderId,
         validProductId,
         validQuantity,
         validUnitPrice,
+        validOrderId,
+        validId,
         validObservation
       );
 
@@ -157,11 +151,11 @@ describe("OrderItem Entity", () => {
   describe("Setters", () => {
     it("should update quantity with valid value and recalculate total price", () => {
       const orderItem = new OrderItem(
-        validId,
-        validOrderId,
         validProductId,
         validQuantity,
-        validUnitPrice
+        validUnitPrice,
+        validOrderId,
+        validId
       );
       const newQuantity = 3;
 
@@ -172,11 +166,11 @@ describe("OrderItem Entity", () => {
 
     it("should throw error when setting invalid quantity", () => {
       const orderItem = new OrderItem(
-        validId,
-        validOrderId,
         validProductId,
         validQuantity,
-        validUnitPrice
+        validUnitPrice,
+        validOrderId,
+        validId
       );
 
       expect(() => {
@@ -186,11 +180,11 @@ describe("OrderItem Entity", () => {
 
     it("should throw error when setting non-integer quantity", () => {
       const orderItem = new OrderItem(
-        validId,
-        validOrderId,
         validProductId,
         validQuantity,
-        validUnitPrice
+        validUnitPrice,
+        validOrderId,
+        validId
       );
 
       expect(() => {
@@ -202,11 +196,11 @@ describe("OrderItem Entity", () => {
   describe("toJSON", () => {
     it("should return correct JSON representation", () => {
       const orderItem = new OrderItem(
-        validId,
-        validOrderId,
         validProductId,
         validQuantity,
         validUnitPrice,
+        validOrderId,
+        validId,
         validObservation
       );
       const json = orderItem.toJSON();
@@ -224,11 +218,11 @@ describe("OrderItem Entity", () => {
 
     it("should return JSON without observation when not provided", () => {
       const orderItem = new OrderItem(
-        validId,
-        validOrderId,
         validProductId,
         validQuantity,
-        validUnitPrice
+        validUnitPrice,
+        validOrderId,
+        validId
       );
       const json = orderItem.toJSON();
 
