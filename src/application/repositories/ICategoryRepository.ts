@@ -1,10 +1,6 @@
-import Category from "../../domain/entities/Category";
+import Category from "@src/domain/entities/Category";
+import { IGenericRepository } from "./IGenericRepository";
 
-export interface ICategoryRepository {
-  create(category: Category): Promise<Category>;
-  findById(id: string): Promise<Category | null>;
+export interface ICategoryRepository extends IGenericRepository<Category> {
   findByName(name: string): Promise<Category | null>;
-  findAll(): Promise<Category[]>;
-  update(category: Category): Promise<Category>;
-  delete(id: string): Promise<void>;
 }

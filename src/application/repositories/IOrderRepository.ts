@@ -1,10 +1,6 @@
-import Order from "../../domain/entities/Order";
+import Order from "@src/domain/entities/Order";
+import { IGenericRepository } from "./IGenericRepository";
 
-export interface IOrderRepository {
-  create(order: Order): Promise<Order>;
-  findById(id: string): Promise<Order | null>;
+export interface IOrderRepository extends IGenericRepository<Order> {
   findByCustomerId(customerId: string): Promise<Order[]>;
-  findAll(): Promise<Order[]>;
-  update(order: Order): Promise<Order>;
-  delete(id: string): Promise<void>;
 }

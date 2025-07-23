@@ -3,7 +3,7 @@ import {
   CustomerRepository,
   ProductRepository,
   OrderRepository,
-} from "@src/infrastructure/database/prisma/implementations";
+} from "@src/infrastructure/repositories/prisma/implementations";
 import Category from "@src/domain/entities/Category";
 import Customer from "@src/domain/entities/Customer";
 import Product from "@src/domain/entities/Product";

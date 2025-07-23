@@ -1,4 +1,4 @@
-import { UUIDService } from "../services/UUIDService";
+import { UUIDService } from "@src/domain/services/UUIDService";
 import { BaseEntity } from "./BaseEntity";
 
 import URLValueObject from "../value-objects/URL";

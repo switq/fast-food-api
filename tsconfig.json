@@ -17,7 +17,7 @@
   },
   "include": [
     "src/**/*",
-    "src/infrastructure/database/prisma/prisma",
+    "src/infrastructure/repositories/prisma/prisma",
     "tests/infrastructure/database/prisma/implementations/repositoryImplementationTests.ts"
   ],
   "exclude": ["node_modules"]

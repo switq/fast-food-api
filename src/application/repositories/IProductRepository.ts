@@ -1,11 +1,7 @@
-import Product from "../../domain/entities/Product";
+import Product from "@src/domain/entities/Product";
+import { IGenericRepository } from "./IGenericRepository";
 
-export interface IProductRepository {
-  create(product: Product): Promise<Product>;
-  findById(id: string): Promise<Product | null>;
+export interface IProductRepository extends IGenericRepository<Product> {
   findByName(name: string): Promise<Product | null>;
   findByCategory(categoryId: string): Promise<Product[]>;
-  findAll(): Promise<Product[]>;
-  update(product: Product): Promise<Product>;
-  delete(id: string): Promise<void>;
 }

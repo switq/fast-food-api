@@ -1,37 +1,41 @@
-import Order, { OrderStatus } from "../../../domain/entities/Order";
-import OrderItem from "../../../domain/entities/OrderItem";
-import { IOrderRepository } from "../../repositories/IOrderRepository";
-import { IProductRepository } from "../../repositories/IProductRepository";
-import { ICustomerRepository } from "../../repositories/ICustomerRepository";
-import { UUIDService } from "../../../domain/services/UUIDService";
 
-class OrderUseCases {
-  constructor(
-    private readonly orderRepository: IOrderRepository,
-    private readonly productRepository: IProductRepository,
-    private readonly uuidService: UUIDService,
-    private readonly customerRepository?: ICustomerRepository
-  ) {}
+import Order, { OrderStatus } from "@src/domain/entities/Order";
+import OrderItem from "@src/domain/entities/OrderItem";
+import { IOrderRepository } from "@src/application/repositories/IOrderRepository";
+import { IProductRepository } from "@src/application/repositories/IProductRepository";
+import { ICustomerRepository } from "@src/application/repositories/ICustomerRepository";
+import { UUIDService } from "@src/domain/services/UUIDService";
 
-  async createOrder(
-    items: OrderItem[],
-    customerId?: string
-  ): Promise<Order> {
-    // Validate customer if provided
-    if (customerId && this.customerRepository) {
-      const customer = await this.customerRepository.findById(customerId);
+export type OrderUseCaseDeps = {
+  orderRepository: IOrderRepository;
+  productRepository: IProductRepository;
+  uuidService: UUIDService;
+  customerRepository?: ICustomerRepository;
+};
+
+export type CreateOrderInput = {
+  items: OrderItem[];
+  customerId?: string;
+};
+export type FindOrderByIdInput = { id: string };
+export type FindOrdersByCustomerInput = { customerId: string };
+export type UpdateOrderStatusInput = { id: string; status: OrderStatus };
+export type AddItemsToOrderInput = { id: string; items: OrderItem[] };
+export type UpdateItemQuantityInput = { orderId: string; itemId: string; quantity: number };
+export type DeleteOrderInput = { id: string };
+
+export const createOrder = ({ orderRepository, productRepository, uuidService, customerRepository }: OrderUseCaseDeps) =>
+  async ({ items, customerId }: CreateOrderInput): Promise<Order> => {
+    if (customerId && customerRepository) {
+      const customer = await customerRepository.findById(customerId);
       if (!customer) {
         throw new Error("Customer not found");
       }
     }
-
-    // Create order using the static create method
-    const order = Order.create(customerId, this.uuidService);
-    const createdOrder = await this.orderRepository.create(order);
-
-    // Validate products for each order item
+    const order = Order.create(customerId, uuidService);
+    const createdOrder = await orderRepository.create(order);
     for (const orderItem of items) {
-      const product = await this.productRepository.findById(orderItem.productId);
+      const product = await productRepository.findById(orderItem.productId);
       if (!product) {
         throw new Error(`Product with ID ${orderItem.productId} not found`);
       }
@@ -39,38 +43,35 @@ class OrderUseCases {
         throw new Error(`Product ${product.name} is not available`);
       }
     }
-
-    // Add items to the order
     createdOrder.addItem(items);
-    return this.orderRepository.update(createdOrder);
-  }
+    return orderRepository.update(createdOrder);
+  };
 
-  async findOrderById(id: string): Promise<Order> {
-    const order = await this.orderRepository.findById(id);
+export const findOrderById = ({ orderRepository }: OrderUseCaseDeps) =>
+  async ({ id }: FindOrderByIdInput): Promise<Order> => {
+    const order = await orderRepository.findById(id);
     if (!order) {
       throw new Error("Order not found");
     }
     return order;
-  }
+  };
 
-  async findOrdersByCustomer(customerId: string): Promise<Order[]> {
-    return this.orderRepository.findByCustomerId(customerId);
-  }
+export const findOrdersByCustomer = ({ orderRepository }: OrderUseCaseDeps) =>
+  async ({ customerId }: FindOrdersByCustomerInput): Promise<Order[]> => {
+    return orderRepository.findByCustomerId(customerId);
+  };
 
-  async findAllOrders(): Promise<Order[]> {
-    return this.orderRepository.findAll();
-  }
+export const findAllOrders = ({ orderRepository }: OrderUseCaseDeps) =>
+  async (): Promise<Order[]> => {
+    return orderRepository.findAll();
+  };
 
-  async updateOrderStatus(
-    id: string,
-    status: OrderStatus
-  ): Promise<Order> {
-    const order = await this.orderRepository.findById(id);
+export const updateOrderStatus = ({ orderRepository }: OrderUseCaseDeps) =>
+  async ({ id, status }: UpdateOrderStatusInput): Promise<Order> => {
+    const order = await orderRepository.findById(id);
     if (!order) {
       throw new Error("Order not found");
     }
-
-    // Use the appropriate status transition method from Order entity
     switch (status) {
       case OrderStatus.CONFIRMED:
         order.confirm();
@@ -93,26 +94,20 @@ class OrderUseCases {
       default:
         throw new Error(`Invalid status transition to ${status}`);
     }
+    return orderRepository.update(order);
+  };
 
-    return this.orderRepository.update(order);
-  }
-
-  async addItemsToOrder(
-    id: string,
-    items: OrderItem[]
-  ): Promise<Order> {
-    const order = await this.orderRepository.findById(id);
+export const addItemsToOrder = ({ orderRepository, productRepository }: OrderUseCaseDeps) =>
+  async ({ id, items }: AddItemsToOrderInput): Promise<Order> => {
+    const order = await orderRepository.findById(id);
     if (!order) {
       throw new Error("Order not found");
     }
-
     if (order.status !== OrderStatus.PENDING) {
       throw new Error("Cannot add items to an order that is not pending");
     }
-
-    // Validate products for each order item
     for (const orderItem of items) {
-      const product = await this.productRepository.findById(orderItem.productId);
+      const product = await productRepository.findById(orderItem.productId);
       if (!product) {
         throw new Error(`Product with ID ${orderItem.productId} not found`);
       }
@@ -120,37 +115,28 @@ class OrderUseCases {
         throw new Error(`Product ${product.name} is not available`);
       }
     }
-
     order.addItem(items);
-    return this.orderRepository.update(order);
-  }
+    return orderRepository.update(order);
+  };
 
-  async updateItemQuantity(
-    orderId: string,
-    itemId: string,
-    quantity: number
-  ): Promise<Order> {
-    const order = await this.orderRepository.findById(orderId);
+export const updateItemQuantity = ({ orderRepository }: OrderUseCaseDeps) =>
+  async ({ orderId, itemId, quantity }: UpdateItemQuantityInput): Promise<Order> => {
+    const order = await orderRepository.findById(orderId);
     if (!order) {
       throw new Error("Order not found");
     }
-
     order.updateItemQuantity(itemId, quantity);
-    return this.orderRepository.update(order);
-  }
+    return orderRepository.update(order);
+  };
 
-  async deleteOrder(id: string): Promise<void> {
-    const order = await this.orderRepository.findById(id);
+export const deleteOrder = ({ orderRepository }: OrderUseCaseDeps) =>
+  async ({ id }: DeleteOrderInput): Promise<void> => {
+    const order = await orderRepository.findById(id);
     if (!order) {
       throw new Error("Order not found");
     }
-
     if (order.status !== OrderStatus.PENDING) {
       throw new Error("Cannot delete an order that is not pending");
     }
-
-    await this.orderRepository.delete(id);
-  }
-}
-
-export default OrderUseCases;
+    await orderRepository.delete(id);
+  };

@@ -1,10 +1,6 @@
-import Payment from "../../domain/entities/Payment";
+import Payment from "@src/domain/entities/Payment";
+import { IGenericRepository } from "./IGenericRepository";
 
-export interface IPaymentRepository {
-  create(payment: Payment): Promise<Payment>;
-  findById(id: string): Promise<Payment | null>;
+export interface IPaymentRepository extends IGenericRepository<Payment> {
   findByOrderId(orderId: string): Promise<Payment[]>;
-  findAll(): Promise<Payment[]>;
-  update(payment: Payment): Promise<Payment>;
-  delete(id: string): Promise<void>;
 }

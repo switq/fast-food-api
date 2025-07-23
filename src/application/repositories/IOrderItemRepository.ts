@@ -1,10 +1,7 @@
-import OrderItem from "../../domain/entities/OrderItem";
+import OrderItem from "@src/domain/entities/OrderItem";
+import { IGenericRepository } from "./IGenericRepository";
 
-export interface IOrderItemRepository {
-  create(orderItem: OrderItem): Promise<OrderItem>;
-  findById(id: string): Promise<OrderItem | null>;
+export interface IOrderItemRepository extends IGenericRepository<OrderItem> {
   findByOrderId(orderId: string): Promise<OrderItem[]>;
-  findAll(): Promise<OrderItem[]>;
-  update(orderItem: OrderItem): Promise<OrderItem>;
-  delete(id: string): Promise<void>;
+  findByProductId(productId: string): Promise<OrderItem[]>;
 }

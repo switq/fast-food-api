@@ -1,6 +1,6 @@
-import { UUIDService } from "../services/UUIDService";
-import CPF from "../value-objects/CPF";
-import Phone from "../value-objects/Phone";
+import { UUIDService } from "@src/domain/services/UUIDService";
+import CPF from "@src/domain/value-objects/CPF";
+import Phone from "@src/domain/value-objects/Phone";
 import { BaseEntity } from "./BaseEntity";
 
 
