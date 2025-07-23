@@ -1,112 +1,93 @@
 # Fast Food API
 
-A TypeScript-based REST API for a fast food restaurant using Express and Prisma.
+Uma API REST baseada em TypeScript para um restaurante de fast food usando Express e Prisma.
 
-## Setup
+## Configuração
 
-### Option 1: Using Docker (Recommended)
-
-1. Clone the repository and navigate to the project directory:
+1. Clone o repositório e navegue até o diretório do projeto:
 
 ```bash
-git clone <repository-url>
+git clone <url-do-repositório>
 cd fast-food-api
 ```
 
-2. Start the application with Docker Compose:
-
-```bash
-docker compose up --build
-```
-
-This will start both the PostgreSQL database and the application automatically, including seeding the database with sample data.
-
-### Option 2: Local Development
-
-1. Install dependencies:
-
-```bash
-npm install
-```
-
-2. Create a `.env` file in the root directory:
+2. Configure as variáveis de ambiente:
 
 ```bash
 cp env.example .env
 ```
 
-3. Update the `.env` file with your database configuration:
+3. Inicie a aplicação com Docker Compose:
 
-```env
-DATABASE_URL="postgresql://user:password@localhost:5432/fast_food_db?schema=public"
-PORT=3000
-NODE_ENV=development
+**Para Desenvolvimento:**
+```bash
+docker compose --profile dev up --build
 ```
 
-4. Initialize the database:
+**Para Produção:**
+```bash
+docker compose --profile prod up --build
+```
+
+Isso iniciará automaticamente o banco de dados PostgreSQL e a aplicação, incluindo o preenchimento do banco com dados de exemplo.
+
+## Desenvolvimento
+
+### Perfis Docker
+
+**Desenvolvimento (`--profile dev`):**
+- API server na porta 3000
+- Prisma Studio na porta 5555
+- Hot reload automático
+- Banco de dados com dados de exemplo
+
+**Produção (`--profile prod`):**
+- API server otimizado na porta 3000
+- Build multi-stage para menor tamanho de imagem
+- Sem ferramentas de desenvolvimento
+
+### Comandos Úteis
 
 ```bash
-npm run db:push
+# Desenvolvimento
+docker compose --profile dev up --build
+
+# Produção  
+docker compose --profile prod up --build
+
+# Parar todos os serviços
+docker compose down
+
+# Ver logs
+docker compose logs -f
+
+# Validação de código
+npm run ci          # Executa todas as validações
+npm run lint        # Verifica linting
+npm run lint:fix    # Corrige problemas de linting
+npm run format      # Formata código
+npm run format:check # Verifica formatação
+npm run type-check  # Verifica tipos TypeScript
 ```
 
-5. Generate Prisma Client:
+## Schema do Banco de Dados
 
-```bash
-npm run db:generate
-```
+A aplicação inclui os seguintes modelos:
 
-6. Seed the database with sample data:
+- **Customer**: Informações do cliente com nome, email, CPF e telefone
+- **Category**: Categorias de produtos (Hambúrgueres, Bebidas, etc.)
+- **Product**: Itens de comida com nome, descrição, preço, categoria e disponibilidade
+- **Order**: Pedidos dos clientes com rastreamento de status
+- **OrderItem**: Itens individuais dentro de um pedido
 
-```bash
-npm run db:seed
-```
+## Dados de Exemplo
 
-## Development
+O banco de dados é automaticamente preenchido com:
 
-### With Docker
-
-The application will automatically restart when you make changes to the code.
-
-### Without Docker
-
-Run the development server:
-
-```bash
-npm run dev
-```
-
-## Build
-
-Build the project:
-
-```bash
-npm run build
-```
-
-Run the production server:
-
-```bash
-npm start
-```
-
-## Database Schema
-
-The application includes the following models:
-
-- **Customer**: Customer information with name, email, CPF, and phone
-- **Category**: Product categories (Hambúrgueres, Bebidas, etc.)
-- **Product**: Food items with name, description, price, category, and availability
-- **Order**: Customer orders with status tracking
-- **OrderItem**: Individual items within an order
-
-## Sample Data
-
-The database is automatically seeded with:
-
-- **5 Categories**: Hambúrgueres, Bebidas, Acompanhamentos, Sobremesas, Combos
-- **13 Products**: Various hamburgers, drinks, sides, desserts, and combo meals
-- **5 Customers**: Sample customer data with valid CPF and phone numbers
-- **3 Sample Orders**: Orders in different statuses with realistic items
+- **5 Categorias**: Hambúrgueres, Bebidas, Acompanhamentos, Sobremesas, Combos
+- **13 Produtos**: Vários hambúrgueres, bebidas, acompanhamentos, sobremesas e combos
+- **5 Clientes**: Dados de exemplo de clientes com CPF e números de telefone válidos
+- **3 Pedidos de Exemplo**: Pedidos em diferentes status com itens realistas
 
 ## API Endpoints
 
@@ -119,98 +100,140 @@ The database is automatically seeded with:
 - `POST /customers` - Create a new customer
 - `GET /categories` - Get all categories
 
-## Database Commands
+## Comandos do Banco de Dados
 
-- `npm run db:generate` - Generate Prisma client
-- `npm run db:push` - Push schema changes to database
-- `npm run db:seed` - Seed database with sample data (skips if data exists)
-- `npm run db:seed:force` - Force seed database (clears existing data first)
-- `npm run db:reset` - Reset database and seed with sample data
-- `npm run db:studio` - Open Prisma Studio (database GUI)
+**Via Docker:**
+```bash
+# Acessar o container da aplicação
+docker compose exec app_development sh
 
-## Environment Variables
+# Dentro do container:
+npm run db:generate    # Gera o cliente Prisma
+npm run db:push        # Envia alterações do schema
+npm run db:seed        # Preenche com dados de exemplo
+npm run db:reset       # Reseta e preenche o banco
+```
 
-Copy `env.example` to `.env` and configure the following variables:
+**Prisma Studio:**
+- Disponível em `http://localhost:5555` quando usando `--profile dev`
+- Ou execute localmente: `npm run db:studio`
 
-- `DATABASE_URL`: PostgreSQL connection string
-- `PORT`: Server port (default: 3000)
-- `NODE_ENV`: Environment (development/production)
-- `LOG_LEVEL`: Logging level (optional)
-- `CORS_origin`: CORS origin (optional)
+## Variáveis de Ambiente
 
-## Payment Flow (Mercado Pago)
+Copie `env.example` para `.env` e configure as seguintes variáveis:
 
-The API supports a complete payment flow using Mercado Pago, including QR code generation and webhook integration for status updates.
+- `DATABASE_URL`: String de conexão PostgreSQL
+- `PORT`: Porta do servidor (padrão: 3000)
+- `NODE_ENV`: Ambiente (development/production)
+- `LOG_LEVEL`: Nível de log (opcional)
+- `CORS_origin`: Origem CORS (opcional)
 
-### How to Test the Payment Flow
+## Fluxo de Pagamento (Mercado Pago)
 
-1. **Configure Mercado Pago Credentials**
-   - Add your test `MERCADO_PAGO_ACCESS_TOKEN` to `.env`.
-   - Set `MERCADO_PAGO_NOTIFICATION_URL` to your public webhook endpoint (use ngrok for local development).
+A API suporta um fluxo completo de pagamento usando Mercado Pago, incluindo geração de QR code e integração de webhook para atualizações de status.
 
-2. **Create an Order**
-   - Use `POST /api/orders` with a valid customer and product.
+### Como Testar o Fluxo de Pagamento
 
-3. **Generate Payment (QR Code)**
-   - Use `POST /api/orders/:orderId/payment` (body is optional, e.g. `{}` or `{ "paymentMethodId": "pix" }`).
-   - The response includes a QR code URL and a base64 QR code for Mercado Pago checkout.
+1. **Configure as Credenciais do Mercado Pago**
+   - Adicione seu `MERCADO_PAGO_ACCESS_TOKEN` de teste ao `.env`.
+   - Configure `MERCADO_PAGO_NOTIFICATION_URL` para seu endpoint de webhook público (use ngrok para desenvolvimento local).
 
-4. **Complete Payment**
-   - Scan the QR code or open the payment URL with your Mercado Pago test buyer account.
+2. **Crie um Pedido**
+   - Use `POST /api/orders` com um cliente e produto válidos.
 
-5. **Webhook Notification**
-   - Mercado Pago will POST to your webhook endpoint when payment status changes.
-   - The API updates the order status automatically.
+3. **Gere o Pagamento (QR Code)**
+   - Use `POST /api/orders/:orderId/payment` (corpo é opcional, ex: `{}` ou `{ "paymentMethodId": "pix" }`).
+   - A resposta inclui uma URL do QR code e um QR code base64 para checkout do Mercado Pago.
 
-### Example Postman Collection
+4. **Complete o Pagamento**
+   - Escaneie o QR code ou abra a URL de pagamento com sua conta de comprador de teste do Mercado Pago.
 
-Import `fast-food-api.postman_collection.json` into Postman for ready-to-use requests, including payment flow.
+5. **Notificação de Webhook**
+   - O Mercado Pago fará POST para seu endpoint de webhook quando o status do pagamento mudar.
+   - A API atualiza o status do pedido automaticamente.
 
-### Scripts for Automated Testing
+### Coleção de Exemplo do Postman
+
+Importe `fast-food-api.postman_collection.json` no Postman para requisições prontas para uso, incluindo o fluxo de pagamento.
+
+### Scripts para Teste Automatizado
 
 - Bash: `scripts/test_payment_endpoint.sh`
 - PowerShell: `scripts/test_payment_endpoint.ps1`
 
 ---
 
-## Order Status Flow & Business Rules
+## Fluxo de Status do Pedido e Regras de Negócio
 
-The order status transitions follow strict business rules:
+As transições de status do pedido seguem regras de negócio rigorosas:
 
-- **PENDING**: Order created, awaiting confirmation.
-- **CONFIRMED**: Order confirmed, awaiting payment.
-- **PAYMENT_CONFIRMED**: Payment received, ready for preparation.
-- **PREPARING**: Order is being prepared in the kitchen.
-- **READY**: Order is ready for pickup/delivery.
-- **DELIVERED**: Order has been delivered or picked up.
-- **CANCELLED**: Order was cancelled (not allowed after DELIVERED).
+- **PENDING**: Pedido criado, aguardando confirmação.
+- **CONFIRMED**: Pedido confirmado, aguardando pagamento.
+- **PAYMENT_CONFIRMED**: Pagamento recebido, pronto para preparação.
+- **PREPARING**: Pedido está sendo preparado na cozinha.
+- **READY**: Pedido está pronto para retirada/entrega.
+- **DELIVERED**: Pedido foi entregue ou retirado.
+- **CANCELLED**: Pedido foi cancelado (não permitido após DELIVERED).
 
-### Allowed Transitions
+### Transições Permitidas
 
-| From                | To                   | Rule/Condition                        |
-|---------------------|----------------------|---------------------------------------|
-| PENDING             | CONFIRMED            | Must have at least one item           |
-| CONFIRMED           | PAYMENT_CONFIRMED    | Payment must be confirmed             |
-| PAYMENT_CONFIRMED   | PREPARING            | Only after payment confirmed          |
-| PREPARING           | READY                | Only after preparation complete       |
-| READY               | DELIVERED            | Only after ready                      |
-| Any (except DELIVERED) | CANCELLED         | Can cancel unless already delivered   |
+| De                  | Para                 | Regra/Condição                         |
+|---------------------|----------------------|----------------------------------------|
+| PENDING             | CONFIRMED            | Deve ter pelo menos um item            |
+| CONFIRMED           | PAYMENT_CONFIRMED    | Pagamento deve ser confirmado          |
+| PAYMENT_CONFIRMED   | PREPARING            | Apenas após pagamento confirmado       |
+| PREPARING           | READY                | Apenas após preparação completa        |
+| READY               | DELIVERED            | Apenas após pronto                     |
+| Qualquer (exceto DELIVERED) | CANCELLED     | Pode cancelar a menos que já entregue |
 
-### Error Responses
+### Respostas de Erro
 
-- Invalid transition: `400 Bad Request` with message like `"Order can only be marked as delivered when it is ready"`
-- Cancel after delivered: `400 Bad Request` with message `"Cannot cancel an order that has been delivered"`
+- Transição inválida: `400 Bad Request` com mensagem como `"Order can only be marked as delivered when it is ready"`
+- Cancelar após entregue: `400 Bad Request` com mensagem `"Cannot cancel an order that has been delivered"`
 
 ---
 
-## API Documentation
+## Documentação da API
 
-The full API documentation (Swagger/OpenAPI) is available at:
+A documentação completa da API (Swagger/OpenAPI) está disponível em:
 
 ```
 /api-docs
 ```
 
-Access this endpoint in your browser after starting the application to view and test all available routes, payloads, and responses.
+Acesse este endpoint no seu navegador após iniciar a aplicação para visualizar e testar todas as rotas, payloads e respostas disponíveis.
+
+---
+
+## Validação de Código
+
+O projeto inclui validações automatizadas que são executadas em cada Pull Request:
+
+### GitHub Actions
+
+- ✅ **TypeScript Check** - Verifica tipos e erros de compilação
+- ✅ **ESLint** - Valida regras de linting
+- ✅ **Prettier** - Verifica formatação do código
+- ✅ **Testes** - Executa suite de testes
+- ✅ **Coverage** - Valida cobertura mínima de 75%
+
+### Executar Localmente
+
+```bash
+# Executar todas as validações
+npm run ci
+
+# Validações individuais
+npm run type-check  # TypeScript
+npm run lint        # ESLint
+npm run format:check # Prettier
+npm run test:coverage # Testes + Coverage
+```
+
+### Configurações
+
+- **ESLint**: `.eslintrc.js` - Regras de linting para TypeScript
+- **Prettier**: `.prettierrc` - Formatação de código
+- **Jest**: `jest.config.js` - Configuração de testes e coverage
 
 ---
