@@ -17,6 +17,7 @@ describe("ProductUseCases", () => {
       update: jest.fn(),
       delete: jest.fn(),
       findAll: jest.fn(),
+      updateStock: jest.fn(),
     };
 
     mockCategoryRepository = {

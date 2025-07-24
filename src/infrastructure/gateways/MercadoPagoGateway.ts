@@ -1,23 +1,23 @@
-import { MercadoPagoConfig, Payment, Preference } from 'mercadopago';
+import { MercadoPagoConfig, Payment, Preference } from "mercadopago";
 import {
   IPaymentGateway,
   PaymentCreationData,
   PaymentCreationResult,
   PaymentStatus,
   PaymentStatusResult,
-} from '../../application/gateways/IPaymentGateway';
-import * as qrcode from 'qrcode';
+} from "../../application/gateways/IPaymentGateway";
+import * as qrcode from "qrcode";
 
 export class MercadoPagoGateway implements IPaymentGateway {
   private readonly client: MercadoPagoConfig;
 
   constructor() {
     this.client = new MercadoPagoConfig({
-      accessToken: process.env.MERCADO_PAGO_ACCESS_TOKEN || '',
+      accessToken: process.env.MERCADO_PAGO_ACCESS_TOKEN || "",
     });
-  }  
+  }
   async createPayment(
-    data: PaymentCreationData,
+    data: PaymentCreationData
   ): Promise<PaymentCreationResult> {
     const preference = new Preference(this.client);
 
@@ -44,7 +44,7 @@ export class MercadoPagoGateway implements IPaymentGateway {
     const result: PaymentCreationResult = {
       paymentProviderId: response.id!.toString(),
       qrCode: response.init_point!,
-      qrCodeBase64: qrCode.split('base64,')[1],
+      qrCodeBase64: qrCode.split("base64,")[1],
     };
 
     return result;
@@ -54,12 +54,12 @@ export class MercadoPagoGateway implements IPaymentGateway {
     try {
       console.log(`Getting payment status for payment ID: ${paymentId}`);
       const response = await payment.get({ id: paymentId });
-      
+
       console.log(`Payment response:`, {
         id: response.id,
         status: response.status,
         external_reference: response.external_reference,
-        status_detail: response.status_detail
+        status_detail: response.status_detail,
       });
 
       let status: PaymentStatus;
@@ -67,18 +67,18 @@ export class MercadoPagoGateway implements IPaymentGateway {
         status = PaymentStatus.ERROR;
       } else {
         switch (response.status) {
-          case 'pending':
-          case 'in_process':
+          case "pending":
+          case "in_process":
             status = PaymentStatus.PENDING;
             break;
-          case 'approved':
-          case 'authorized':
+          case "approved":
+          case "authorized":
             status = PaymentStatus.APPROVED;
             break;
-          case 'rejected':
+          case "rejected":
             status = PaymentStatus.REJECTED;
             break;
-          case 'cancelled':
+          case "cancelled":
             status = PaymentStatus.CANCELLED;
             break;
           default:
@@ -91,11 +91,11 @@ export class MercadoPagoGateway implements IPaymentGateway {
         externalReference: response.external_reference || undefined,
       };
     } catch (error) {
-      console.error('Error getting payment status from Mercado Pago:', error);
-      console.error('Error details:', error);
-      return { 
+      console.error("Error getting payment status from Mercado Pago:", error);
+      console.error("Error details:", error);
+      return {
         status: PaymentStatus.ERROR,
-        externalReference: undefined 
+        externalReference: undefined,
       };
     }
   }

@@ -13,55 +13,60 @@ class PaymentUseCases {
   ) {
     console.log(`Processing webhook notification for payment ID: ${paymentId}`);
     console.log("--------------------");
-    
-    const paymentStatusResult = await paymentGateway.getPaymentStatus(paymentId);
-    
+
+    const paymentStatusResult =
+      await paymentGateway.getPaymentStatus(paymentId);
+
     console.log(`Payment status result:`, {
       status: paymentStatusResult.status,
-      externalReference: paymentStatusResult.externalReference
+      externalReference: paymentStatusResult.externalReference,
     });
 
     if (!paymentStatusResult.externalReference) {
-      console.error(
-        `Payment ${paymentId} has no external reference.`
-      );
+      console.error(`Payment ${paymentId} has no external reference.`);
       console.log("--------------------");
       return;
     }
 
-    console.log(`Looking for order with ID: ${paymentStatusResult.externalReference}`);
+    console.log(
+      `Looking for order with ID: ${paymentStatusResult.externalReference}`
+    );
     const order = await orderRepository.findById(
       paymentStatusResult.externalReference
     );
 
     if (order) {
-      console.log(`Found order ${order.id}, updating payment status to: ${paymentStatusResult.status}`);
-      
+      console.log(
+        `Found order ${order.id}, updating payment status to: ${paymentStatusResult.status}`
+      );
+
       order.setPaymentStatus(paymentStatusResult.status);
       order.setPaymentProviderId(paymentId);
-      
+
       if (paymentStatusResult.status === PaymentStatus.APPROVED) {
         console.log(`Payment approved, confirming order payment`);
-        
+
         // First confirm the order if it's still pending
         if (order.status === "PENDING") {
           console.log(`Order is PENDING, confirming order first`);
           order.confirm();
         }
-        
+
         // Then confirm the payment
         if (order.status === "CONFIRMED") {
           console.log(`Order is CONFIRMED, confirming payment`);
           order.confirmPayment();
         }
       }
-      
+
       await orderRepository.update(order);
       console.log(`Order ${order.id} updated successfully`);
     } else {
-      console.error(`Order not found with ID: ${paymentStatusResult.externalReference}`);
+      console.error(
+        `Order not found with ID: ${paymentStatusResult.externalReference}`
+      );
     }
-    
+
     console.log("--------------------");
   }
 
@@ -90,7 +95,7 @@ class PaymentUseCases {
     }
 
     let customerEmail = "guest@example.com";
-    
+
     if (order.customerId && customerRepository) {
       const customer = await customerRepository.findById(order.customerId);
       if (customer) {
@@ -111,7 +116,7 @@ class PaymentUseCases {
     // Update the order with the preference ID from Mercado Pago
     order.setPaymentProviderId(paymentResult.paymentProviderId);
     await orderRepository.update(order);
-    
+
     return {
       orderId: order.id,
       paymentProviderId: paymentResult.paymentProviderId,

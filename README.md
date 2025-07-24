@@ -1,41 +1,49 @@
 # Fast Food API
 
-A TypeScript-based REST API for a fast food restaurant using Express and Prisma.
+Uma API REST baseada em TypeScript para um restaurante de fast food usando Express e Prisma.
 
-## Setup
+## Configuração
 
-### Option 1: Using Docker (Recommended)
+### Opção 1: Usando Docker (Recomendado)
 
-1. Clone the repository and navigate to the project directory:
+1. Clone o repositório e navegue até o diretório do projeto:
 
 ```bash
-git clone <repository-url>
+git clone <url-do-repositório>
 cd fast-food-api
 ```
 
-2. Start the application with Docker Compose:
+2. Inicie a aplicação com Docker Compose:
+
+**Para Desenvolvimento:**
 
 ```bash
-docker compose up --build
+docker compose --profile dev up --build
 ```
 
-This will start both the PostgreSQL database and the application automatically, including seeding the database with sample data.
+**Para Produção:**
 
-### Option 2: Local Development
+```bash
+docker compose --profile prod up --build
+```
 
-1. Install dependencies:
+Isso iniciará automaticamente o banco de dados PostgreSQL e a aplicação, incluindo o preenchimento do banco com dados de exemplo.
+
+### Opção 2: Desenvolvimento Local
+
+1. Instale as dependências:
 
 ```bash
 npm install
 ```
 
-2. Create a `.env` file in the root directory:
+2. Configure as variáveis de ambiente:
 
 ```bash
 cp env.example .env
 ```
 
-3. Update the `.env` file with your database configuration:
+3. Atualize o arquivo `.env` com sua configuração de banco de dados:
 
 ```env
 DATABASE_URL="postgresql://user:password@localhost:5432/fast_food_db?schema=public"
@@ -43,33 +51,33 @@ PORT=3000
 NODE_ENV=development
 ```
 
-4. Initialize the database:
+4. Inicialize o banco de dados:
 
 ```bash
 npm run db:push
 ```
 
-5. Generate Prisma Client:
+5. Gere o Prisma Client:
 
 ```bash
 npm run db:generate
 ```
 
-6. Seed the database with sample data:
+6. Preencha o banco com dados de exemplo:
 
 ```bash
 npm run db:seed
 ```
 
-## Development
+## Desenvolvimento
 
-### With Docker
+### Com Docker
 
-The application will automatically restart when you make changes to the code.
+A aplicação reiniciará automaticamente quando você fizer alterações no código.
 
-### Without Docker
+### Sem Docker
 
-Run the development server:
+Execute o servidor de desenvolvimento:
 
 ```bash
 npm run dev
@@ -77,36 +85,75 @@ npm run dev
 
 ## Build
 
-Build the project:
+Compile o projeto:
 
 ```bash
 npm run build
 ```
 
-Run the production server:
+Execute o servidor de produção:
 
 ```bash
 npm start
 ```
 
-## Database Schema
+### Perfis Docker
 
-The application includes the following models:
+**Desenvolvimento (`--profile dev`):**
 
-- **Customer**: Customer information with name, email, CPF, and phone
-- **Category**: Product categories (Hambúrgueres, Bebidas, etc.)
-- **Product**: Food items with name, description, price, category, and availability
-- **Order**: Customer orders with status tracking
-- **OrderItem**: Individual items within an order
+- API server na porta 3000
+- Prisma Studio na porta 5555
+- Hot reload automático
+- Banco de dados com dados de exemplo
 
-## Sample Data
+**Produção (`--profile prod`):**
 
-The database is automatically seeded with:
+- API server otimizado na porta 3000
+- Build multi-stage para menor tamanho de imagem
+- Sem ferramentas de desenvolvimento
 
-- **5 Categories**: Hambúrgueres, Bebidas, Acompanhamentos, Sobremesas, Combos
-- **13 Products**: Various hamburgers, drinks, sides, desserts, and combo meals
-- **5 Customers**: Sample customer data with valid CPF and phone numbers
-- **3 Sample Orders**: Orders in different statuses with realistic items
+### Comandos Úteis
+
+```bash
+# Desenvolvimento
+docker compose --profile dev up --build
+
+# Produção
+docker compose --profile prod up --build
+
+# Parar todos os serviços
+docker compose down
+
+# Ver logs
+docker compose logs -f
+
+# Validação de código
+npm run ci          # Executa todas as validações
+npm run lint        # Verifica linting
+npm run lint:fix    # Corrige problemas de linting
+npm run format      # Formata código
+npm run format:check # Verifica formatação
+npm run type-check  # Verifica tipos TypeScript
+```
+
+## Schema do Banco de Dados
+
+A aplicação inclui os seguintes modelos:
+
+- **Customer**: Informações do cliente com nome, email, CPF e telefone
+- **Category**: Categorias de produtos (Hambúrgueres, Bebidas, etc.)
+- **Product**: Itens de comida com nome, descrição, preço, categoria e disponibilidade
+- **Order**: Pedidos dos clientes com rastreamento de status
+- **OrderItem**: Itens individuais dentro de um pedido
+
+## Dados de Exemplo
+
+O banco de dados é automaticamente preenchido com:
+
+- **5 Categorias**: Hambúrgueres, Bebidas, Acompanhamentos, Sobremesas, Combos
+- **13 Produtos**: Vários hambúrgueres, bebidas, acompanhamentos, sobremesas e combos
+- **5 Clientes**: Dados de exemplo de clientes com CPF e números de telefone válidos
+- **3 Pedidos de Exemplo**: Pedidos em diferentes status com itens realistas
 
 ## API Endpoints
 
@@ -119,146 +166,189 @@ The database is automatically seeded with:
 - `POST /customers` - Create a new customer
 - `GET /categories` - Get all categories
 
-## Database Commands
+## Comandos do Banco de Dados
 
-- `npm run db:generate` - Generate Prisma client
-- `npm run db:push` - Push schema changes to database
-- `npm run db:seed` - Seed database with sample data (skips if data exists)
-- `npm run db:seed:force` - Force seed database (clears existing data first)
-- `npm run db:reset` - Reset database and seed with sample data
-- `npm run db:studio` - Open Prisma Studio (database GUI)
+**Via Docker:**
 
-## Docker Commands
+```bash
+# Acessar o container da aplicação (desenvolvimento)
+docker compose exec app_development sh
 
-- **Start all services (app + database):**
+# Acessar o container da aplicação (produção)
+docker compose exec app_production sh
+
+# Dentro do container:
+npm run db:generate    # Gera o cliente Prisma
+npm run db:push        # Envia alterações do schema
+npm run db:seed        # Preenche com dados de exemplo
+npm run db:reset       # Reseta e preenche o banco
+```
+
+**Localmente:**
+
+- `npm run db:generate` - Gera o cliente Prisma
+- `npm run db:push` - Envia alterações do schema para o banco
+- `npm run db:seed` - Preenche o banco com dados de exemplo (pula se dados existem)
+- `npm run db:seed:force` - Força o preenchimento do banco (limpa dados existentes primeiro)
+- `npm run db:reset` - Reseta o banco e preenche com dados de exemplo
+- `npm run db:studio` - Abre o Prisma Studio (interface gráfica do banco)
+
+**Prisma Studio:**
+
+- Disponível em `http://localhost:5555` quando usando `--profile dev`
+- Ou execute localmente: `npm run db:studio`
+
+## Comandos Docker
+
+- **Iniciar todos os serviços (desenvolvimento):**
   ```bash
-  docker-compose up --build
+  docker compose --profile dev up --build
   ```
-- **Stop all services:**
+- **Iniciar todos os serviços (produção):**
   ```bash
-  docker-compose down
+  docker compose --profile prod up --build
   ```
-- **View logs:**
+- **Parar todos os serviços:**
   ```bash
-  docker-compose logs -f
+  docker compose down
   ```
-- **Rebuild containers:**
+- **Ver logs:**
   ```bash
-  docker-compose up --build --force-recreate
+  docker compose logs -f
   ```
-- **Access a running container (bash):**
+- **Reconstruir containers (desenvolvimento):**
   ```bash
-  docker-compose exec app bash
+  docker compose --profile dev up --build --force-recreate
+  ```
+- **Reconstruir containers (produção):**
+  ```bash
+  docker compose --profile prod up --build --force-recreate
+  ```
+- **Acessar um container em execução (desenvolvimento):**
+  ```bash
+  docker compose exec app_development sh
+  ```
+- **Acessar um container em execução (produção):**
+  ```bash
+  docker compose exec app_production sh
   ```
 
 ---
 
-## Environment Variables
+## Variáveis de Ambiente
 
-Copy `env.example` to `.env` and configure the following variables:
+Copie `env.example` para `.env` e configure as seguintes variáveis:
 
-- `DATABASE_URL`: PostgreSQL connection string
-- `PORT`: Server port (default: 3000)
-- `NODE_ENV`: Environment (development/production)
-- `LOG_LEVEL`: Logging level (optional)
-- `CORS_origin`: CORS origin (optional)
+- `DATABASE_URL`: String de conexão PostgreSQL
+- `PORT`: Porta do servidor (padrão: 3000)
+- `NODE_ENV`: Ambiente (development/production)
+- `LOG_LEVEL`: Nível de log (opcional)
+- `CORS_origin`: Origem CORS (opcional)
 
-## Payment Flow (Mercado Pago)
+## Fluxo de Pagamento (Mercado Pago)
 
-The API supports a complete payment flow using Mercado Pago, including QR code generation and webhook integration for status updates.
+A API suporta um fluxo completo de pagamento usando Mercado Pago, incluindo geração de QR code e integração de webhook para atualizações de status.
 
-### 🚀 **Complete Setup Guide**
+### 🚀 **Guia Completo de Configuração**
 
-#### **1. Configure Environment Variables**
+#### **1. Configure as Variáveis de Ambiente**
 
-Add the following to your `.env` file:
+Adicione o seguinte ao seu arquivo `.env`:
 
 ```env
-# Mercado Pago Configuration
-MERCADO_PAGO_ACCESS_TOKEN=TEST-your-access-token-here
-MERCADO_PAGO_NOTIFICATION_URL=https://your-ngrok-url.ngrok-free.app/api/payments/webhook
+# Configuração do Mercado Pago
+MERCADO_PAGO_ACCESS_TOKEN=TEST-seu-access-token-aqui
+MERCADO_PAGO_NOTIFICATION_URL=https://sua-url-ngrok.ngrok-free.app/api/payments/webhook
 
-# Database
+# Banco de Dados
 DATABASE_URL="postgresql://user:password@localhost:5432/fastfood?schema=public"
 
-# Server
+# Servidor
 PORT=3000
 NODE_ENV=development
 ```
 
-#### **2. Setup ngrok for Webhook (Required for Local Development)**
+#### **2. Configure ngrok para Webhook (Necessário para Desenvolvimento Local)**
 
-**Install ngrok:**
-- Download from: https://ngrok.com/download
-- Or install via package manager: `npm install -g ngrok`
+**Instale o ngrok:**
 
-**Configure ngrok:**
+- Baixe em: https://ngrok.com/download
+- Ou instale via gerenciador de pacotes: `npm install -g ngrok`
+
+**Configure o ngrok:**
+
 ```bash
-# Authenticate (get token from ngrok.com)
-ngrok config add-authtoken YOUR_NGROK_TOKEN
+# Autentique (obtenha o token em ngrok.com)
+ngrok config add-authtoken SEU_NGROK_TOKEN
 
-# Start tunnel for port 3000
+# Inicie o túnel para a porta 3000
 ngrok http 3000
 ```
 
-**Get your webhook URL:**
+**Obtenha sua URL de webhook:**
+
 ```bash
-# Check active tunnels
+# Verifique túneis ativos
 curl http://localhost:4040/api/tunnels
 
-# Your webhook URL will be something like:
+# Sua URL de webhook será algo como:
 # https://abc123.ngrok-free.app/api/payments/webhook
 ```
 
-#### **3. Configure Mercado Pago Webhook**
+#### **3. Configure o Webhook do Mercado Pago**
 
-1. **Access Mercado Pago Developer Panel:**
-   - Go to: https://www.mercadopago.com.br/developers/panel
-   - Navigate to: Applications → Your App → Webhooks
+1. **Acesse o Painel de Desenvolvedores do Mercado Pago:**
+   - Vá para: https://www.mercadopago.com.br/developers/panel
+   - Navegue para: Applications → Sua App → Webhooks
 
-2. **Add Webhook Configuration:**
+2. **Adicione a Configuração do Webhook:**
+
    ```
-   URL: https://your-ngrok-url.ngrok-free.app/api/payments/webhook
+   URL: https://sua-url-ngrok.ngrok-free.app/api/payments/webhook
    Events: payment.created, payment.updated
    ```
 
-3. **Test Webhook:**
-   - Use the "Test" button in Mercado Pago panel
-   - Or use Postman collection provided
+3. **Teste o Webhook:**
+   - Use o botão "Test" no painel do Mercado Pago
+   - Ou use a coleção do Postman fornecida
 
-#### **4. Start the Application**
+#### **4. Inicie a Aplicação**
 
 ```bash
-# Start with Docker (recommended)
-docker-compose up --build
+# Inicie com Docker (recomendado) - Desenvolvimento
+docker compose --profile dev up --build
 
-# Or start locally
+# Ou inicie com Docker - Produção
+docker compose --profile prod up --build
+
+# Ou inicie localmente
 npm install
 npm run dev
 ```
 
-#### **5. Verify Setup**
+#### **5. Verifique a Configuração**
 
-**Check if everything is running:**
+**Verifique se tudo está funcionando:**
+
 ```bash
-# Test application
+# Teste a aplicação
 curl http://localhost:3000/api/health
 
-# Test ngrok tunnel
-curl https://your-ngrok-url.ngrok-free.app/api/health
+# Teste o túnel ngrok
+curl https://sua-url-ngrok.ngrok-free.app/api/health
 
-# Test webhook endpoint
-curl -X POST https://your-ngrok-url.ngrok-free.app/api/payments/webhook \
+# Teste o endpoint de webhook
+curl -X POST https://sua-url-ngrok.ngrok-free.app/api/payments/webhook \
   -H "Content-Type: application/json" \
   -d '{"data":{"id":"test"}}'
 ```
 
-### 🔄 **Payment Flow Testing**
+### 🔄 **Testando o Fluxo de Pagamento**
 
-#### **Step 1: Create Customer and Order**
+#### **Passo 1: Crie um Cliente e Pedido**
 
 ```bash
-# Create customer
+# Crie um cliente
 POST /api/customers
 {
   "name": "João Silva",
@@ -267,10 +357,10 @@ POST /api/customers
   "phone": "11999999999"
 }
 
-# Create order
+# Crie um pedido
 POST /api/orders
 {
-  "customerId": "customer-id-from-above",
+  "customerId": "customer-id-do-exemplo-acima",
   "items": [
     {
       "productId": "product-id",
@@ -280,16 +370,16 @@ POST /api/orders
 }
 ```
 
-#### **Step 2: Generate Payment QR Code**
+#### **Passo 2: Gere o QR Code de Pagamento**
 
 ```bash
-# Generate payment
+# Gere o pagamento
 POST /api/orders/{orderId}/payment
 {
   "paymentMethodId": "pix"
 }
 
-# Response includes:
+# A resposta inclui:
 {
   "orderId": "...",
   "paymentProviderId": "...",
@@ -298,200 +388,252 @@ POST /api/orders/{orderId}/payment
 }
 ```
 
-#### **Step 3: Complete Payment**
+#### **Passo 3: Complete o Pagamento**
 
-1. **Scan QR Code** with Mercado Pago test account
-2. **Complete payment** in Mercado Pago interface
-3. **Webhook automatically updates** order status
+1. **Escaneie o QR Code** com a conta de teste do Mercado Pago
+2. **Complete o pagamento** na interface do Mercado Pago
+3. **O webhook atualiza automaticamente** o status do pedido
 
-#### **Step 4: Monitor Payment Status**
+#### **Passo 4: Monitore o Status do Pagamento**
 
 ```bash
-# Check order status (from database)
+# Verifique o status do pedido (do banco de dados)
 GET /api/payments/order/{orderId}/status
 
-# Check real-time status (from Mercado Pago)
+# Verifique o status em tempo real (do Mercado Pago)
 GET /api/payments/order/{orderId}/status?provider=true
 
-# Monitor logs
-docker-compose logs -f app
+# Monitore os logs (desenvolvimento)
+docker compose logs -f app_development
+
+# Monitore os logs (produção)
+docker compose logs -f app_production
 ```
 
-### 🛠️ **Troubleshooting**
+### 🛠️ **Solução de Problemas**
 
-#### **ngrok Issues**
+#### **Problemas com ngrok**
 
-If you get `ERR_NGROK_3004` error:
+Se você receber erro `ERR_NGROK_3004`:
 
 ```bash
-# 1. Stop ngrok
+# 1. Pare o ngrok
 taskkill /f /im ngrok.exe  # Windows
-# or
+# ou
 pkill ngrok  # Linux/Mac
 
-# 2. Restart ngrok correctly
+# 2. Reinicie o ngrok corretamente
 ngrok http 3000
 
-# 3. Update webhook URL in Mercado Pago panel
+# 3. Atualize a URL do webhook no painel do Mercado Pago
 ```
 
-**Run diagnostic script:**
+**Execute o script de diagnóstico:**
+
 ```bash
 # Windows
 .\diagnose_ngrok.ps1
 
-# Check if ngrok is pointing to http://localhost:3000 (not https)
+# Verifique se o ngrok está apontando para http://localhost:3000 (não https)
 ```
 
-#### **Webhook Not Receiving**
+#### **Webhook Não Recebendo**
 
-1. **Check ngrok status:**
+1. **Verifique o status do ngrok:**
+
    ```bash
    curl http://localhost:4040/api/tunnels
    ```
 
-2. **Test webhook manually:**
+2. **Teste o webhook manualmente:**
+
    ```bash
-   curl -X POST https://your-ngrok-url.ngrok-free.app/api/payments/webhook \
+   curl -X POST https://sua-url-ngrok.ngrok-free.app/api/payments/webhook \
      -H "Content-Type: application/json" \
      -d '{"data":{"id":"119538917962"}}'
    ```
 
-3. **Check application logs:**
+3. **Verifique os logs da aplicação:**
+
    ```bash
-   docker-compose logs -f app
+   # Desenvolvimento
+   docker compose logs -f app_development
+
+   # Produção
+   docker compose logs -f app_production
    ```
 
-#### **Payment Status Not Updating**
+#### **Status do Pagamento Não Atualizando**
 
-1. **Verify webhook URL** in Mercado Pago panel
-2. **Check order exists** in database
-3. **Verify payment ID** is correct
-4. **Check logs** for error messages
+1. **Verifique a URL do webhook** no painel do Mercado Pago
+2. **Verifique se o pedido existe** no banco de dados
+3. **Verifique se o ID do pagamento** está correto
+4. **Verifique os logs** para mensagens de erro
 
-### 📚 **Documentation and Tools**
+### 📚 **Documentação e Ferramentas**
 
-#### **Postman Collections**
+#### **Coleções do Postman**
 
-Import these collections for testing:
+Importe estas coleções para teste:
 
-1. **`fast-food-api.postman_collection.json`** - Complete API testing
-2. **`mercado-pago-monitoring.postman_collection.json`** - Payment monitoring
+1. **`fast-food-api.postman_collection.json`** - Teste completo da API
+2. **`mercado-pago-monitoring.postman_collection.json`** - Monitoramento de pagamentos
 
-#### **Testing Scripts**
+#### **Scripts de Teste**
 
 - **PowerShell**: `scripts/test_payment_endpoint.ps1`
 - **Bash**: `scripts/test_payment_endpoint.sh`
 - **Node.js**: `test_payment_flow.js`
 
-#### **Monitoring Tools**
+#### **Ferramentas de Monitoramento**
 
-- **ngrok Interface**: http://localhost:4040
-- **Application Logs**: `docker-compose logs -f app`
-- **Mercado Pago Panel**: https://www.mercadopago.com.br/developers/panel
+- **Interface ngrok**: http://localhost:4040
+- **Logs da Aplicação**: `docker compose logs -f app_development` (dev) ou `docker compose logs -f app_production` (prod)
+- **Painel Mercado Pago**: https://www.mercadopago.com.br/developers/panel
 
-#### **Alternative Testing (if ngrok fails)**
+#### **Teste Alternativo (se ngrok falhar)**
 
-Use **webhook.site** for temporary testing:
+Use **webhook.site** para teste temporário:
 
-1. Go to: https://webhook.site
-2. Copy the unique URL
-3. Configure in Mercado Pago temporarily
-4. View webhook requests in real-time
-5. Copy payload to test locally
+1. Vá para: https://webhook.site
+2. Copie a URL única
+3. Configure no Mercado Pago temporariamente
+4. Visualize requisições de webhook em tempo real
+5. Copie o payload para testar localmente
 
-### 🎯 **Order Status Flow**
+### 🎯 **Fluxo de Status do Pedido**
 
-The payment webhook automatically manages order status transitions:
+O webhook de pagamento gerencia automaticamente as transições de status do pedido:
 
 ```
 PENDING → CONFIRMED → PAYMENT_CONFIRMED → PREPARING → READY → DELIVERED
 ```
 
-**Webhook Processing:**
-1. Receives payment notification from Mercado Pago
-2. Fetches payment status from Mercado Pago API
-3. Finds order by external reference
-4. Updates payment status
-5. Transitions order status if payment approved:
+**Processamento do Webhook:**
+
+1. Recebe notificação de pagamento do Mercado Pago
+2. Busca o status do pagamento na API do Mercado Pago
+3. Encontra o pedido pela referência externa
+4. Atualiza o status do pagamento
+5. Transiciona o status do pedido se o pagamento for aprovado:
    - `PENDING` → `CONFIRMED` → `PAYMENT_CONFIRMED`
 
-### 🔧 **Environment Setup Checklist**
+### 🔧 **Checklist de Configuração do Ambiente**
 
-- [ ] Docker installed and running
-- [ ] ngrok installed and authenticated
-- [ ] Mercado Pago test account created
-- [ ] Access token configured in `.env`
-- [ ] ngrok tunnel started (`ngrok http 3000`)
-- [ ] Webhook URL configured in Mercado Pago panel
-- [ ] Application running (`docker-compose up`)
-- [ ] Webhook tested and receiving requests
-- [ ] Payment flow tested end-to-end
+- [ ] Docker instalado e funcionando
+- [ ] ngrok instalado e autenticado
+- [ ] Conta de teste do Mercado Pago criada
+- [ ] Access token configurado no `.env`
+- [ ] Túnel ngrok iniciado (`ngrok http 3000`)
+- [ ] URL do webhook configurada no painel do Mercado Pago
+- [ ] Aplicação rodando (`docker compose --profile dev up` ou `docker compose --profile prod up`)
+- [ ] Webhook testado e recebendo requisições
+- [ ] Fluxo de pagamento testado end-to-end
 
-### 📞 **Quick Commands Reference**
+### 📞 **Referência Rápida de Comandos**
 
 ```bash
-# Start everything
-docker-compose up --build
+# Iniciar tudo (desenvolvimento)
+docker compose --profile dev up --build
 ngrok http 3000
 
-# Check status
-docker-compose ps
+# Iniciar tudo (produção)
+docker compose --profile prod up --build
+ngrok http 3000
+
+# Verificar status
+docker compose ps
 curl http://localhost:4040/api/tunnels
 
-# View logs
-docker-compose logs -f app
+# Ver logs (desenvolvimento)
+docker compose logs -f app_development
 
-# Test webhook
+# Ver logs (produção)
+docker compose logs -f app_production
+
+# Testar webhook
 curl -X POST http://localhost:3000/api/payments/webhook \
   -H "Content-Type: application/json" \
   -d '{"data":{"id":"119538917962"}}'
 
-# Restart if needed
-docker-compose restart
+# Reiniciar se necessário
+docker compose restart
 taskkill /f /im ngrok.exe && ngrok http 3000
 ```
 
 ---
 
-## Order Status Flow & Business Rules
+## Fluxo de Status do Pedido e Regras de Negócio
 
-The order status transitions follow strict business rules:
+As transições de status do pedido seguem regras de negócio rigorosas:
 
-- **PENDING**: Order created, awaiting confirmation.
-- **CONFIRMED**: Order confirmed, awaiting payment.
-- **PAYMENT_CONFIRMED**: Payment received, ready for preparation.
-- **PREPARING**: Order is being prepared in the kitchen.
-- **READY**: Order is ready for pickup/delivery.
-- **DELIVERED**: Order has been delivered or picked up.
-- **CANCELLED**: Order was cancelled (not allowed after DELIVERED).
+- **PENDING**: Pedido criado, aguardando confirmação.
+- **CONFIRMED**: Pedido confirmado, aguardando pagamento.
+- **PAYMENT_CONFIRMED**: Pagamento recebido, pronto para preparação.
+- **PREPARING**: Pedido está sendo preparado na cozinha.
+- **READY**: Pedido está pronto para retirada/entrega.
+- **DELIVERED**: Pedido foi entregue ou retirado.
+- **CANCELLED**: Pedido foi cancelado (não permitido após DELIVERED).
 
-### Allowed Transitions
+### Transições Permitidas
 
-| From                | To                   | Rule/Condition                        |
-|---------------------|----------------------|---------------------------------------|
-| PENDING             | CONFIRMED            | Must have at least one item           |
-| CONFIRMED           | PAYMENT_CONFIRMED    | Payment must be confirmed             |
-| PAYMENT_CONFIRMED   | PREPARING            | Only after payment confirmed          |
-| PREPARING           | READY                | Only after preparation complete       |
-| READY               | DELIVERED            | Only after ready                      |
-| Any (except DELIVERED) | CANCELLED         | Can cancel unless already delivered   |
+| De                          | Para              | Regra/Condição                        |
+| --------------------------- | ----------------- | ------------------------------------- |
+| PENDING                     | CONFIRMED         | Deve ter pelo menos um item           |
+| CONFIRMED                   | PAYMENT_CONFIRMED | Pagamento deve ser confirmado         |
+| PAYMENT_CONFIRMED           | PREPARING         | Apenas após pagamento confirmado      |
+| PREPARING                   | READY             | Apenas após preparação completa       |
+| READY                       | DELIVERED         | Apenas após pronto                    |
+| Qualquer (exceto DELIVERED) | CANCELLED         | Pode cancelar a menos que já entregue |
 
-### Error Responses
+### Respostas de Erro
 
-- Invalid transition: `400 Bad Request` with message like `"Order can only be marked as delivered when it is ready"`
-- Cancel after delivered: `400 Bad Request` with message `"Cannot cancel an order that has been delivered"`
+- Transição inválida: `400 Bad Request` com mensagem como `"Order can only be marked as delivered when it is ready"`
+- Cancelar após entregue: `400 Bad Request` com mensagem `"Cannot cancel an order that has been delivered"`
 
 ---
 
-## API Documentation
+## Documentação da API
 
-The full API documentation (Swagger/OpenAPI) is available at:
+A documentação completa da API (Swagger/OpenAPI) está disponível em:
 
 ```
 /api-docs
 ```
 
-Access this endpoint in your browser after starting the application to view and test all available routes, payloads, and responses.
+Acesse este endpoint no seu navegador após iniciar a aplicação para visualizar e testar todas as rotas, payloads e respostas disponíveis.
+
+---
+
+## Validação de Código
+
+O projeto inclui validações automatizadas que são executadas em cada Pull Request:
+
+### GitHub Actions
+
+- ✅ **TypeScript Check** - Verifica tipos e erros de compilação
+- ✅ **ESLint** - Valida regras de linting
+- ✅ **Prettier** - Verifica formatação do código
+- ✅ **Testes** - Executa suite de testes
+- ✅ **Coverage** - Valida cobertura mínima de 75%
+
+### Executar Localmente
+
+```bash
+# Executar todas as validações
+npm run ci
+
+# Validações individuais
+npm run type-check  # TypeScript
+npm run lint        # ESLint
+npm run format:check # Prettier
+npm run test:coverage # Testes + Coverage
+```
+
+### Configurações
+
+- **ESLint**: `.eslintrc.js` - Regras de linting para TypeScript
+- **Prettier**: `.prettierrc` - Formatação de código
+- **Jest**: `jest.config.js` - Configuração de testes e coverage
 
 ---

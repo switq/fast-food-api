@@ -6,13 +6,7 @@ describe("Order Entity", () => {
   const validId = uuidv4();
   const validCustomerId = uuidv4();
   const validProductId = uuidv4();
-  const validOrderItem = new OrderItem(
-    uuidv4(),
-    validId,
-    validProductId,
-    2,
-    15.99
-  );
+  const validOrderItem = new OrderItem(validProductId, 2, 15.99, validId);
 
   describe("Constructor", () => {
     it("should create an order with valid data", () => {
@@ -169,7 +163,7 @@ describe("Order Entity", () => {
   describe("Item Management", () => {
     it("should add a single item", () => {
       const order = new Order(validId, validCustomerId, [validOrderItem]);
-      const newItem = new OrderItem(uuidv4(), validId, uuidv4(), 1, 10.99);
+      const newItem = new OrderItem(uuidv4(), 1, 10.99, validId);
 
       order.addItem(newItem);
       expect(order.items).toHaveLength(2);
@@ -181,8 +175,8 @@ describe("Order Entity", () => {
     it("should add multiple items", () => {
       const order = new Order(validId, validCustomerId, [validOrderItem]);
       const newItems = [
-        new OrderItem(uuidv4(), validId, uuidv4(), 1, 10.99),
-        new OrderItem(uuidv4(), validId, uuidv4(), 2, 8.99),
+        new OrderItem(uuidv4(), 1, 10.99, validId),
+        new OrderItem(uuidv4(), 2, 8.99, validId),
       ];
 
       order.addItem(newItems);
@@ -196,7 +190,7 @@ describe("Order Entity", () => {
 
     it("should remove a single item", () => {
       const order = new Order(validId, validCustomerId, [validOrderItem]);
-      const itemToRemove = new OrderItem(uuidv4(), validId, uuidv4(), 1, 10.99);
+      const itemToRemove = new OrderItem(uuidv4(), 1, 10.99, validId);
       order.addItem(itemToRemove);
 
       order.removeItem(itemToRemove.id);
@@ -207,8 +201,8 @@ describe("Order Entity", () => {
     it("should remove multiple items", () => {
       const order = new Order(validId, validCustomerId, [validOrderItem]);
       const itemsToRemove = [
-        new OrderItem(uuidv4(), validId, uuidv4(), 1, 10.99),
-        new OrderItem(uuidv4(), validId, uuidv4(), 2, 8.99),
+        new OrderItem(uuidv4(), 1, 10.99, validId),
+        new OrderItem(uuidv4(), 2, 8.99, validId),
       ];
       order.addItem(itemsToRemove);
 
@@ -229,7 +223,7 @@ describe("Order Entity", () => {
     it("should throw error when adding items to non-pending order", () => {
       const order = new Order(validId, validCustomerId, [validOrderItem]);
       order.confirm();
-      const newItem = new OrderItem(uuidv4(), validId, uuidv4(), 1, 10.99);
+      const newItem = new OrderItem(uuidv4(), 1, 10.99, validId);
 
       expect(() => {
         order.addItem(newItem);

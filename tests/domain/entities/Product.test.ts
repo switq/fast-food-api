@@ -283,6 +283,7 @@ describe("Product Entity", () => {
         categoryId: validCategoryId,
         imageUrl: validImageUrl,
         isAvailable: true,
+        stock: 0,
       });
     });
   });

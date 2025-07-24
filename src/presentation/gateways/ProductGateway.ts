@@ -141,6 +141,8 @@ export class ProductGateway implements IProductRepository {
   }
 
   async updateStock(productId: string, newStock: number): Promise<void> {
-    await this.dbConnection.update(this.tableName, productId, { stock: newStock });
+    await this.dbConnection.update(this.tableName, productId, {
+      stock: newStock,
+    });
   }
 }

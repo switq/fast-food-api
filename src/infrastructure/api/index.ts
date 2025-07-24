@@ -49,7 +49,7 @@ export class FastFoodApp {
     });
 
     app.listen(port, () => {
-      console.log(`FastFood app listening on port ${port}`);
+      console.log(`FastFood app listening on http://localhost:${port}`);
     });
   }
 }
