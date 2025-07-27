@@ -1,4 +1,4 @@
-import Order from "../../domain/entities/Order";
+import Order from "@entities/Order";
 
 export default class OrderPresenter {
   static toJSON(order: Order) {

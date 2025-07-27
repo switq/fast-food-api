@@ -1,4 +1,4 @@
-import Category from "../../domain/entities/Category";
+import Category from "@entities/Category";
 
 export default class CategoryPresenter {
   static toJSON(category: Category) {

@@ -1,4 +1,4 @@
-import Product from "../../domain/entities/Product";
+import Product from "@entities/Product";
 
 export default class ProductPresenter {
   static toJSON(product: Product) {

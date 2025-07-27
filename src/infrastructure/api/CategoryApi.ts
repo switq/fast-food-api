@@ -1,6 +1,6 @@
-import { IDatabaseConnection } from "@src/interfaces/IDbConnection";
+import { IDatabaseConnection } from "@interfaces/IDbConnection";
 import { Router } from "express";
-import CategoryController from "../../presentation/controllers/CategoryController";
+import CategoryController from "@controllers/CategoryController";
 
 /**
  * @openapi

@@ -1,6 +1,6 @@
-import CategoryUseCases from "../../../src/application/use-cases/CategoryUseCases";
-import Category from "../../../src/domain/entities/Category";
-import { ICategoryRepository } from "../../../src/interfaces/repositories/ICategoryRepository";
+import CategoryUseCases from "@usecases/CategoryUseCases";
+import Category from "@entities/Category";
+import { ICategoryRepository } from "@interfaces/repositories/ICategoryRepository";
 
 describe("CategoryUseCases", () => {
   let mockCategoryRepository: jest.Mocked<ICategoryRepository>;

@@ -1,13 +1,13 @@
-import { IDatabaseConnection } from "@src/interfaces/IDbConnection";
+import { IDatabaseConnection } from "@interfaces/IDbConnection";
 import { Router } from "express";
-import OrderController from "../../presentation/controllers/OrderController";
-import PaymentController from "../../presentation/controllers/PaymentController";
-import Order from "../../domain/entities/Order";
-import OrderItem from "../../domain/entities/OrderItem";
-import { OrderGateway } from "../../presentation/gateways/OrderGateway";
-import { ProductGateway } from "../../presentation/gateways/ProductGateway";
-import { CustomerGateway } from "../../presentation/gateways/CustomerGateway";
-import OrderPresenter from "../../presentation/presenters/OrderPresenter";
+import OrderController from "@controllers/OrderController";
+import PaymentController from "@controllers/PaymentController";
+import Order from "@entities/Order";
+import OrderItem from "@entities/OrderItem";
+import { OrderGateway } from "@presentation-gateways/OrderGateway";
+import { ProductGateway } from "@presentation-gateways/ProductGateway";
+import { CustomerGateway } from "@presentation-gateways/CustomerGateway";
+import OrderPresenter from "@presenters/OrderPresenter";
 
 /**
  * @openapi

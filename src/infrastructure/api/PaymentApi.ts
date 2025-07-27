@@ -1,6 +1,6 @@
-import { IDatabaseConnection } from "@src/interfaces/IDbConnection";
+import { IDatabaseConnection } from "@interfaces/IDbConnection";
 import { Router } from "express";
-import PaymentController from "../../presentation/controllers/PaymentController";
+import PaymentController from "@controllers/PaymentController";
 
 /**
  * @openapi

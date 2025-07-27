@@ -4,7 +4,7 @@
     "module": "commonjs",
     "lib": ["es2020"],
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": "./",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -15,14 +15,16 @@
       "@tests/*": ["tests/*"],
       "@entities/*": ["src/domain/entities/*"],
       "@gateways/*": ["src/infrastructure/gateways/*"],
+      "@app-gateways/*": ["src/application/gateways/*"],
       "@interfaces/*": ["src/interfaces/*"],
       "@types/*": ["src/types/*"],
       "@presenters/*": ["src/presentation/presenters/*"],
       "@controllers/*": ["src/presentation/controllers/*"],
+      "@presentation-gateways/*": ["src/presentation/gateways/*"],
       "@usecases/*": ["src/application/use-cases/*"]
     },
     "baseUrl": "./"
   },
-  "include": ["src"],
-  "exclude": ["node_modules", "tests"]
+  "include": ["src", "tests"],
+  "exclude": ["node_modules"]
 }

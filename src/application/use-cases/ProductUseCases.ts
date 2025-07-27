@@ -1,6 +1,6 @@
-import Product from "../../domain/entities/Product";
-import { IProductRepository } from "../../interfaces/repositories/IProductRepository";
-import { ICategoryRepository } from "../../interfaces/repositories/ICategoryRepository";
+import Product from "@entities/Product";
+import { IProductRepository } from "@interfaces/repositories/IProductRepository";
+import { ICategoryRepository } from "@interfaces/repositories/ICategoryRepository";
 
 class ProductUseCases {
   static async createProduct(

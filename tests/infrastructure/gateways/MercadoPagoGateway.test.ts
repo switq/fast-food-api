@@ -1,8 +1,8 @@
-import { MercadoPagoGateway } from "../../../src/infrastructure/gateways/MercadoPagoGateway";
+import { MercadoPagoGateway } from "@gateways/MercadoPagoGateway";
 import {
   PaymentCreationData,
   PaymentStatus,
-} from "../../../src/application/gateways/IPaymentGateway";
+} from "@app-gateways/IPaymentGateway";
 import { MercadoPagoConfig, Payment, Preference } from "mercadopago";
 import * as qrcode from "qrcode";
 

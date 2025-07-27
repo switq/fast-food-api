@@ -1,5 +1,5 @@
-import Order, { OrderStatus } from "../../domain/entities/Order";
-import { IOrderRepository } from "../../interfaces/repositories/IOrderRepository";
+import Order, { OrderStatus } from "@entities/Order";
+import { IOrderRepository } from "@interfaces/repositories/IOrderRepository";
 
 class KitchenUseCases {
   static async updateOrderStatus(
