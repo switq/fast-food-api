@@ -77,13 +77,6 @@ Para deploy em cluster Kubernetes:
 - Service ClusterIP na porta 80
 - Configuração para PostgreSQL local via `host.minikube.internal`
 
-Para uma implementação mais robusta em produção, considere adicionar:
-- ConfigMaps para configurações
-- Secrets para dados sensíveis
-- Ingress para roteamento externo
-- HPA (Horizontal Pod Autoscaler) para escalabilidade
-- PersistentVolumeClaims para dados persistentes
-
 ### Opção 3: Desenvolvimento Local
 
 1. Instale as dependências:
