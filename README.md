@@ -33,24 +33,56 @@ Isso iniciará automaticamente o banco de dados PostgreSQL e a aplicação, incl
 
 Para deploy em cluster Kubernetes:
 
-1. Configure os secrets no arquivo `k8s/secrets.yaml`
-2. Execute o deploy:
+1. **Configure o ambiente:**
+   - Certifique-se de ter um cluster Kubernetes rodando (minikube, kind, ou cloud)
+   - Configure o Docker para usar o registry do cluster
 
-```bash
-# Build da imagem e deploy completo
-./k8s/build-and-deploy.sh
+2. **Build e deploy da imagem:**
+   ```bash
+   # Build da imagem
+   docker build -t fast-food-api:latest .
+   
+   # Se usando minikube
+   eval $(minikube docker-env)
+   docker build -t fast-food-api:latest .
+   
+   # Deploy no Kubernetes
+   kubectl apply -f k8s/kubernetes.yaml
+   ```
 
-# Ou apenas deploy (se a imagem já existir)
-cd k8s && ./deploy.sh
-```
+3. **Verifique o deploy:**
+   ```bash
+   # Verificar status dos pods
+   kubectl get pods -n fast-food-api
+   
+   # Verificar serviços
+   kubectl get services -n fast-food-api
+   
+   # Verificar logs
+   kubectl logs -f deployment/fast-food-api -n fast-food-api
+   ```
 
-**Para ambiente de desenvolvimento:**
+4. **Acesse a aplicação:**
+   ```bash
+   # Port-forward para acesso local
+   kubectl port-forward service/fast-food-api-service 3000:80 -n fast-food-api
+   
+   # Ou use minikube tunnel (se aplicável)
+   minikube tunnel
+   ```
 
-```bash
-kubectl apply -k k8s/overlays/development
-```
+**Nota:** A implementação atual do Kubernetes é básica e inclui apenas:
+- Namespace `fast-food-api`
+- Deployment com 1 réplica
+- Service ClusterIP na porta 80
+- Configuração para PostgreSQL local via `host.minikube.internal`
 
-Veja a documentação completa em [k8s/README.md](k8s/README.md)
+Para uma implementação mais robusta em produção, considere adicionar:
+- ConfigMaps para configurações
+- Secrets para dados sensíveis
+- Ingress para roteamento externo
+- HPA (Horizontal Pod Autoscaler) para escalabilidade
+- PersistentVolumeClaims para dados persistentes
 
 ### Opção 3: Desenvolvimento Local
 
