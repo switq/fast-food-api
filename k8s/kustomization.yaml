@@ -1,0 +1,23 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: fast-food-api
+
+resources:
+  - namespace.yaml
+  - configmap.yaml
+  - secrets.yaml
+  - postgres-pv.yaml
+  - postgres-deployment.yaml
+  - postgres-service.yaml
+  - app-deployment.yaml
+  - app-service.yaml
+  - ingress.yaml
+  - hpa.yaml
+  - network-policy.yaml
+  - postgres-network-policy.yaml
+
+commonLabels:
+  app: fast-food-api
+  version: v1.0.0
+  environment: production

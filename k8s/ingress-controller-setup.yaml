@@ -1,0 +1,13 @@
+# Comandos para instalar o Ingress Controller (execute apenas se necessário)
+
+# Para Minikube:
+# minikube addons enable ingress
+
+# Para Kind:
+# kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.2/deploy/static/provider/baremetal/deploy.yaml
+
+# Para clusters cloud (AKS/EKS/GKE):
+# kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.2/deploy/static/provider/cloud/deploy.yaml
+
+# Verificar se está funcionando:
+# kubectl get pods -n ingress-nginx

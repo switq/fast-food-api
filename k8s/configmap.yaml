@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fast-food-api-config
+  namespace: fast-food-api
+data:
+  NODE_ENV: "production"
+  PORT: "3000"
+  LOG_LEVEL: "info"
+  CORS_ORIGIN: "*"
+  DATABASE_HOST: "postgres-service"
+  DATABASE_PORT: "5432"
+  DATABASE_NAME: "fastfood"
+  # Additional environment variables
+  MERCADO_PAGO_NOTIFICATION_URL: "https://webhook.site/your-unique-url"

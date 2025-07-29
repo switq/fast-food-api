@@ -29,7 +29,30 @@ docker compose --profile prod up --build
 
 Isso iniciará automaticamente o banco de dados PostgreSQL e a aplicação, incluindo o preenchimento do banco com dados de exemplo.
 
-### Opção 2: Desenvolvimento Local
+### Opção 2: Kubernetes (Produção/Cloud)
+
+Para deploy em cluster Kubernetes:
+
+1. Configure os secrets no arquivo `k8s/secrets.yaml`
+2. Execute o deploy:
+
+```bash
+# Build da imagem e deploy completo
+./k8s/build-and-deploy.sh
+
+# Ou apenas deploy (se a imagem já existir)
+cd k8s && ./deploy.sh
+```
+
+**Para ambiente de desenvolvimento:**
+
+```bash
+kubectl apply -k k8s/overlays/development
+```
+
+Veja a documentação completa em [k8s/README.md](k8s/README.md)
+
+### Opção 3: Desenvolvimento Local
 
 1. Instale as dependências:
 
