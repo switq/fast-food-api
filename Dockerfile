@@ -38,10 +38,9 @@ RUN npm ci --only=production && npm cache clean --force
 # Copiar código compilado do builder
 COPY --from=builder /usr/src/app/dist ./dist
 COPY --from=builder /usr/src/app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /usr/src/app/src/infrastructure/database/prisma/schema.prisma ./src/infrastructure/database/prisma/schema.prisma
 
 # Expor a porta
 EXPOSE 3000
 
 # Comando para iniciar a aplicação
-CMD ["node", "./dist/src/index.js"]
+CMD ["node", "./dist/index.js"]
