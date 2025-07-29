@@ -1,0 +1,14 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: fast-food-api-pdb
+  namespace: fast-food-api
+  labels:
+    app: fast-food-api
+    version: v1.0.0
+    environment: production
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: fast-food-api

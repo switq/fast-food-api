@@ -1,0 +1,24 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: fast-food-api
+
+resources:
+  - namespace.yaml
+  - serviceaccount.yaml
+  - configmap.yaml
+  - secrets.yaml
+  - app-deployment.yaml
+  - app-service.yaml
+  - pdb.yaml
+
+commonLabels:
+  app: fast-food-api
+  version: v1.0.0
+  environment: production
+  managed-by: kustomize
+
+commonAnnotations:
+  kubernetes.io/change-cause: "Initial deployment"
+  app.kubernetes.io/part-of: fast-food-api
+  app.kubernetes.io/managed-by: kustomize

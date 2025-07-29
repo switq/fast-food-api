@@ -8,8 +8,7 @@ data:
   PORT: "3000"
   LOG_LEVEL: "info"
   CORS_ORIGIN: "*"
-  DATABASE_HOST: "postgres-service"
+  DATABASE_HOST: "host.docker.internal"  # Local PostgreSQL container
   DATABASE_PORT: "5432"
   DATABASE_NAME: "fastfood"
-  # Additional environment variables
   MERCADO_PAGO_NOTIFICATION_URL: "https://webhook.site/your-unique-url"

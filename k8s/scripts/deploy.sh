@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Script para deploy da aplicação Fast Food API no Kubernetes
+# PostgreSQL é externo - não é deployado no cluster
 set -e
 
 echo "🚀 Iniciando deploy da Fast Food API no Kubernetes..."
@@ -20,42 +21,22 @@ fi
 
 echo "✅ Cluster Kubernetes acessível"
 
-# Criar namespace
-echo "📦 Criando namespace..."
-kubectl apply -f namespace.yaml
+# Build da imagem Docker
+echo "🔨 Buildando imagem Docker..."
+docker build -t fast-food-api:latest .
 
-# Aplicar ConfigMap e Secrets
-echo "🔐 Aplicando ConfigMap e Secrets..."
-kubectl apply -f configmap.yaml
-kubectl apply -f secrets.yaml
+# Aplicar base
+echo "📦 Aplicando recursos base..."
+kubectl apply -k base/
 
-# Deploy do PostgreSQL
-echo "🗄️ Deployando PostgreSQL..."
-kubectl apply -f postgres-pv.yaml
-kubectl apply -f postgres-deployment.yaml
-kubectl apply -f postgres-service.yaml
+# Aplicar networking
+echo "🌐 Configurando networking..."
+kubectl apply -f networking/network-policy.yaml
+kubectl apply -f networking/ingress.yaml
 
-# Aguardar PostgreSQL estar pronto
-echo "⏳ Aguardando PostgreSQL estar pronto..."
-kubectl wait --for=condition=ready pod -l app=postgres -n fast-food-api --timeout=300s
-
-# Deploy da aplicação
-echo "🔄 Deployando aplicação..."
-kubectl apply -f app-deployment.yaml
-kubectl apply -f app-service.yaml
-
-# Aplicar Ingress
-echo "🌐 Configurando Ingress..."
-kubectl apply -f ingress.yaml
-
-# Aplicar HPA
-echo "📈 Configurando HPA..."
-kubectl apply -f hpa.yaml
-
-# Aplicar Network Policies
-echo "🔒 Aplicando Network Policies..."
-kubectl apply -f network-policy.yaml
-kubectl apply -f postgres-network-policy.yaml
+# Aplicar scaling
+echo "📈 Configurando auto-scaling..."
+kubectl apply -f scaling/hpa.yaml
 
 # Aguardar aplicação estar pronta
 echo "⏳ Aguardando aplicação estar pronta..."
@@ -75,4 +56,7 @@ echo "📈 Para verificar o HPA:"
 echo "kubectl get hpa -n fast-food-api"
 echo ""
 echo "📝 Para ver logs:"
-echo "kubectl logs -f deployment/fast-food-api-deployment -n fast-food-api" 
+echo "kubectl logs -f deployment/fast-food-api-deployment -n fast-food-api"
+echo ""
+echo "⚠️  IMPORTANTE: Certifique-se de que o DATABASE_HOST no configmap.yaml"
+echo "   está configurado com o host do seu PostgreSQL externo."

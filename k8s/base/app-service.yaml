@@ -5,11 +5,17 @@ metadata:
   namespace: fast-food-api
   labels:
     app: fast-food-api
+    version: v1.0.0
+    environment: production
+  annotations:
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
 spec:
   selector:
     app: fast-food-api
   ports:
-    - port: 80
+    - name: http
+      port: 80
       targetPort: 3000
       protocol: TCP
   type: ClusterIP
+  sessionAffinity: None

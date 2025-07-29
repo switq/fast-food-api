@@ -5,6 +5,8 @@ metadata:
   namespace: fast-food-api
   labels:
     app: fast-food-api
+    version: v1.0.0
+    environment: production
 spec:
   replicas: 2
   selector:
@@ -14,13 +16,22 @@ spec:
     metadata:
       labels:
         app: fast-food-api
+        version: v1.0.0
+        environment: production
     spec:
+      serviceAccountName: fast-food-api-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
       containers:
         - name: fast-food-api
           image: fast-food-api:latest
           imagePullPolicy: Never
           ports:
             - containerPort: 3000
+              name: http
+              protocol: TCP
           env:
             - name: NODE_ENV
               valueFrom:
@@ -91,6 +102,12 @@ spec:
             limits:
               memory: "512Mi"
               cpu: "500m"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop:
+                - ALL
           livenessProbe:
             httpGet:
               path: /health
@@ -107,11 +124,3 @@ spec:
             periodSeconds: 5
             timeoutSeconds: 3
             failureThreshold: 3
-          startupProbe:
-            httpGet:
-              path: /health
-              port: 3000
-            initialDelaySeconds: 10
-            periodSeconds: 5
-            timeoutSeconds: 3
-            failureThreshold: 30

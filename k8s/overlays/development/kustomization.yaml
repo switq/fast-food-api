@@ -4,7 +4,7 @@ kind: Kustomization
 namespace: fast-food-api-dev
 
 resources:
-  - ../../
+  - ../../base
 
 patches:
   - target:
@@ -26,17 +26,6 @@ patches:
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/cpu
         value: "200m"
-
-  - target:
-      kind: HorizontalPodAutoscaler
-      name: fast-food-api-hpa
-    patch: |-
-      - op: replace
-        path: /spec/minReplicas
-        value: 1
-      - op: replace
-        path: /spec/maxReplicas
-        value: 3
 
   - target:
       kind: ConfigMap
