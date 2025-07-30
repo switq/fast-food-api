@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import Category from "../../../src/domain/entities/Category";
+import Category from "@entities/Category";
 
 describe("Category Entity", () => {
   const validId = uuidv4();

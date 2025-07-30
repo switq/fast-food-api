@@ -1,7 +1,7 @@
-import { IDatabaseConnection } from "@src/interfaces/IDbConnection";
+import { IDatabaseConnection } from "@interfaces/IDbConnection";
 import { CustomerGateway } from "../gateways/CustomerGateway";
-import CustomerUseCases from "../../application/use-cases/CustomerUseCases";
-import CustomerPresenter from "../presenters/CustomerPresenter";
+import CustomerUseCases from "@usecases/CustomerUseCases";
+import CustomerPresenter from "@presenters/CustomerPresenter";
 
 class CustomerController {
   static async createCustomer(

@@ -1,6 +1,6 @@
-import { IDatabaseConnection } from "../../interfaces/IDbConnection";
-import { IProductRepository } from "../../interfaces/repositories/IProductRepository";
-import Product from "../../domain/entities/Product";
+import { IDatabaseConnection } from "@interfaces/IDbConnection";
+import { IProductRepository } from "@interfaces/repositories/IProductRepository";
+import Product from "@entities/Product";
 
 interface ProductData {
   id: string;

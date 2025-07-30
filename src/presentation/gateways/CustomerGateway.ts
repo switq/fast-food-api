@@ -1,6 +1,6 @@
-import { IDatabaseConnection } from "../../interfaces/IDbConnection";
-import { ICustomerRepository } from "../../interfaces/repositories";
-import Customer from "../../domain/entities/Customer";
+import { IDatabaseConnection } from "@interfaces/IDbConnection";
+import { ICustomerRepository } from "@interfaces/repositories";
+import Customer from "@entities/Customer";
 
 interface CustomerData {
   id: string;

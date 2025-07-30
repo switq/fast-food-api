@@ -1,9 +1,9 @@
-import { IOrderRepository } from "../../interfaces/repositories/IOrderRepository";
-import { ICustomerRepository } from "../../interfaces/repositories/ICustomerRepository";
+import { IOrderRepository } from "@interfaces/repositories/IOrderRepository";
+import { ICustomerRepository } from "@interfaces/repositories/ICustomerRepository";
 import {
   IPaymentGateway,
   PaymentStatus,
-} from "../../application/gateways/IPaymentGateway";
+} from "@app-gateways/IPaymentGateway";
 
 class PaymentUseCases {
   static async handleWebhookNotification(

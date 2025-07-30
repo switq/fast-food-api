@@ -1,8 +1,8 @@
-import { IDatabaseConnection } from "@src/interfaces/IDbConnection";
+import { IDatabaseConnection } from "@interfaces/IDbConnection";
 import { ProductGateway } from "../gateways/ProductGateway";
 import { CategoryGateway } from "../gateways/CategoryGateway";
-import ProductUseCases from "../../application/use-cases/ProductUseCases";
-import ProductPresenter from "../presenters/ProductPresenter";
+import ProductUseCases from "@usecases/ProductUseCases";
+import ProductPresenter from "@presenters/ProductPresenter";
 
 class ProductController {
   static async createProduct(

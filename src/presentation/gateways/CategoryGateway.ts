@@ -1,6 +1,6 @@
-import { IDatabaseConnection } from "@src/interfaces/IDbConnection";
-import { ICategoryRepository } from "@src/interfaces/repositories";
-import Category from "@src/domain/entities/Category";
+import { IDatabaseConnection } from "@interfaces/IDbConnection";
+import { ICategoryRepository } from "@interfaces/repositories";
+import Category from "@entities/Category";
 
 interface CategoryData {
   id: string;

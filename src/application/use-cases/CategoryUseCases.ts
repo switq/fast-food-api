@@ -1,5 +1,5 @@
-import Category from "../../domain/entities/Category";
-import { ICategoryRepository } from "../../interfaces/repositories/ICategoryRepository";
+import Category from "@entities/Category";
+import { ICategoryRepository } from "@interfaces/repositories/ICategoryRepository";
 
 export class CategoryUseCases {
   static async createCategory(

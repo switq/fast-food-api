@@ -1,4 +1,4 @@
-import Customer from "../../domain/entities/Customer";
+import Customer from "@entities/Customer";
 
 export default class CustomerPresenter {
   static toJSON(customer: Customer) {
