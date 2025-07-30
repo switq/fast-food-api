@@ -7,5 +7,6 @@ export interface IOrderRepository {
   findAll(): Promise<Order[]>;
   findAllSorted(): Promise<Order[]>;
   findByCustomerId(customerId: string): Promise<Order[]>;
+  findByStatus(status: string): Promise<Order[]>;
   delete(id: string): Promise<void>;
 }

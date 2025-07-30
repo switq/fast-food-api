@@ -1,5 +1,7 @@
 import Order, { OrderStatus } from "../../domain/entities/Order";
 import { IOrderRepository } from "../../interfaces/repositories/IOrderRepository";
+import { IProductRepository } from "../../interfaces/repositories/IProductRepository";
+import Product from "../../domain/entities/Product";
 
 class KitchenUseCases {
   static async updateOrderStatus(
@@ -32,6 +34,34 @@ class KitchenUseCases {
     }
 
     return repository.update(order);
+  }
+
+  static async getPaymentConfirmedOrders(
+    orderRepository: IOrderRepository,
+    productRepository: IProductRepository
+  ): Promise<{ orders: Order[]; products: Map<string, Product> }> {
+    const orders = await orderRepository.findByStatus(
+      OrderStatus.PAYMENT_CONFIRMED
+    );
+
+    // Buscar todos os produtos únicos dos pedidos
+    const productIds = new Set<string>();
+    orders.forEach((order) => {
+      order.items.forEach((item) => {
+        productIds.add(item.productId);
+      });
+    });
+
+    // Buscar informações dos produtos
+    const products = new Map<string, Product>();
+    for (const productId of productIds) {
+      const product = await productRepository.findById(productId);
+      if (product) {
+        products.set(productId, product);
+      }
+    }
+
+    return { orders, products };
   }
 }
 
