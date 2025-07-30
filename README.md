@@ -29,7 +29,55 @@ docker compose --profile prod up --build
 
 Isso iniciará automaticamente o banco de dados PostgreSQL e a aplicação, incluindo o preenchimento do banco com dados de exemplo.
 
-### Opção 2: Desenvolvimento Local
+### Opção 2: Kubernetes (Produção/Cloud)
+
+Para deploy em cluster Kubernetes:
+
+1. **Configure o ambiente:**
+   - Certifique-se de ter um cluster Kubernetes rodando (minikube, kind, ou cloud)
+   - Configure o Docker para usar o registry do cluster
+
+2. **Build e deploy da imagem:**
+   ```bash
+   # Build da imagem
+   docker build -t fast-food-api:latest .
+   
+   # Se usando minikube
+   eval $(minikube docker-env)
+   docker build -t fast-food-api:latest .
+   
+   # Deploy no Kubernetes
+   kubectl apply -f k8s/kubernetes.yaml
+   ```
+
+3. **Verifique o deploy:**
+   ```bash
+   # Verificar status dos pods
+   kubectl get pods -n fast-food-api
+   
+   # Verificar serviços
+   kubectl get services -n fast-food-api
+   
+   # Verificar logs
+   kubectl logs -f deployment/fast-food-api -n fast-food-api
+   ```
+
+4. **Acesse a aplicação:**
+   ```bash
+   # Port-forward para acesso local
+   kubectl port-forward service/fast-food-api-service 3000:80 -n fast-food-api
+   
+   # Ou use minikube tunnel (se aplicável)
+   minikube tunnel
+   ```
+
+**Nota:** A implementação atual do Kubernetes é básica e inclui apenas:
+- Namespace `fast-food-api`
+- Deployment com 1 réplica
+- Service ClusterIP na porta 80
+- Configuração para PostgreSQL local via `host.minikube.internal`
+
+### Opção 3: Desenvolvimento Local
 
 1. Instale as dependências:
 

@@ -1,8 +1,8 @@
-import { IDatabaseConnection } from "@src/interfaces/IDbConnection";
+import { IDatabaseConnection } from "@interfaces/IDbConnection";
 import { OrderGateway } from "../gateways/OrderGateway";
 import { CustomerGateway } from "../gateways/CustomerGateway";
-import { MercadoPagoGateway } from "../../infrastructure/gateways/MercadoPagoGateway";
-import PaymentUseCases from "../../application/use-cases/PaymentUseCases";
+import { MercadoPagoGateway } from "@gateways/MercadoPagoGateway";
+import PaymentUseCases from "@usecases/PaymentUseCases";
 
 class PaymentController {
   static async getPaymentStatus(

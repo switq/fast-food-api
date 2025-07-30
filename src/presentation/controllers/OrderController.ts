@@ -1,11 +1,11 @@
-import { IDatabaseConnection } from "@src/interfaces/IDbConnection";
+import { IDatabaseConnection } from "@interfaces/IDbConnection";
 import { OrderGateway } from "../gateways/OrderGateway";
 import { ProductGateway } from "../gateways/ProductGateway";
 import { CustomerGateway } from "../gateways/CustomerGateway";
-import OrderUseCases from "../../application/use-cases/OrderUseCases";
-import OrderPresenter from "../presenters/OrderPresenter";
-import OrderItem from "../../domain/entities/OrderItem";
-import { OrderStatus } from "../../domain/entities/Order";
+import OrderUseCases from "@usecases/OrderUseCases";
+import OrderPresenter from "@presenters/OrderPresenter";
+import OrderItem from "@entities/OrderItem";
+import { OrderStatus } from "@entities/Order";
 
 class OrderController {
   static async createOrder(

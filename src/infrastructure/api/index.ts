@@ -9,7 +9,7 @@ import express from "express";
 import swaggerUi from "swagger-ui-express";
 import swaggerJsdoc from "swagger-jsdoc";
 import testApi from "./testApi";
-import { IDatabaseConnection } from "@src/interfaces/IDbConnection";
+import { IDatabaseConnection } from "@interfaces/IDbConnection";
 
 export class FastFoodApp {
   start(dbConnection: IDatabaseConnection) {

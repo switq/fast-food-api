@@ -1,7 +1,7 @@
-import { IDatabaseConnection } from "@src/interfaces/IDbConnection";
+import { IDatabaseConnection } from "@interfaces/IDbConnection";
 import { CategoryGateway } from "../gateways/CategoryGateway";
-import CategoryUseCases from "../../application/use-cases/CategoryUseCases";
-import CategoryPresenter from "../presenters/CategoryPresenter";
+import CategoryUseCases from "@usecases/CategoryUseCases";
+import CategoryPresenter from "@presenters/CategoryPresenter";
 
 class CategoryController {
   static async createCategory(

@@ -1,7 +1,7 @@
-import { IDatabaseConnection } from "../../interfaces/IDbConnection";
-import { IOrderRepository } from "../../interfaces/repositories/IOrderRepository";
-import Order, { OrderStatus } from "../../domain/entities/Order";
-import OrderItem from "../../domain/entities/OrderItem";
+import { IDatabaseConnection } from "@interfaces/IDbConnection";
+import { IOrderRepository } from "@interfaces/repositories/IOrderRepository";
+import Order, { OrderStatus } from "@entities/Order";
+import OrderItem from "@entities/OrderItem";
 
 interface OrderData {
   id: string;

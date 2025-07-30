@@ -10,13 +10,14 @@ RUN apk add --no-cache openssl && \
 # Copiar arquivos de dependências
 COPY package*.json ./
 
-# Instalar dependências
-RUN npm ci --only=production
+# Instalar todas as dependências (incluindo dev dependencies para build)
+RUN npm ci
 
 # Copiar o resto do código
 COPY . .
 
-# Build stage (if you have a build step)
+# Build stage
+RUN npm run db:generate
 RUN npm run build
 
 # Production stage
@@ -36,10 +37,10 @@ RUN npm ci --only=production && npm cache clean --force
 
 # Copiar código compilado do builder
 COPY --from=builder /usr/src/app/dist ./dist
-COPY --from=builder /usr/src/app/prisma ./prisma
+COPY --from=builder /usr/src/app/node_modules/.prisma ./node_modules/.prisma
 
 # Expor a porta
 EXPOSE 3000
 
 # Comando para iniciar a aplicação
-CMD ["npm", "start"]
+CMD ["node", "./dist/index.js"]

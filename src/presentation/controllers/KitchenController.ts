@@ -1,4 +1,4 @@
-import { IDatabaseConnection } from "@src/interfaces/IDbConnection";
+import { IDatabaseConnection } from "@interfaces/IDbConnection";
 import { OrderGateway } from "../gateways/OrderGateway";
 import { ProductGateway } from "../gateways/ProductGateway";
 import KitchenUseCases from "../../application/use-cases/KitchenUseCases";
