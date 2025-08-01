@@ -38,6 +38,79 @@ curl http://localhost:3000/health
 
 4. **Importe as coleções do Postman** (disponíveis em `/collections/`) para testar todos os endpoints.
 
+### 📚 Collections do Postman
+
+O projeto inclui collections completas do Postman para facilitar o teste da API:
+
+#### 1. **fast-food-api-complete.postman_collection.json** - Collection Completa
+
+Esta é a collection principal que contém todos os endpoints organizados por categoria:
+
+- **🏠 Health & Docs**: Health check e documentação Swagger
+- **👤 Customers**: CRUD completo de clientes
+- **📦 Categories**: CRUD completo de categorias
+- **🍔 Products**: CRUD completo de produtos
+- **📋 Orders**: Gestão completa de pedidos
+- **🍳 Kitchen**: Endpoints específicos da cozinha
+- **💳 Payments**: Gestão de pagamentos
+- **🔔 Webhooks**: Webhooks do Mercado Pago
+- **🧪 Test**: Endpoints de teste
+- **🚀 Full Order Flow**: **Fluxo completo passo a passo**
+
+#### 2. **🚀 Full Order Flow** - Grupo Especial
+
+Este grupo foi criado especificamente para testar o **ciclo de vida completo** de um pedido. As requisições são numeradas e devem ser executadas em ordem:
+
+1. **Create a New Customer** - Cria um cliente e salva o `customerId`
+2. **Create a New Order (PENDING)** - Cria um pedido usando o cliente
+3. **Confirm the Order (CONFIRMED)** - Confirma o pedido
+4. **Create Payment** - Gera o QR Code de pagamento
+5. **Confirm Payment (PAYMENT_CONFIRMED)** - Simula confirmação do pagamento
+6. **Start Preparing (PREPARING)** - Inicia o preparo na cozinha
+7. **Mark as Ready (READY)** - Marca como pronto para retirada
+8. **Mark as Delivered (DELIVERED)** - Finaliza o pedido
+
+**Recursos especiais do grupo:**
+- **Scripts automáticos**: Passa automaticamente `customerId` e `orderId` entre requisições
+- **Sem necessidade de copiar IDs manualmente**: Tudo é feito automaticamente
+- **Fluxo realista**: Simula exatamente o que acontece em produção
+- **Fácil de testar**: Apenas execute uma requisição após a outra
+
+#### 3. **Collections Auxiliares**
+
+- **fast-food-api.postman_collection.json**: Collection básica com endpoints principais
+- **mercado-pago-monitoring.postman_collection.json**: Monitoramento específico de pagamentos
+
+#### 📋 Como Usar as Collections
+
+1. **Importe no Postman**:
+   - Abra o Postman
+   - Clique em "Import"
+   - Selecione o arquivo `collections/fast-food-api-complete.postman_collection.json`
+
+2. **Configure o ambiente** (opcional):
+   - Crie um environment com `baseUrl = http://localhost:3000`
+   - Ou use as URLs absolutas que já estão configuradas
+
+3. **Teste o fluxo completo**:
+   - Vá para o grupo "🚀 Full Order Flow"
+   - Execute as requisições na ordem (1, 2, 3, 4, 5, 6, 7, 8)
+   - Os scripts automáticos cuidarão dos IDs para você
+
+4. **Teste endpoints individuais**:
+   - Use os outros grupos para testar funcionalidades específicas
+   - Substitua os placeholders como `your_customer_id` pelos IDs reais
+
+#### ⚠️ Nota Importante para o Full Order Flow
+
+No passo "2. Create a New Order", você precisa substituir o `productId` no body da requisição por um ID de produto válido do seu banco de dados. Você pode obter IDs de produtos válidos executando:
+
+```bash
+GET /api/products
+```
+
+Ou use um dos produtos criados pelo seed do banco de dados.
+
 ## 📋 Endpoints da API
 
 ### 🏥 Health & Documentação
@@ -160,7 +233,7 @@ POST /api/customers
   "phone": "11999999999"
 }
 
-# 5. Criar o pedido
+# 5. Criar o pedido (status inicial: PENDING)
 POST /api/orders
 {
   "customerId": "uuid-do-cliente", // opcional
@@ -173,58 +246,108 @@ POST /api/orders
   ]
 }
 
-# 6. Gerar pagamento para o pedido
+# 6. Confirmar o pedido (status: CONFIRMED)
+# Este passo é crucial antes de gerar o pagamento.
+PATCH /api/orders/{orderId}/status/confirmOrder
+
+# 7. Gerar pagamento para o pedido (somente se estiver CONFIRMED)
 POST /api/orders/{orderId}/payment
 # Retorna QR Code para pagamento
 
-# 7. Confirmar pedido (após pagamento)
-PATCH /api/orders/{orderId}/status/confirmOrder
+# 8. Webhook do Mercado Pago atualiza o status para PAYMENT_CONFIRMED
+# após o pagamento ser aprovado.
 
-# 8. Acompanhar status do pedido
+# 9. Acompanhar status do pedido
 GET /api/orders/{orderId}
 ```
 
 ### 2. 🍳 Fluxo da Cozinha
 
+Este fluxo é destinado ao time da cozinha para gerenciar os pedidos que já foram pagos.
+
 ```bash
-# 1. Listar pedidos com pagamento confirmado
+# 1. Listar pedidos com pagamento confirmado, prontos para preparo
 GET /api/kitchen/orders/payment-confirmed
 
 # 2. Iniciar preparo do pedido
 PATCH /api/orders/{orderId}/status/startPreparing
 
-# 3. Marcar pedido como pronto
+# 3. Marcar pedido como pronto para retirada
 PATCH /api/orders/{orderId}/status/markReady
 
-# 4. Marcar como entregue (balcão/entrega)
+# 4. Marcar como entregue ao cliente (finaliza o pedido)
 PATCH /api/orders/{orderId}/status/markDelivered
 ```
 
-### 3. 💳 Fluxo de Pagamento Completo
+### 3. 🔄 Fluxo de Status do Pedido (Passo a Passo)
+
+Esta seção detalha a sequência exata de chamadas de API para avançar um pedido por todos os seus estágios, desde a criação até a entrega.
+
+1. **Criar o Pedido**
+   - O pedido é criado com o status inicial `PENDING`.
+   - `POST /api/orders`
+
+2. **Confirmar o Pedido**
+   - Valida o pedido e o move para o status `CONFIRMED`, liberando-o para pagamento.
+   - `PATCH /api/orders/{orderId}/status/confirmOrder`
+
+3. **Gerar o Pagamento**
+   - Com o pedido em `CONFIRMED`, gera-se o QR Code para o cliente pagar.
+   - `POST /api/orders/{orderId}/payment`
+
+4. **Confirmar o Pagamento (Automático via Webhook)**
+   - O webhook do Mercado Pago é notificado quando o pagamento é aprovado.
+   - O sistema então move o status de `CONFIRMED` para `PAYMENT_CONFIRMED`.
+   - O endpoint `PATCH /api/orders/{orderId}/status/confirmPayment` é chamado internamente pelo webhook.
+
+5. **Iniciar o Preparo**
+   - A cozinha inicia o preparo do pedido.
+   - Move o status de `PAYMENT_CONFIRMED` para `PREPARING`.
+   - `PATCH /api/orders/{orderId}/status/startPreparing`
+
+6. **Marcar como Pronto**
+   - O pedido está pronto para ser retirado pelo cliente.
+   - Move o status de `PREPARING` para `READY`.
+   - `PATCH /api/orders/{orderId}/status/markReady`
+
+7. **Marcar como Entregue**
+   - O cliente retirou o pedido. O ciclo está completo.
+   - Move o status de `READY` para `DELIVERED`.
+   - `PATCH /api/orders/{orderId}/status/markDelivered`
+
+8. **Cancelar o Pedido (Opcional)**
+   - Um pedido pode ser cancelado a qualquer momento, exceto quando já foi entregue.
+   - Move o status para `CANCELLED`.
+   - `PATCH /api/orders/{orderId}/status/cancel`
+
+### 4. 💳 Fluxo de Pagamento Completo
 
 ```bash
-# 1. Criar pedido
+# 1. Criar pedido (status: PENDING)
 POST /api/orders
 {
   "items": [{ "productId": "uuid", "quantity": 1 }]
 }
 
-# 2. Gerar pagamento (QR Code PIX)
+# 2. Confirmar o pedido (status: CONFIRMED)
+PATCH /api/orders/{orderId}/status/confirmOrder
+
+# 3. Gerar pagamento (QR Code PIX)
 POST /api/orders/{orderId}/payment
 # Resposta inclui qrCode e qrCodeBase64
 
-# 3. Cliente escaneia QR Code e paga
+# 4. Cliente escaneia QR Code e paga
 
-# 4. Webhook atualiza automaticamente o status
+# 5. Webhook atualiza automaticamente o status para PAYMENT_CONFIRMED
 # (Mercado Pago → /webhooks/paymentwebhook)
 
-# 5. Verificar status do pagamento
+# 6. Verificar status do pagamento
 GET /api/payments/order/{orderId}/status
 
-# 6. Pedido automaticamente vai para PAYMENT_CONFIRMED
+# 7. Pedido automaticamente vai para a cozinha
 ```
 
-### 4. 📊 Fluxo de Monitoramento
+### 5. 📊 Fluxo de Monitoramento
 
 ```bash
 # Ver todos os pedidos ordenados (dashboard cozinha)
@@ -240,7 +363,7 @@ GET /api/orders/customer/{customerId}
 GET /api/payments/order/{orderId}/status?provider=true
 ```
 
-### 5. 🔄 Estados do Pedido
+### 6. 🔄 Estados do Pedido
 
 O pedido segue este fluxo de estados:
 
@@ -258,7 +381,7 @@ PENDING → CONFIRMED → PAYMENT_CONFIRMED → PREPARING → READY → DELIVERE
 - Só pode entregar se estiver pronto
 - Pode cancelar a qualquer momento, exceto se já entregue
 
-### 6. 📋 Exemplos de Payloads
+### 7. 📋 Exemplos de Payloads
 
 #### Criar Cliente
 
@@ -535,22 +658,22 @@ curl http://localhost:4040/api/tunnels
 # https://abc123.ngrok-free.app/api/payments/webhook
 ```
 
-#### 3. Configure o Webhook do Mercado Pago
+#### 3. Configuração Automática do Webhook
 
-1. **Acesse o Painel de Desenvolvedores do Mercado Pago:**
-   - Vá para: <https://www.mercadopago.com.br/developers/panel>
-   - Navegue para: Applications → Sua App → Webhooks
+**A URL do webhook é configurada automaticamente!** 
 
-2. **Adicione a Configuração do Webhook:**
+A aplicação envia a URL do webhook dinamicamente para o Mercado Pago durante a criação de cada pagamento, usando a variável `MERCADO_PAGO_NOTIFICATION_URL` do arquivo `.env`. 
 
-```text
-URL: https://sua-url-ngrok.ngrok-free.app/api/payments/webhook
-Events: payment.created, payment.updated
-```
+**Não é necessário configurar manualmente no painel do Mercado Pago.**
 
-3. **Teste o Webhook:**
-   - Use o botão "Test" no painel do Mercado Pago
-   - Ou use a coleção do Postman fornecida
+**Como funciona:**
+- Quando você cria um pagamento via `POST /api/orders/{orderId}/payment`
+- A aplicação automaticamente informa ao Mercado Pago: "use esta URL para notificações"
+- O Mercado Pago enviará as notificações diretamente para sua URL do ngrok
+
+**Teste o webhook:**
+- Use a coleção do Postman fornecida
+- Ou teste manualmente com curl (veja seção de troubleshooting)
 
 #### 4. Inicie a Aplicação
 
@@ -705,10 +828,11 @@ docker compose logs -f app_production
 
 #### Status do Pagamento Não Atualizando
 
-1. **Verifique a URL do webhook** no painel do Mercado Pago
-2. **Verifique se o pedido existe** no banco de dados
-3. **Verifique se o ID do pagamento** está correto
-4. **Verifique os logs** para mensagens de erro
+1. **Verifique a URL do webhook** no arquivo `.env` (variável `MERCADO_PAGO_NOTIFICATION_URL`)
+2. **Verifique se o ngrok está ativo** e a URL está correta
+3. **Verifique se o pedido existe** no banco de dados
+4. **Verifique se o ID do pagamento** está correto
+5. **Verifique os logs** para mensagens de erro
 
 ### 📚 Documentação e Ferramentas
 
@@ -764,10 +888,10 @@ PENDING → CONFIRMED → PAYMENT_CONFIRMED → PREPARING → READY → DELIVERE
 - [ ] ngrok instalado e autenticado
 - [ ] Conta de teste do Mercado Pago criada
 - [ ] Access token configurado no `.env`
+- [ ] URL do webhook configurada no `.env` (MERCADO_PAGO_NOTIFICATION_URL)
 - [ ] Túnel ngrok iniciado (`ngrok http 3000`)
-- [ ] URL do webhook configurada no painel do Mercado Pago
 - [ ] Aplicação rodando (`docker compose --profile dev up` ou `docker compose --profile prod up`)
-- [ ] Webhook testado e recebendo requisições
+- [ ] Webhook testado e recebendo requisições automaticamente
 - [ ] Fluxo de pagamento testado end-to-end
 
 ### 📞 Referência Rápida de Comandos
