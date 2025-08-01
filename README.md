@@ -78,7 +78,6 @@ Este grupo foi criado especificamente para testar o **ciclo de vida completo** d
 
 #### 3. **Collections Auxiliares**
 
-- **fast-food-api.postman_collection.json**: Collection básica com endpoints principais
 - **mercado-pago-monitoring.postman_collection.json**: Monitoramento específico de pagamentos
 
 #### 📋 Como Usar as Collections
@@ -836,13 +835,6 @@ docker compose logs -f app_production
 
 ### 📚 Documentação e Ferramentas
 
-#### Coleções do Postman
-
-Importe estas coleções para teste:
-
-1. **`fast-food-api.postman_collection.json`** - Teste completo da API
-2. **`mercado-pago-monitoring.postman_collection.json`** - Monitoramento de pagamentos
-
 #### Scripts de Teste
 
 - **PowerShell**: `scripts/test_payment_endpoint.ps1`
@@ -864,23 +856,6 @@ Use **webhook.site** para teste temporário:
 3. Configure no Mercado Pago temporariamente
 4. Visualize requisições de webhook em tempo real
 5. Copie o payload para testar localmente
-
-### 🎯 Fluxo de Status do Pedido
-
-O webhook de pagamento gerencia automaticamente as transições de status do pedido:
-
-```text
-PENDING → CONFIRMED → PAYMENT_CONFIRMED → PREPARING → READY → DELIVERED
-```
-
-**Processamento do Webhook:**
-
-1. Recebe notificação de pagamento do Mercado Pago
-2. Busca o status do pagamento na API do Mercado Pago
-3. Encontra o pedido pela referência externa
-4. Atualiza o status do pagamento
-5. Transiciona o status do pedido se o pagamento for aprovado:
-   - `PENDING` → `CONFIRMED` → `PAYMENT_CONFIRMED`
 
 ### 🔧 Checklist de Configuração do Ambiente
 
