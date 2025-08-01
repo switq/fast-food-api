@@ -11,7 +11,7 @@ import OrderPresenter from "@presenters/OrderPresenter";
 
 /**
  * @openapi
- * /orders/sorted:
+ * /api/orders/sorted:
  *   get:
  *     tags: [Orders]
  *     summary: Lista todos os pedidos em andamento, ordenados por status e data
@@ -33,7 +33,37 @@ import OrderPresenter from "@presenters/OrderPresenter";
  *               properties:
  *                 error:
  *                   type: string
- * /orders:
+ * /api/orders/status/{status}:
+ *   get:
+ *     tags: [Orders]
+ *     summary: Lista todos os pedidos por status
+ *     parameters:
+ *       - in: path
+ *         name: status
+ *         required: true
+ *         schema:
+ *           type: string
+ *           enum: [PENDING, CONFIRMED, PAYMENT_CONFIRMED, PREPARING, READY, DELIVERED, CANCELLED]
+ *         description: Status dos pedidos a serem filtrados
+ *     responses:
+ *       200:
+ *         description: Lista de pedidos com o status especificado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Order'
+ *       400:
+ *         description: Erro ao buscar pedidos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ * /api/orders:
  *   get:
  *     tags: [Orders]
  *     summary: Lista todos os pedidos
@@ -91,7 +121,7 @@ import OrderPresenter from "@presenters/OrderPresenter";
  *                 error:
  *                   type: string
  *
- * /orders/{id}:
+ * /api/orders/{id}:
  *   get:
  *     tags: [Orders]
  *     summary: Busca um pedido por ID
@@ -147,7 +177,7 @@ import OrderPresenter from "@presenters/OrderPresenter";
  *                 error:
  *                   type: string
  *
- * /orders/customer/{customerId}:
+ * /api/orders/customer/{customerId}:
  *   get:
  *     tags: [Orders]
  *     summary: Lista pedidos de um cliente
@@ -176,7 +206,7 @@ import OrderPresenter from "@presenters/OrderPresenter";
  *                 error:
  *                   type: string
  *
- * /orders/{id}/status:
+ * /api/orders/{id}/status:
  *   patch:
  *     tags: [Orders]
  *     summary: Atualiza o status de um pedido
@@ -215,7 +245,7 @@ import OrderPresenter from "@presenters/OrderPresenter";
  *                 error:
  *                   type: string
  *
- * /orders/{id}/items:
+ * /api/orders/{id}/items:
  *   patch:
  *     tags: [Orders]
  *     summary: Adiciona itens a um pedido
@@ -255,7 +285,7 @@ import OrderPresenter from "@presenters/OrderPresenter";
  *                 error:
  *                   type: string
  *
- * /orders/{orderId}/items/{itemId}:
+ * /api/orders/{orderId}/items/{itemId}:
  *   patch:
  *     tags: [Orders]
  *     summary: Atualiza a quantidade de um item do pedido
@@ -298,7 +328,7 @@ import OrderPresenter from "@presenters/OrderPresenter";
  *               properties:
  *                 error:
  *                   type: string
- * /orders/{orderId}/payment:
+ * /api/orders/{orderId}/payment:
  *   post:
  *     tags: [Orders]
  *     summary: Gera QR Code para pagamento de um pedido
@@ -413,6 +443,19 @@ export function setupOrderRoutes(dbConnection: IDatabaseConnection) {
   router.get("/orders/sorted", async (req, res) => {
     try {
       const result = await OrderController.listSortedOrders(dbConnection);
+      res.json(result);
+    } catch (err) {
+      res.status(400).json({ error: (err as Error).message });
+    }
+  });
+
+  router.get("/orders/status/:status", async (req, res) => {
+    try {
+      const status = req.params.status;
+      const result = await OrderController.getOrdersByStatus(
+        status,
+        dbConnection
+      );
       res.json(result);
     } catch (err) {
       res.status(400).json({ error: (err as Error).message });

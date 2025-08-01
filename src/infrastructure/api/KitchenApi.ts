@@ -4,7 +4,58 @@ import KitchenController from "@controllers/KitchenController";
 
 /**
  * @openapi
- * /kitchen/orders/{id}/status:
+ * /api/kitchen/orders/payment-confirmed:
+ *   get:
+ *     tags: [Kitchen]
+ *     summary: Lista todos os pedidos com status PAYMENT_CONFIRMED para a cozinha
+ *     description: Retorna pedidos que estão prontos para serem preparados, incluindo informações dos produtos
+ *     responses:
+ *       200:
+ *         description: Lista de pedidos com status PAYMENT_CONFIRMED
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                   orderNumber:
+ *                     type: number
+ *                   status:
+ *                     type: string
+ *                   items:
+ *                     type: array
+ *                     items:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: string
+ *                         productId:
+ *                           type: string
+ *                         productName:
+ *                           type: string
+ *                         quantity:
+ *                           type: integer
+ *                         observation:
+ *                           type: string
+ *                   createdAt:
+ *                     type: string
+ *                     format: date-time
+ *                   updatedAt:
+ *                     type: string
+ *                     format: date-time
+ *       400:
+ *         description: Erro ao buscar pedidos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ * /api/kitchen/orders/{id}/status:
  *   patch:
  *     tags: [Kitchen]
  *     summary: Atualiza o status de um pedido (cozinha)
@@ -49,6 +100,16 @@ import KitchenController from "@controllers/KitchenController";
  */
 export function setupKitchenRoutes(dbConnection: IDatabaseConnection) {
   const router = Router();
+
+  router.get("/kitchen/orders/payment-confirmed", async (req, res) => {
+    try {
+      const result =
+        await KitchenController.getPaymentConfirmedOrders(dbConnection);
+      res.json(result);
+    } catch (err) {
+      res.status(400).json({ error: (err as Error).message });
+    }
+  });
 
   router.patch("/kitchen/orders/:id/status", async (req, res) => {
     try {

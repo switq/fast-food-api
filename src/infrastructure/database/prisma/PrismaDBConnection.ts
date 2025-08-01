@@ -74,6 +74,15 @@ class PrismaDBConnection implements IDatabaseConnection {
     return results as T[];
   }
 
+  async findMany<T>(table: string, where?: Record<string, any>): Promise<T[]> {
+    const model = this.getModel(table);
+
+    const results = await model.findMany({
+      where: where,
+    });
+    return results as T[];
+  }
+
   async update<T>(table: string, id: string, data: Partial<T>): Promise<T> {
     const model = this.getModel(table);
 

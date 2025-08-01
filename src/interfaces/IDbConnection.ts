@@ -46,6 +46,14 @@ export interface IDatabaseConnection {
   findAll<T>(table: string): Promise<T[]>;
 
   /**
+   * Busca registros com condições específicas
+   * @param table - Nome da tabela
+   * @param where - Condições de busca
+   * @returns Promise com array de registros encontrados
+   */
+  findMany<T>(table: string, where?: Record<string, any>): Promise<T[]>;
+
+  /**
    * Atualiza um registro pelo ID
    * @param table - Nome da tabela
    * @param id - ID do registro

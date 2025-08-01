@@ -64,12 +64,13 @@ model Product {
 }
 
 model Order {
-  id          String      @id @default(uuid())
-  customerId  String?
-  status      OrderStatus @default(PENDING)
-  paymentStatus String @default("pending")
-  totalAmount Float
+  id                String      @id @default(uuid())
+  customerId        String?
+  status            OrderStatus @default(PENDING)
+  paymentStatus     String      @default("pending")
+  totalAmount       Float
   paymentProviderId String? // Mercado Pago payment_id
+  orderNumber       Int? // Número sequencial do pedido por dia
 
   // Relations
   customer   Customer?   @relation(fields: [customerId], references: [id])

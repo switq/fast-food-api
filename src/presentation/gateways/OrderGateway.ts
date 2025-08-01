@@ -10,6 +10,7 @@ interface OrderData {
   paymentStatus: string;
   totalAmount: number;
   paymentProviderId?: string;
+  orderNumber?: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -34,6 +35,41 @@ export class OrderGateway implements IOrderRepository {
   constructor(dbConnection: IDatabaseConnection) {
     this.dbConnection = dbConnection;
   }
+
+  private async getNextOrderNumber(): Promise<number> {
+    const today = new Date();
+    const startOfDay = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate()
+    );
+    const endOfDay = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate() + 1
+    );
+
+    // Buscar o maior orderNumber do dia atual
+    const orders = await this.dbConnection.findMany<OrderData>(
+      this.orderTable,
+      {
+        createdAt: {
+          gte: startOfDay,
+          lt: endOfDay,
+        },
+      }
+    );
+
+    if (orders.length === 0) {
+      return 1; // Primeiro pedido do dia
+    }
+
+    // Encontrar o maior orderNumber do dia
+    const maxOrderNumber = Math.max(
+      ...orders.map((order: OrderData) => order.orderNumber || 0)
+    );
+    return maxOrderNumber + 1;
+  }
   private async getOrderItems(orderId: string): Promise<OrderItem[]> {
     const items = await this.dbConnection.findByField<OrderItemData>(
       this.orderItemTable,
@@ -55,6 +91,10 @@ export class OrderGateway implements IOrderRepository {
   async create(order: Order): Promise<Order> {
     const orderData = order.toJSON();
     console.log("OrderGateway.create payload:", orderData);
+
+    // Gerar o próximo orderNumber automaticamente
+    const nextOrderNumber = await this.getNextOrderNumber();
+
     const createdOrder = await this.dbConnection.create<Omit<OrderData, "id">>(
       this.orderTable,
       {
@@ -63,6 +103,7 @@ export class OrderGateway implements IOrderRepository {
         totalAmount: orderData.totalAmount,
         paymentStatus: orderData.paymentStatus,
         paymentProviderId: orderData.paymentProviderId,
+        orderNumber: nextOrderNumber,
         createdAt: orderData.createdAt,
         updatedAt: orderData.updatedAt,
       }
@@ -90,7 +131,10 @@ export class OrderGateway implements IOrderRepository {
       (createdOrder as any).id,
       orderData.customerId,
       items,
-      orderData.status
+      orderData.status,
+      orderData.paymentStatus,
+      orderData.paymentProviderId,
+      (createdOrder as any).orderNumber
     );
   }
 
@@ -205,6 +249,20 @@ export class OrderGateway implements IOrderRepository {
       this.orderTable,
       "customerId",
       customerId
+    );
+    const result: Order[] = [];
+    for (const order of orders) {
+      const items = await this.getOrderItems(order.id);
+      result.push(new Order(order.id, order.customerId, items, order.status));
+    }
+    return result;
+  }
+
+  async findByStatus(status: string): Promise<Order[]> {
+    const orders = await this.dbConnection.findByField<OrderData>(
+      this.orderTable,
+      "status",
+      status
     );
     const result: Order[] = [];
     for (const order of orders) {
