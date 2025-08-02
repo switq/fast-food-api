@@ -39,8 +39,15 @@ RUN npm ci --only=production && npm cache clean --force
 COPY --from=builder /usr/src/app/dist ./dist
 COPY --from=builder /usr/src/app/node_modules/.prisma ./node_modules/.prisma
 
+# Copiar Prisma schema e migrations para o stage de produção
+COPY --from=builder /usr/src/app/src/infrastructure/database/prisma ./src/infrastructure/database/prisma
+
+# Ajustar permissões para o usuário node (que já existe no Alpine)
+RUN chown -R node:node /usr/src/app
+
 # Expor a porta
 EXPOSE 3000
 
 # Comando para iniciar a aplicação
+USER node
 CMD ["node", "./dist/index.js"]
