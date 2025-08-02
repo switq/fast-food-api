@@ -4,3 +4,8 @@ dist/
 *.log
 .DS_Store 
 coverage/
+
+# Database backups (but not Prisma migrations)
+fastfood_backup.sql
+backup_*.sql
+dump_*.sql
