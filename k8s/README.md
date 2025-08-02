@@ -18,12 +18,13 @@ k8s/
 - `kubectl` instalado
 - Ingress Controller (nginx-ingress)
 
-### 1. Configurar Banco Externo
+### 1. Banco de Dados (PostgreSQL Interno)
 
-Edite `kubernetes.yaml` e atualize o ConfigMap:
+O PostgreSQL está configurado para rodar dentro do cluster Kubernetes:
 
 ```yaml
-DATABASE_HOST: "seu-banco-externo.com"
+# Configuração automática no kubernetes.yaml
+DATABASE_HOST: "postgres-service"  # Service interno do cluster
 DATABASE_PORT: "5432"
 DATABASE_NAME: "fastfood"
 ```
@@ -40,10 +41,16 @@ kubectl apply -f k8s/network-policies.yaml
 
 ## 🔧 Configurações
 
-### Recursos
+### Recursos da API
 - **Replicas**: 2-10 (auto-scaling)
 - **CPU**: 250m/500m (request/limit)
 - **Memory**: 256Mi/512Mi (request/limit)
+
+### Recursos do PostgreSQL
+- **Replicas**: 1 (com persistent volume)
+- **CPU**: 250m/500m (request/limit)
+- **Memory**: 256Mi/512Mi (request/limit)
+- **Storage**: 1Gi (persistent volume claim)
 
 ### Auto-scaling
 - **CPU**: 70% threshold
@@ -81,12 +88,16 @@ kubectl port-forward -n fast-food-api service/fast-food-api-service 3000:80
 kubectl get pods -n fast-food-api
 kubectl get services -n fast-food-api
 kubectl logs -n fast-food-api deployment/fast-food-api -f
+kubectl logs -n fast-food-api deployment/postgres -f
 ```
 
 ### Troubleshooting
 ```bash
 kubectl describe pod -n fast-food-api <pod-name>
 kubectl exec -it -n fast-food-api <pod-name> -- /bin/sh
+
+# Verificar PostgreSQL
+kubectl exec -it -n fast-food-api deployment/postgres -- psql -U postgres -d fastfood
 ```
 
 ### Scaling
@@ -112,11 +123,13 @@ kubectl rollout undo deployment/fast-food-api -n fast-food-api
 kubectl delete -f k8s/kubernetes.yaml
 kubectl delete -f k8s/network-policies.yaml
 kubectl delete namespace fast-food-api
+
+# ⚠️ ATENÇÃO: Isso irá remover todos os dados do PostgreSQL!
+# Em produção, faça backup antes de deletar o namespace
 ```
 
 ## 📝 Notas
 
-1. **Banco Externo**: Configure corretamente o host no ConfigMap
 2. **Secrets**: Use Vault/AWS Secrets Manager em produção
 3. **Ingress**: Configure SSL/TLS para produção
-4. **Logs**: Considere ELK Stack para logs centralizados 
+4. **Logs**: Considere ELK Stack para logs centralizados
