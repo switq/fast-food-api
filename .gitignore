@@ -6,5 +6,5 @@ dist/
 coverage/
 
 # Database backups (but not Prisma migrations)
-backup_*.sql
+*backup*.sql
 dump_*.sql
