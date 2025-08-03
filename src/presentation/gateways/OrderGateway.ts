@@ -190,20 +190,21 @@ export class OrderGateway implements IOrderRepository {
     }
     return result;
   }
-
   async findAllSorted(): Promise<Order[]> {
     const allOrders = await this.findAll();
 
+    // Incluir apenas pedidos em andamento, excluindo DELIVERED (finalizados)
     const kitchenStatuses = [
-      OrderStatus.PAYMENT_CONFIRMED,
-      OrderStatus.PREPARING,
-      OrderStatus.READY,
+      OrderStatus.READY,          // Prioridade 1
+      OrderStatus.PREPARING,      // Prioridade 2
+      OrderStatus.PAYMENT_CONFIRMED // Prioridade 3
     ];
 
     const filteredOrders = allOrders.filter((order) =>
       kitchenStatuses.includes(order.status)
     );
 
+    // Definir ordem de prioridade: READY (1) > PREPARING (2) > PAYMENT_CONFIRMED (3)
     const statusOrder: { [key: string]: number } = {
       [OrderStatus.READY]: 1,
       [OrderStatus.PREPARING]: 2,
@@ -214,15 +215,17 @@ export class OrderGateway implements IOrderRepository {
       const statusA = statusOrder[a.status] || 4;
       const statusB = statusOrder[b.status] || 4;
 
+      // Primeiro critério: ordenar por status (prioridade)
       if (statusA !== statusB) {
         return statusA - statusB;
       }
 
+      // Segundo critério: dentro do mesmo status, pedidos mais antigos primeiro
       return a.createdAt.getTime() - b.createdAt.getTime();
     });
 
     return sortedOrders;
-  }  async findByCustomerId(customerId: string): Promise<Order[]> {
+  }async findByCustomerId(customerId: string): Promise<Order[]> {
     const orders = await this.dbConnection.findByField<OrderData>(
       this.orderTable,
       "customerId",

@@ -1,14 +1,71 @@
 import { IDatabaseConnection } from "@interfaces/IDbConnection";
 import { Router } from "express";
 import KitchenController from "@controllers/KitchenController";
+import OrderController from "@controllers/OrderController";
 
 /**
  * @openapi
+ * /api/kitchen/orders:
+ *   get:
+ *     tags: [Kitchen]
+ *     summary: Lista todos os pedidos para a cozinha ordenados por prioridade
+ *     description: Retorna pedidos ordenados por prioridade (READY > PREPARING > PAYMENT_CONFIRMED) e por data de criação (mais antigos primeiro). Exclui pedidos finalizados (DELIVERED).
+ *     responses:
+ *       200:
+ *         description: Lista de pedidos ordenados para a cozinha
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                   orderNumber:
+ *                     type: number
+ *                   customerName:
+ *                     type: string
+ *                   status:
+ *                     type: string
+ *                     enum: [READY, PREPARING, PAYMENT_CONFIRMED]
+ *                   items:
+ *                     type: array
+ *                     items:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: string
+ *                         productId:
+ *                           type: string
+ *                         productName:
+ *                           type: string
+ *                         quantity:
+ *                           type: integer
+ *                         observation:
+ *                           type: string
+ *                   totalAmount:
+ *                     type: number
+ *                   createdAt:
+ *                     type: string
+ *                     format: date-time
+ *                   updatedAt:
+ *                     type: string
+ *                     format: date-time
+ *       400:
+ *         description: Erro ao buscar pedidos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
  * /api/kitchen/orders/payment-confirmed:
  *   get:
  *     tags: [Kitchen]
- *     summary: Lista todos os pedidos com status PAYMENT_CONFIRMED para a cozinha
- *     description: Retorna pedidos que estão prontos para serem preparados, incluindo informações dos produtos
+ *     summary: Lista todos os pedidos com status PAYMENT_CONFIRMED para a cozinha (LEGADO)
+ *     description: Retorna pedidos que estão prontos para serem preparados, incluindo informações dos produtos. Esta rota está mantida para compatibilidade, mas recomenda-se usar /api/kitchen/orders
  *     responses:
  *       200:
  *         description: Lista de pedidos com status PAYMENT_CONFIRMED
@@ -101,6 +158,17 @@ import KitchenController from "@controllers/KitchenController";
 export function setupKitchenRoutes(dbConnection: IDatabaseConnection) {
   const router = Router();
 
+  // Nova rota principal da cozinha - lista pedidos ordenados
+  router.get("/kitchen/orders", async (req, res) => {
+    try {
+      const result = await OrderController.listSortedOrders(dbConnection);
+      res.json(result);
+    } catch (err) {
+      res.status(400).json({ error: (err as Error).message });
+    }
+  });
+
+  // Rota legada - manter para compatibilidade
   router.get("/kitchen/orders/payment-confirmed", async (req, res) => {
     try {
       const result =
