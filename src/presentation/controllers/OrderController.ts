@@ -1,6 +1,8 @@
 import { IDatabaseConnection } from "@interfaces/IDbConnection";
 import { OrderGateway } from "../gateways/OrderGateway";
 import { ProductGateway } from "../gateways/ProductGateway";
+import OrderConfirmationUseCases from "../../application/use-cases/OrderConfirmationUseCases";
+import OrderConfirmationPresenter from "../presenters/OrderConfirmationPresenter";
 import { CustomerGateway } from "../gateways/CustomerGateway";
 import OrderUseCases from "@usecases/OrderUseCases";
 import EnhancedOrderPresenter from "@presenters/EnhancedOrderPresenter";
@@ -150,16 +152,22 @@ class OrderController {  static async createOrder(
     const orderGateway = new OrderGateway(dbConnection);
     await OrderUseCases.deleteOrder(id, orderGateway);
     return { message: "Order deleted successfully" };
-  }
-  static async confirmOrder(id: string, dbConnection: IDatabaseConnection) {
+  }  static async confirmOrder(id: string, dbConnection: IDatabaseConnection) {
     const orderGateway = new OrderGateway(dbConnection);
-    const productGateway = new ProductGateway(dbConnection);
-    const { order, products } = await OrderUseCases.confirmOrderWithProducts(
+    const customerGateway = new CustomerGateway(dbConnection);
+    
+    const { order, customer } = await OrderConfirmationUseCases.confirmOrderSimple(
       id,
       orderGateway,
-      productGateway
+      customerGateway
     );
-    return EnhancedOrderPresenter.toJSON(order, products);
+    
+    const customers = new Map();
+    if (customer) {
+      customers.set(customer.id, customer);
+    }
+    
+    return OrderConfirmationPresenter.toJSON(order, customers);
   }
 
   static async confirmPayment(id: string, dbConnection: IDatabaseConnection) {
