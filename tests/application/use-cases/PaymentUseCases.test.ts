@@ -10,7 +10,6 @@ import {
 describe("PaymentUseCases", () => {
   let mockOrderRepository: jest.Mocked<IOrderRepository>;
   let mockPaymentGateway: jest.Mocked<IPaymentGateway>;
-
   beforeEach(() => {
     mockOrderRepository = {
       create: jest.fn(),
@@ -20,6 +19,7 @@ describe("PaymentUseCases", () => {
       findByCustomerId: jest.fn(),
       findAll: jest.fn(),
       findAllSorted: jest.fn(),
+      findByStatus: jest.fn(),
     };
 
     mockPaymentGateway = {

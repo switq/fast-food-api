@@ -5,6 +5,13 @@ dist/
 .DS_Store 
 coverage/
 
-# Test and demo files
-test*
-demo*
+# Demo and temporary test files (keep unit tests in tests/ folder)
+test-*.ts
+test-*.js
+demo-*.js
+demo-*.ts
+test_*.ps1
+test_*.sh
+
+# Temporary files
+temp/

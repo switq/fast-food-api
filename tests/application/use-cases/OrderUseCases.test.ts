@@ -12,8 +12,7 @@ describe("OrderUseCases", () => {
   let mockProductRepository: jest.Mocked<IProductRepository>;
   let mockCustomerRepository: jest.Mocked<ICustomerRepository>;
 
-  beforeEach(() => {
-    mockOrderRepository = {
+  beforeEach(() => {    mockOrderRepository = {
       create: jest.fn(),
       findById: jest.fn(),
       update: jest.fn(),
@@ -21,6 +20,7 @@ describe("OrderUseCases", () => {
       findByCustomerId: jest.fn(),
       findAll: jest.fn(),
       findAllSorted: jest.fn(),
+      findByStatus: jest.fn(),
     };
 
     mockProductRepository = {
