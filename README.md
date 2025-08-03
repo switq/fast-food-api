@@ -872,12 +872,6 @@ docker compose logs -f app_production   # prod
 
 ### 📚 Documentação e Ferramentas
 
-#### Scripts de Teste
-
-- **PowerShell**: `scripts/test_payment_endpoint.ps1`
-- **Bash**: `scripts/test_payment_endpoint.sh`
-- **Node.js**: `test_payment_flow.js`
-
 #### Ferramentas de Monitoramento
 
 - **Interface ngrok**: <http://localhost:4040>
