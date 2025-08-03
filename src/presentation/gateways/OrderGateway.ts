@@ -137,7 +137,6 @@ export class OrderGateway implements IOrderRepository {
       (createdOrder as any).orderNumber
     );
   }
-
   async update(order: Order): Promise<Order> {
     const orderData = order.toJSON();
     const updatedOrder = await this.dbConnection.update<OrderData>(
@@ -149,6 +148,7 @@ export class OrderGateway implements IOrderRepository {
         totalAmount: orderData.totalAmount,
         paymentStatus: orderData.paymentStatus,
         paymentProviderId: orderData.paymentProviderId,
+        orderNumber: orderData.orderNumber,
         updatedAt: new Date(),
       }
     );
@@ -172,13 +172,15 @@ export class OrderGateway implements IOrderRepository {
           updatedAt: new Date(),
         }
       );
-    }
-    const items = await this.getOrderItems(order.id);
+    }    const items = await this.getOrderItems(order.id);
     return new Order(
       updatedOrder.id,
       updatedOrder.customerId,
       items,
-      updatedOrder.status
+      updatedOrder.status,
+      updatedOrder.paymentStatus,
+      updatedOrder.paymentProviderId,
+      updatedOrder.orderNumber
     );
   }
 
@@ -189,24 +191,31 @@ export class OrderGateway implements IOrderRepository {
     );
     if (!order) {
       return null;
-    }
-    const items = await this.getOrderItems(order.id);
+    }    const items = await this.getOrderItems(order.id);
     return new Order(
       order.id,
       order.customerId,
       items,
       order.status,
       order.paymentStatus,
-      order.paymentProviderId
+      order.paymentProviderId,
+      order.orderNumber
     );
   }
-
   async findAll(): Promise<Order[]> {
     const orders = await this.dbConnection.findAll<OrderData>(this.orderTable);
     const result: Order[] = [];
     for (const order of orders) {
       const items = await this.getOrderItems(order.id);
-      result.push(new Order(order.id, order.customerId, items, order.status));
+      result.push(new Order(
+        order.id, 
+        order.customerId, 
+        items, 
+        order.status, 
+        order.paymentStatus, 
+        order.paymentProviderId, 
+        order.orderNumber
+      ));
     }
     return result;
   }
@@ -243,7 +252,6 @@ export class OrderGateway implements IOrderRepository {
 
     return sortedOrders;
   }
-
   async findByCustomerId(customerId: string): Promise<Order[]> {
     const orders = await this.dbConnection.findByField<OrderData>(
       this.orderTable,
@@ -253,11 +261,18 @@ export class OrderGateway implements IOrderRepository {
     const result: Order[] = [];
     for (const order of orders) {
       const items = await this.getOrderItems(order.id);
-      result.push(new Order(order.id, order.customerId, items, order.status));
+      result.push(new Order(
+        order.id, 
+        order.customerId, 
+        items, 
+        order.status, 
+        order.paymentStatus, 
+        order.paymentProviderId, 
+        order.orderNumber
+      ));
     }
     return result;
   }
-
   async findByStatus(status: string): Promise<Order[]> {
     const orders = await this.dbConnection.findByField<OrderData>(
       this.orderTable,
@@ -267,7 +282,15 @@ export class OrderGateway implements IOrderRepository {
     const result: Order[] = [];
     for (const order of orders) {
       const items = await this.getOrderItems(order.id);
-      result.push(new Order(order.id, order.customerId, items, order.status));
+      result.push(new Order(
+        order.id, 
+        order.customerId, 
+        items, 
+        order.status, 
+        order.paymentStatus, 
+        order.paymentProviderId, 
+        order.orderNumber
+      ));
     }
     return result;
   }
