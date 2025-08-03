@@ -381,7 +381,7 @@ GET /api/orders/customer/{customerId}
 GET /api/payments/order/{orderId}/status?provider=true
 ```
 
-### 6. 🔄 Estados do Pedido
+### 6. 🔄 Estados do Pedido e Regras de Negócio
 
 O pedido segue este fluxo de estados:
 
@@ -391,8 +391,16 @@ PENDING → CONFIRMED → PAYMENT_CONFIRMED → PREPARING → READY → DELIVERE
                                CANCELLED (a qualquer momento, exceto DELIVERED)
 ```
 
-**Regras importantes:**
+**Status Detalhados:**
+- **PENDING**: Pedido criado, aguardando confirmação
+- **CONFIRMED**: Pedido confirmado, aguardando pagamento
+- **PAYMENT_CONFIRMED**: Pagamento recebido, pronto para preparação
+- **PREPARING**: Pedido está sendo preparado na cozinha
+- **READY**: Pedido está pronto para retirada/entrega
+- **DELIVERED**: Pedido foi entregue ou retirado
+- **CANCELLED**: Pedido foi cancelado (não permitido após DELIVERED)
 
+**Regras de Transição:**
 - Só pode confirmar pagamento se estiver em CONFIRMED
 - Só pode iniciar preparo se pagamento estiver confirmado
 - Só pode marcar como pronto se estiver preparando
@@ -602,8 +610,9 @@ minikube tunnel
 - Build multi-stage para menor tamanho de imagem
 - Sem ferramentas de desenvolvimento
 
-### Comandos Úteis
+### Comandos Docker
 
+**Comandos Básicos:**
 ```bash
 # Desenvolvimento
 docker compose --profile dev up --build
@@ -611,18 +620,30 @@ docker compose --profile dev up --build
 # Produção
 docker compose --profile prod up --build
 
-# Parar todos os serviços
+# Parar serviços
 docker compose down
 
 # Ver logs
-docker compose logs -f
+docker compose logs -f app_development  # dev
+docker compose logs -f app_production   # prod
 
-# Validação de código
+# Reconstruir (se necessário)
+docker compose --profile dev up --build --force-recreate
+```
+
+**Acesso aos Containers:**
+```bash
+# Desenvolvimento
+docker compose exec app_development sh
+
+# Produção
+docker compose exec app_production sh
+```
+
+**Comandos de Validação:**
+```bash
 npm run ci          # Executa todas as validações
 npm run lint        # Verifica linting
-npm run lint:fix    # Corrige problemas de linting
-npm run format      # Formata código
-npm run format:check # Verifica formatação
 npm run type-check  # Verifica tipos TypeScript
 ```
 
@@ -696,15 +717,14 @@ A aplicação envia a URL do webhook dinamicamente para o Mercado Pago durante a
 #### 4. Inicie a Aplicação
 
 ```bash
-# Inicie com Docker (recomendado) - Desenvolvimento
+# Desenvolvimento (recomendado para testes)
 docker compose --profile dev up --build
 
-# Ou inicie com Docker - Produção
+# Produção (otimizado)
 docker compose --profile prod up --build
 
-# Ou inicie localmente
-npm install
-npm run dev
+# Ou localmente (após configurar env)
+npm install && npm run dev
 ```
 
 #### 5. Verifique a Configuração
@@ -837,11 +857,9 @@ curl -X POST https://sua-url-ngrok.ngrok-free.app/api/payments/webhook \
 3. **Verifique os logs da aplicação:**
 
 ```bash
-# Desenvolvimento
-docker compose logs -f app_development
-
-# Produção
-docker compose logs -f app_production
+# Ver logs em tempo real
+docker compose logs -f app_development  # dev
+docker compose logs -f app_production   # prod
 ```
 
 #### Status do Pagamento Não Atualizando
@@ -863,7 +881,7 @@ docker compose logs -f app_production
 #### Ferramentas de Monitoramento
 
 - **Interface ngrok**: <http://localhost:4040>
-- **Logs da Aplicação**: `docker compose logs -f app_development` (dev) ou `docker compose logs -f app_production` (prod)
+- **Logs da Aplicação**: Use `docker compose logs -f app_development` (dev) ou `app_production` (prod)
 - **Painel Mercado Pago**: <https://www.mercadopago.com.br/developers/panel>
 
 #### Teste Alternativo (se ngrok falhar)
@@ -887,37 +905,6 @@ Use **webhook.site** para teste temporário:
 - [ ] Aplicação rodando (`docker compose --profile dev up` ou `docker compose --profile prod up`)
 - [ ] Webhook testado e recebendo requisições automaticamente
 - [ ] Fluxo de pagamento testado end-to-end
-
-### 📞 Referência Rápida de Comandos
-
-```bash
-# Iniciar tudo (desenvolvimento)
-docker compose --profile dev up --build
-ngrok http 3000
-
-# Iniciar tudo (produção)
-docker compose --profile prod up --build
-ngrok http 3000
-
-# Verificar status
-docker compose ps
-curl http://localhost:4040/api/tunnels
-
-# Ver logs (desenvolvimento)
-docker compose logs -f app_development
-
-# Ver logs (produção)
-docker compose logs -f app_production
-
-# Testar webhook
-curl -X POST http://localhost:3000/api/payments/webhook \
-  -H "Content-Type: application/json" \
-  -d '{"data":{"id":"119538917962"}}'
-
-# Reiniciar se necessário
-docker compose restart
-taskkill /f /im ngrok.exe && ngrok http 3000
-```
 
 ## 🧪 Testes e Validação
 
@@ -943,13 +930,10 @@ O banco de dados é automaticamente preenchido com:
 ### Comandos do Banco de Dados
 
 **Via Docker:**
-
 ```bash
-# Acessar o container da aplicação (desenvolvimento)
-docker compose exec app_development sh
-
-# Acessar o container da aplicação (produção)
-docker compose exec app_production sh
+# Acessar container
+docker compose exec app_development sh    # dev
+docker compose exec app_production sh     # prod
 
 # Dentro do container:
 npm run db:generate    # Gera o cliente Prisma
@@ -959,116 +943,14 @@ npm run db:reset       # Reseta e preenche o banco
 ```
 
 **Localmente:**
-
-- `npm run db:generate` - Gera o cliente Prisma
-- `npm run db:push` - Envia alterações do schema para o banco
-- `npm run db:seed` - Preenche o banco com dados de exemplo (pula se dados existem)
-- `npm run db:seed:force` - Força o preenchimento do banco (limpa dados existentes primeiro)
-- `npm run db:reset` - Reseta o banco e preenche com dados de exemplo
-- `npm run db:studio` - Abre o Prisma Studio (interface gráfica do banco)
-
-**Prisma Studio:**
-
-- Disponível em `http://localhost:5555` quando usando `--profile dev`
-- Ou execute localmente: `npm run db:studio`
-
-### Comandos Docker
-
-- **Iniciar todos os serviços (desenvolvimento):**
-
 ```bash
-docker compose --profile dev up --build
+npm run db:generate      # Gera o cliente Prisma
+npm run db:push         # Envia alterações do schema
+npm run db:seed         # Preenche dados (pula se existem)
+npm run db:seed:force   # Força preenchimento (limpa primeiro)
+npm run db:reset        # Reseta e preenche
+npm run db:studio       # Interface gráfica (porta 5555)
 ```
-
-- **Iniciar todos os serviços (produção):**
-
-```bash
-docker compose --profile prod up --build
-```
-
-- **Parar todos os serviços:**
-
-```bash
-docker compose down
-```
-
-- **Ver logs:**
-
-```bash
-docker compose logs -f
-```
-
-- **Reconstruir containers (desenvolvimento):**
-
-```bash
-docker compose --profile dev up --build --force-recreate
-```
-
-- **Reconstruir containers (produção):**
-
-```bash
-docker compose --profile prod up --build --force-recreate
-```
-
-- **Acessar um container em execução (desenvolvimento):**
-
-```bash
-docker compose exec app_development sh
-```
-
-- **Acessar um container em execução (produção):**
-
-```bash
-docker compose exec app_production sh
-```
-
-### Variáveis de Ambiente
-
-Copie `env.example` para `.env` e configure as seguintes variáveis:
-
-- `DATABASE_URL`: String de conexão PostgreSQL
-- `PORT`: Porta do servidor (padrão: 3000)
-- `NODE_ENV`: Ambiente (development/production)
-- `LOG_LEVEL`: Nível de log (opcional)
-- `CORS_origin`: Origem CORS (opcional)
-
-### Fluxo de Status do Pedido e Regras de Negócio
-
-As transições de status do pedido seguem regras de negócio rigorosas:
-
-- **PENDING**: Pedido criado, aguardando confirmação.
-- **CONFIRMED**: Pedido confirmado, aguardando pagamento.
-- **PAYMENT_CONFIRMED**: Pagamento recebido, pronto para preparação.
-- **PREPARING**: Pedido está sendo preparado na cozinha.
-- **READY**: Pedido está pronto para retirada/entrega.
-- **DELIVERED**: Pedido foi entregue ou retirado.
-- **CANCELLED**: Pedido foi cancelado (não permitido após DELIVERED).
-
-#### Transições Permitidas
-
-| De | Para | Regra/Condição |
-| --------------------------- | ----------------- | ------------------------------------- |
-| PENDING | CONFIRMED | Deve ter pelo menos um item |
-| CONFIRMED | PAYMENT_CONFIRMED | Pagamento deve ser confirmado |
-| PAYMENT_CONFIRMED | PREPARING | Apenas após pagamento confirmado |
-| PREPARING | READY | Apenas após preparação completa |
-| READY | DELIVERED | Apenas após pronto |
-| Qualquer (exceto DELIVERED) | CANCELLED | Pode cancelar a menos que já entregue |
-
-#### Respostas de Erro
-
-- Transição inválida: `400 Bad Request` com mensagem como `"Order can only be marked as delivered when it is ready"`
-- Cancelar após entregue: `400 Bad Request` com mensagem `"Cannot cancel an order that has been delivered"`
-
-### Documentação da API
-
-A documentação completa da API (Swagger/OpenAPI) está disponível em:
-
-```text
-http://localhost:3000/api-docs
-```
-
-Acesse este endpoint no seu navegador após iniciar a aplicação para visualizar e testar todas as rotas, payloads e respostas disponíveis.
 
 ### Validação de Código
 
@@ -1082,17 +964,13 @@ O projeto inclui validações automatizadas que são executadas em cada Pull Req
 - ✅ **Testes** - Executa suite de testes
 - ✅ **Coverage** - Valida cobertura mínima de 75%
 
-#### Executar Localmente
+#### Executar Validações
 
 ```bash
-# Executar todas as validações
-npm run ci
-
-# Validações individuais
-npm run type-check  # TypeScript
-npm run lint        # ESLint
-npm run format:check # Prettier
-npm run test:coverage # Testes + Coverage
+npm run ci              # Todas as validações
+npm run type-check      # TypeScript 
+npm run lint           # ESLint
+npm run test:coverage   # Testes + Coverage
 ```
 
 #### Configurações
