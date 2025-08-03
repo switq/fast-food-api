@@ -1,14 +1,57 @@
+# Namespace
+apiVersion: v1
 kind: Namespace
 metadata:
   name: fast-food-api
+  labels:
+    name: fast-food-api
 ---
+# ConfigMap para configurações não sensíveis
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fast-food-api-config
+  namespace: fast-food-api
+data:
+  NODE_ENV: "production"
+  PORT: "3000"
+  LOG_LEVEL: "info"
+  # Configurações do banco externo - ajuste conforme seu ambiente
+  DATABASE_HOST: "postgres-service"  # Kubernetes PostgreSQL service
+  DATABASE_PORT: "5432"
+  DATABASE_NAME: "fastfood"
+---
+# Secret para dados sensíveis
+apiVersion: v1
+kind: Secret
+metadata:
+  name: fast-food-api-secrets
+  namespace: fast-food-api
+type: Opaque
+data:
+  # Base64 encoded values - em produção, use ferramentas como kubectl create secret
+  DATABASE_USER: cG9zdGdyZXM=  # postgres
+  DATABASE_PASSWORD: cG9zdGdyZXM=  # postgres
+  # Adicione outros secrets conforme necessário
+  # JWT_SECRET: <base64-encoded-jwt-secret>
+  # MERCADO_PAGO_ACCESS_TOKEN: <base64-encoded-token>
+---
+# Deployment com boas práticas de segurança
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: fast-food-api
   namespace: fast-food-api
+  labels:
+    app: fast-food-api
+    version: v1
 spec:
-  replicas: 1
+  replicas: 2  # Múltiplas réplicas para alta disponibilidade
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   selector:
     matchLabels:
       app: fast-food-api
@@ -16,22 +59,38 @@ spec:
     metadata:
       labels:
         app: fast-food-api
+        version: v1
     spec:
+      # Security Context para o Pod
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      # Image Pull Secrets (se necessário)
+      # imagePullSecrets:
+      # - name: registry-secret
       containers:
       - name: fast-food-api
         image: fast-food-api:latest
-        imagePullPolicy: Never
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          echo "Starting production deployment..."
+          npm run start:prod
         ports:
         - containerPort: 3000
-        env:
-        - name: NODE_ENV
-          value: "production"
-        - name: PORT
-          value: "3000"
-        - name: DATABASE_URL
-          value: "postgresql://postgres:postgres@host.minikube.internal:5432/fastfood"
-        - name: LOG_LEVEL
-          value: "info"
+          name: http
+          protocol: TCP
+        # Security Context para o Container
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop:
+            - ALL
+        # Configurações de recursos
         resources:
           requests:
             memory: "256Mi"
@@ -39,29 +98,203 @@ spec:
           limits:
             memory: "512Mi"
             cpu: "500m"
+        # Health Checks
         livenessProbe:
           httpGet:
             path: /health
             port: 3000
+            scheme: HTTP
           initialDelaySeconds: 30
           periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
         readinessProbe:
           httpGet:
             path: /health
             port: 3000
+            scheme: HTTP
           initialDelaySeconds: 5
           periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        # Variáveis de ambiente do ConfigMap
+        envFrom:
+        - configMapRef:
+            name: fast-food-api-config
+        # Variáveis de ambiente do Secret
+        env:
+        - name: DATABASE_USER
+          valueFrom:
+            secretKeyRef:
+              name: fast-food-api-secrets
+              key: DATABASE_USER
+        - name: DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: fast-food-api-secrets
+              key: DATABASE_PASSWORD
+        # Construir DATABASE_URL dinamicamente para banco externo
+        - name: DATABASE_URL
+          value: "postgresql://$(DATABASE_USER):$(DATABASE_PASSWORD)@$(DATABASE_HOST):$(DATABASE_PORT)/$(DATABASE_NAME)"
+        # Volume para logs (se necessário)
+        volumeMounts:
+        - name: logs
+          mountPath: /usr/src/app/logs
+          subPath: logs
+      volumes:
+      - name: logs
+        emptyDir: {}
 ---
+# Service para expor a aplicação
 apiVersion: v1
 kind: Service
 metadata:
   name: fast-food-api-service
   namespace: fast-food-api
+  labels:
+    app: fast-food-api
 spec:
   selector:
     app: fast-food-api
   ports:
-  - protocol: TCP
+  - name: http
+    protocol: TCP
     port: 80
     targetPort: 3000
+  type: ClusterIP
+---
+# Ingress para acesso externo (opcional)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: fast-food-api-ingress
+  namespace: fast-food-api
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  rules:
+  - host: fast-food-api.local  # Configure conforme seu domínio
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: fast-food-api-service
+            port:
+              number: 80
+---
+# Horizontal Pod Autoscaler (HPA) para auto-scaling
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: fast-food-api-hpa
+  namespace: fast-food-api
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: fast-food-api
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 60
+---
+# PostgreSQL Deployment (opcional - para ambiente completo)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: fast-food-api
+  labels:
+    app: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_USER
+          value: "postgres"
+        - name: POSTGRES_PASSWORD
+          value: "postgres"
+        - name: POSTGRES_DB
+          value: "fastfood"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        volumeMounts:
+        - name: postgres-storage
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: postgres-storage
+        persistentVolumeClaim:
+          claimName: postgres-pvc
+---
+# PostgreSQL Persistent Volume Claim
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+  namespace: fast-food-api
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+# PostgreSQL Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+  namespace: fast-food-api
+spec:
+  selector:
+    app: postgres
+  ports:
+  - name: postgres
+    protocol: TCP
+    port: 5432
+    targetPort: 5432
   type: ClusterIP
