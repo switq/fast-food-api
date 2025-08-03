@@ -1,5 +1,6 @@
 import Order from "../../domain/entities/Order";
 import Product from "../../domain/entities/Product";
+import Customer from "../../domain/entities/Customer";
 
 interface EnhancedOrderItem {
   id: string;
@@ -15,6 +16,7 @@ interface EnhancedOrderItem {
 interface EnhancedOrder {
   id: string;
   customerId?: string;
+  customerName?: string;
   items: EnhancedOrderItem[];
   status: string;
   paymentStatus: string;
@@ -26,7 +28,11 @@ interface EnhancedOrder {
 }
 
 class EnhancedOrderPresenter {
-  static toJSON(order: Order, products: Map<string, Product>): EnhancedOrder {
+  static toJSON(
+    order: Order, 
+    products: Map<string, Product>, 
+    customers: Map<string, Customer> = new Map()
+  ): EnhancedOrder {
     const items = order.items.map((item) => {
       const product = products.get(item.productId);
       return {
@@ -39,11 +45,12 @@ class EnhancedOrderPresenter {
         totalPrice: item.totalPrice,
         observation: item.observation,
       };
-    });
+    });    const customer = order.customerId ? customers.get(order.customerId) : undefined;
 
     return {
       id: order.id,
       customerId: order.customerId,
+      customerName: customer?.name,
       items,
       status: order.status,
       paymentStatus: order.paymentStatus,
@@ -57,9 +64,10 @@ class EnhancedOrderPresenter {
 
   static toJSONArray(
     orders: Order[],
-    products: Map<string, Product>
+    products: Map<string, Product>,
+    customers: Map<string, Customer> = new Map()
   ): EnhancedOrder[] {
-    return orders.map((order) => this.toJSON(order, products));
+    return orders.map((order) => this.toJSON(order, products, customers));
   }
 }
 
