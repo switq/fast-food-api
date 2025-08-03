@@ -63,7 +63,7 @@ Este grupo foi criado especificamente para testar o **ciclo de vida completo** d
 
 1. **Create a New Customer** - Cria um cliente e salva o `customerId`
 2. **Create a New Order (PENDING)** - Cria um pedido usando o cliente
-3. **Confirm the Order (CONFIRMED)** - Confirma o pedido
+3. **Confirm the Order (CONFIRMED)** - Confirma o pedido e gera número do pedido
 4. **Create Payment** - Gera o QR Code de pagamento
 5. **Confirm Payment (PAYMENT_CONFIRMED)** - Simula confirmação do pagamento
 6. **Start Preparing (PREPARING)** - Inicia o preparo na cozinha
@@ -155,7 +155,6 @@ Ou use um dos produtos criados pelo seed do banco de dados.
 | Método | Endpoint | Descrição | Body/Parâmetros |
 |--------|----------|-----------|-----------------|
 | GET | `/api/orders` | Listar todos os pedidos | - |
-| GET | `/api/orders/sorted` | Listar pedidos ordenados para cozinha | - |
 | GET | `/api/orders/:id` | Buscar pedido por ID | `id` (path param) |
 | POST | `/api/orders` | Criar novo pedido | `{ customerId?, items: [{ productId, quantity, observation? }] }` |
 | DELETE | `/api/orders/:id` | Deletar pedido | `id` (path param) |
@@ -185,8 +184,8 @@ Ou use um dos produtos criados pelo seed do banco de dados.
 
 | Método | Endpoint | Descrição | Body/Parâmetros |
 |--------|----------|-----------|-----------------|
+| GET | `/api/kitchen/orders` | Listar pedidos ordenados para cozinha | - |
 | GET | `/api/kitchen/orders/payment-confirmed` | Listar pedidos com pagamento confirmado | - |
-| PATCH | `/api/kitchen/orders/:id/status` | Atualizar status do pedido (cozinha) | `{ status }` |
 
 ### 💳 Pagamentos (Payments)
 
@@ -246,8 +245,10 @@ POST /api/orders
 }
 
 # 6. Confirmar o pedido (status: CONFIRMED)
-# Este passo é crucial antes de gerar o pagamento.
+# ⚠️ IMPORTANTE: Este passo gera o NÚMERO DO PEDIDO para o cliente
+# O número é criado APENAS na confirmação (não na criação do pedido)
 PATCH /api/orders/{orderId}/status/confirmOrder
+# Retorna: { "orderNumber": "000123", "createdAt": "...", "customerName": "..." }
 
 # 7. Gerar pagamento para o pedido (somente se estiver CONFIRMED)
 POST /api/orders/{orderId}/payment
@@ -260,21 +261,39 @@ POST /api/orders/{orderId}/payment
 GET /api/orders/{orderId}
 ```
 
+#### 📋 Regras Importantes sobre Número do Pedido
+
+**🔢 Quando é gerado:**
+- ✅ **APENAS na confirmação** do pedido (step 6)
+- ❌ **NÃO na criação** do pedido (step 5)
+
+**📝 Formato:**
+- Números sequenciais: `000001`, `000002`, `000003`...
+- Sempre 6 dígitos com zeros à esquerda
+
+**🎯 Finalidade:**
+- Cliente usa para acompanhar pedido no display/painel
+- Números limpos e fáceis de memorizar
+- Apenas pedidos válidos (confirmados) recebem número
+
 ### 2. 🍳 Fluxo da Cozinha
 
 Este fluxo é destinado ao time da cozinha para gerenciar os pedidos que já foram pagos.
 
 ```bash
-# 1. Listar pedidos com pagamento confirmado, prontos para preparo
+# 1. Listar pedidos da cozinha ordenados por prioridade
+GET /api/kitchen/orders
+
+# 2. Listar apenas pedidos com pagamento confirmado
 GET /api/kitchen/orders/payment-confirmed
 
-# 2. Iniciar preparo do pedido
+# 3. Iniciar preparo do pedido
 PATCH /api/orders/{orderId}/status/startPreparing
 
-# 3. Marcar pedido como pronto para retirada
+# 4. Marcar pedido como pronto para retirada
 PATCH /api/orders/{orderId}/status/markReady
 
-# 4. Marcar como entregue ao cliente (finaliza o pedido)
+# 5. Marcar como entregue ao cliente (finaliza o pedido)
 PATCH /api/orders/{orderId}/status/markDelivered
 ```
 
@@ -349,8 +368,8 @@ GET /api/payments/order/{orderId}/status
 ### 5. 📊 Fluxo de Monitoramento
 
 ```bash
-# Ver todos os pedidos ordenados (dashboard cozinha)
-GET /api/orders/sorted
+# Ver todos os pedidos da cozinha (ordenados por prioridade)
+GET /api/kitchen/orders
 
 # Ver pedidos por status
 GET /api/orders/status/PREPARING

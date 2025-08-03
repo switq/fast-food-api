@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "complete-fast-food-api-2025",
     "name": "Fast Food API - Complete Collection",
-    "description": "Collection completa com TODOS os endpoints da Fast Food API - Atualizada em 01/08/2025",
+    "description": "Collection completa com TODOS os endpoints da Fast Food API - Atualizada em 08/01/2025\n\n📋 Includes complete order lifecycle testing with automatic ID management",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -426,23 +426,7 @@
               "path": ["api", "orders"]
             }
           },
-          "response": []
-        },
-        {
-          "name": "Get Orders Sorted",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:3000/api/orders/sorted",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "3000",
-              "path": ["api", "orders", "sorted"]
-            }
-          },
-          "response": []
-        },
+          "response": []        },
         {
           "name": "Get Orders by Status",
           "request": {
@@ -802,11 +786,24 @@
           "response": []
         }
       ]
-    },
-    {
+    },    {
       "name": "🍳 Kitchen",
-      "item": [
-        {
+      "item": [        {
+          "name": "Get Kitchen Orders",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/kitchen/orders",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "kitchen", "orders"]
+            },
+            "description": "Smart kitchen ordering system with priority sorting: READY > PREPARING > PAYMENT_CONFIRMED. Oldest orders first within each status. Automatically excludes DELIVERED orders."
+          },
+          "response": []
+        },        {
           "name": "Get Payment Confirmed Orders",
           "request": {
             "method": "GET",
@@ -817,37 +814,8 @@
               "host": ["localhost"],
               "port": "3000",
               "path": ["api", "kitchen", "orders", "payment-confirmed"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Update Order Status (Kitchen)",
-          "request": {
-            "method": "PATCH",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"status\": \"PREPARING\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
             },
-            "url": {
-              "raw": "http://localhost:3000/api/kitchen/orders/:id/status",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "3000",
-              "path": ["api", "kitchen", "orders", ":id", "status"],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "your_order_id"
-                }
-              ]
-            }
+            "description": "List only orders with PAYMENT_CONFIRMED status - useful for filtering what needs to start preparation"
           },
           "response": []
         }
@@ -876,9 +844,8 @@
             }
           },
           "response": []
-        },
-        {
-          "name": "Payment Webhook (Legacy - Deprecated)",
+        },        {
+          "name": "Payment Webhook",
           "request": {
             "method": "POST",
             "header": [],
@@ -1064,8 +1031,7 @@
             "description": "Cria um novo pedido usando o `customerId` da etapa anterior. **Atenção:** Substitua o `productId` por um ID de produto válido do seu banco de dados (gerado pelo seed)."
           },
           "response": []
-        },
-        {
+        },        {
           "name": "3. Confirm the Order (CONFIRMED)",
           "request": {
             "method": "PATCH",
@@ -1085,7 +1051,7 @@
                 "confirmOrder"
               ]
             },
-            "description": "Confirma o pedido, mudando seu status para `CONFIRMED`."
+            "description": "Confirma o pedido e gera número do pedido para acompanhamento do cliente. Retorna orderNumber, createdAt e customerName."
           },
           "response": []
         },
