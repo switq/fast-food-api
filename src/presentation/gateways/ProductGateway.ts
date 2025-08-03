@@ -10,6 +10,7 @@ interface ProductData {
   categoryId: string;
   imageUrl?: string;
   isAvailable: boolean;
+  stock: number;
 }
 
 export class ProductGateway implements IProductRepository {
@@ -25,18 +26,17 @@ export class ProductGateway implements IProductRepository {
     const createdProduct = await this.dbConnection.create<ProductData>(
       this.tableName,
       productData
-    );
-    return new Product(
+    );    return new Product(
       createdProduct.id,
       createdProduct.name,
       createdProduct.description,
       createdProduct.price,
       createdProduct.categoryId,
       createdProduct.imageUrl,
-      createdProduct.isAvailable
+      createdProduct.isAvailable,
+      createdProduct.stock
     );
   }
-
   async findById(id: string): Promise<Product | null> {
     const product = await this.dbConnection.findById<ProductData>(
       this.tableName,
@@ -52,10 +52,10 @@ export class ProductGateway implements IProductRepository {
       product.price,
       product.categoryId,
       product.imageUrl,
-      product.isAvailable
+      product.isAvailable,
+      product.stock
     );
   }
-
   async findByName(name: string): Promise<Product | null> {
     const products = await this.dbConnection.findByField<ProductData>(
       this.tableName,
@@ -73,10 +73,10 @@ export class ProductGateway implements IProductRepository {
       product.price,
       product.categoryId,
       product.imageUrl,
-      product.isAvailable
+      product.isAvailable,
+      product.stock
     );
   }
-
   async findByCategory(categoryId: string): Promise<Product[]> {
     const products = await this.dbConnection.findByField<ProductData>(
       this.tableName,
@@ -92,11 +92,11 @@ export class ProductGateway implements IProductRepository {
           product.price,
           product.categoryId,
           product.imageUrl,
-          product.isAvailable
+          product.isAvailable,
+          product.stock
         )
     );
   }
-
   async findAll(): Promise<Product[]> {
     const products = await this.dbConnection.findAll<ProductData>(
       this.tableName
@@ -110,7 +110,8 @@ export class ProductGateway implements IProductRepository {
           product.price,
           product.categoryId,
           product.imageUrl,
-          product.isAvailable
+          product.isAvailable,
+          product.stock
         )
     );
   }
@@ -121,15 +122,15 @@ export class ProductGateway implements IProductRepository {
       this.tableName,
       product.id,
       productData
-    );
-    return new Product(
+    );    return new Product(
       updatedProduct.id,
       updatedProduct.name,
       updatedProduct.description,
       updatedProduct.price,
       updatedProduct.categoryId,
       updatedProduct.imageUrl,
-      updatedProduct.isAvailable
+      updatedProduct.isAvailable,
+      updatedProduct.stock
     );
   }
 
