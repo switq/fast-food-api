@@ -861,31 +861,7 @@
                   "value": "your_order_id"
                 }
               ]
-            }
-          },
-          "response": []
-        },        {
-          "name": "Payment Webhook",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"data\": {\n        \"id\": \"payment_id_from_mercado_pago\"\n    }\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://localhost:3000/api/payments/webhook",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "3000",
-              "path": ["api", "payments", "webhook"]
-            }
-          },
+            }          },
           "response": []
         }
       ]

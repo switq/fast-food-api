@@ -194,7 +194,6 @@ Ou use um dos produtos criados pelo seed do banco de dados.
 |--------|----------|-----------|-----------------|
 | POST | `/api/orders/:orderId/payment` | Gerar pagamento para pedido | `orderId` (path param) |
 | GET | `/api/payments/order/:orderId/status` | Consultar status do pagamento | `orderId` (path param) |
-| POST | `/api/payments/webhook` | Webhook do Mercado Pago (legado) | Payload do MP |
 
 ### 🔔 Webhooks
 
@@ -661,7 +660,7 @@ Adicione o seguinte ao seu arquivo `.env`:
 ```env
 # Configuração do Mercado Pago
 MERCADO_PAGO_ACCESS_TOKEN=TEST-seu-access-token-aqui
-MERCADO_PAGO_NOTIFICATION_URL=https://sua-url-ngrok.ngrok-free.app/api/payments/webhook
+MERCADO_PAGO_NOTIFICATION_URL=https://sua-url-ngrok.ngrok-free.app/webhooks/paymentwebhook
 
 # Banco de Dados
 DATABASE_URL="postgresql://user:password@localhost:5432/fastfood?schema=public"
@@ -695,7 +694,7 @@ ngrok http 3000
 curl http://localhost:4040/api/tunnels
 
 # Sua URL de webhook será algo como:
-# https://abc123.ngrok-free.app/api/payments/webhook
+# https://abc123.ngrok-free.app/webhooks/paymentwebhook
 ```
 
 #### 3. Configuração Automática do Webhook
@@ -740,7 +739,7 @@ curl http://localhost:3000/health
 curl https://sua-url-ngrok.ngrok-free.app/health
 
 # Teste o endpoint de webhook
-curl -X POST https://sua-url-ngrok.ngrok-free.app/api/payments/webhook \
+curl -X POST https://sua-url-ngrok.ngrok-free.app/webhooks/paymentwebhook \
   -H "Content-Type: application/json" \
   -d '{"data":{"id":"test"}}'
 ```
@@ -850,7 +849,7 @@ curl http://localhost:4040/api/tunnels
 2. **Teste o webhook manualmente:**
 
 ```bash
-curl -X POST https://sua-url-ngrok.ngrok-free.app/api/payments/webhook \
+curl -X POST https://sua-url-ngrok.ngrok-free.app/webhooks/paymentwebhook \
   -H "Content-Type: application/json" \
   -d '{"data":{"id":"119538917962"}}'
 ```

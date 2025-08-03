@@ -173,8 +173,7 @@
 		},
 		{
 			"name": "🔧 Testing & Debug",
-			"item": [
-				{
+			"item": [				{
 					"name": "Test Local Webhook",
 					"request": {
 						"method": "POST",
@@ -189,21 +188,19 @@
 							"raw": "{\n  \"data\": {\n    \"id\": \"{{payment_id}}\"\n  }\n}"
 						},
 						"url": {
-							"raw": "http://localhost:3000/api/payments/webhook",
+							"raw": "http://localhost:3000/webhooks/paymentwebhook",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "3000",
 							"path": [
-								"api",
-								"payments",
-								"webhook"
+								"webhooks",
+								"paymentwebhook"
 							]
 						},
-						"description": "Testa o webhook local simulando uma notificação do Mercado Pago"
-					},
-					"response": []
+						"description": "Testa o webhook dedicado simulando uma notificação do Mercado Pago"
+					},"response": []
 				},
 				{
 					"name": "Get Payment Status (Local API)",
