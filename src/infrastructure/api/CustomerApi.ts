@@ -88,11 +88,67 @@ import CustomerController from "@controllers/CustomerController";
  *         required: true
  *         schema:
  *           type: string
- *     responses:
- *       200:
+ *     responses: *       200:
  *         description: Cliente removido com sucesso
  *       404:
  *         description: Cliente não encontrado
+ *
+ * /customers/identify/{cpf}:
+ *   get:
+ *     tags: [Customers]
+ *     summary: Identifica um cliente pelo CPF/documento
+ *     description: Busca um cliente usando o CPF para identificação. Suporta CPF formatado ou apenas números.
+ *     parameters:
+ *       - in: path
+ *         name: cpf
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: CPF do cliente (formatado 123.456.789-09 ou apenas números 12345678909)
+ *         example: "123.456.789-09"
+ *     responses:
+ *       200:
+ *         description: Cliente identificado com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   example: "550e8400-e29b-41d4-a716-446655440000"
+ *                 name:
+ *                   type: string
+ *                   example: "João Silva"
+ *                 email:
+ *                   type: string
+ *                   example: "joao.silva@email.com"
+ *                 cpf:
+ *                   type: string
+ *                   example: "123.456.789-09"
+ *                 phone:
+ *                   type: string
+ *                   example: "+5511999999999"
+ *       404:
+ *         description: Cliente não encontrado com este CPF
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Customer not found"
+ *       400:
+ *         description: CPF inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Invalid CPF"
  */
 export function setupCustomerRoutes(dbConnection: IDatabaseConnection) {
   const router = Router();
@@ -103,6 +159,18 @@ export function setupCustomerRoutes(dbConnection: IDatabaseConnection) {
       res.json(result);
     } catch (err) {
       res.status(400).json({ error: (err as Error).message });
+    }  });
+  
+  // Endpoint para identificação do cliente por CPF - deve vir antes da rota /:id
+  router.get("/customers/identify/:cpf", async (req, res) => {
+    try {
+      const result = await CustomerController.getCustomerByCPF(
+        req.params.cpf,
+        dbConnection
+      );
+      res.json(result);
+    } catch (err) {
+      res.status(404).json({ error: (err as Error).message });
     }
   });
 
@@ -115,8 +183,7 @@ export function setupCustomerRoutes(dbConnection: IDatabaseConnection) {
       res.json(result);
     } catch (err) {
       res.status(404).json({ error: (err as Error).message });
-    }
-  });
+    }  });
 
   router.post("/customers", async (req, res) => {
     try {
