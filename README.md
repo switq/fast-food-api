@@ -125,6 +125,7 @@ Ou use um dos produtos criados pelo seed do banco de dados.
 |--------|----------|-----------|-----------------|
 | GET | `/api/customers` | Listar todos os clientes | - |
 | GET | `/api/customers/:id` | Buscar cliente por ID | `id` (path param) |
+| GET | `/api/customers/identify/:cpf` | Identificar cliente por CPF | `cpf` (path param) |
 | POST | `/api/customers` | Criar novo cliente | `{ name, email, cpf, phone }` |
 | PUT | `/api/customers/:id` | Atualizar cliente | `id` (path param) + dados para atualizar |
 | DELETE | `/api/customers/:id` | Deletar cliente | `id` (path param) |
@@ -185,7 +186,7 @@ Ou use um dos produtos criados pelo seed do banco de dados.
 | Método | Endpoint | Descrição | Body/Parâmetros |
 |--------|----------|-----------|-----------------|
 | GET | `/api/kitchen/orders` | Listar pedidos ordenados para cozinha | - |
-| GET | `/api/kitchen/orders/payment-confirmed` | Listar pedidos com pagamento confirmado | - |
+| GET | `/api/kitchen/orders/awaiting-preparation` | Listar pedidos aguardando preparo | - |
 
 ### 💳 Pagamentos (Payments)
 
@@ -284,8 +285,8 @@ Este fluxo é destinado ao time da cozinha para gerenciar os pedidos que já for
 # 1. Listar pedidos da cozinha ordenados por prioridade
 GET /api/kitchen/orders
 
-# 2. Listar apenas pedidos com pagamento confirmado
-GET /api/kitchen/orders/payment-confirmed
+# 2. Listar apenas pedidos aguardando preparo
+GET /api/kitchen/orders/awaiting-preparation
 
 # 3. Iniciar preparo do pedido
 PATCH /api/orders/{orderId}/status/startPreparing

@@ -173,8 +173,7 @@
               "path": ["api", "customers"]
             }
           },
-          "response": []
-        },
+          "response": []        },
         {
           "name": "Get Customer by ID",
           "request": {
@@ -190,6 +189,28 @@
                 {
                   "key": "id",
                   "value": "your_customer_id"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Identify Customer by CPF",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/customers/identify/:cpf",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "customers", "identify", ":cpf"],
+              "variable": [
+                {
+                  "key": "cpf",
+                  "value": "123.456.789-09",
+                  "description": "CPF do cliente (formatado ou apenas números)"
                 }
               ]
             }
@@ -802,20 +823,19 @@
             },
             "description": "Smart kitchen ordering system with priority sorting: READY > PREPARING > PAYMENT_CONFIRMED. Oldest orders first within each status. Automatically excludes DELIVERED orders."
           },
-          "response": []
-        },        {
-          "name": "Get Payment Confirmed Orders",
+          "response": []        },        {
+          "name": "Get Orders Awaiting Preparation",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:3000/api/kitchen/orders/payment-confirmed",
+              "raw": "http://localhost:3000/api/kitchen/orders/awaiting-preparation",
               "protocol": "http",
               "host": ["localhost"],
               "port": "3000",
-              "path": ["api", "kitchen", "orders", "payment-confirmed"]
+              "path": ["api", "kitchen", "orders", "awaiting-preparation"]
             },
-            "description": "List only orders with PAYMENT_CONFIRMED status - useful for filtering what needs to start preparation"
+            "description": "Lista apenas pedidos aguardando preparo (status PAYMENT_CONFIRMED)"
           },
           "response": []
         }
