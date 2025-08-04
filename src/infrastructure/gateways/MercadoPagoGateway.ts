@@ -5,7 +5,7 @@ import {
   PaymentCreationResult,
   PaymentStatus,
   PaymentStatusResult,
-} from "../../application/gateways/IPaymentGateway";
+} from "@src/application/interfaces/gateways/IPaymentGateway";
 import * as qrcode from "qrcode";
 
 export class MercadoPagoGateway implements IPaymentGateway {

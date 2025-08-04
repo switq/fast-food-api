@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import { MercadoPagoGateway } from "../gateways/MercadoPagoGateway";
-import { PaymentCreationData } from "../../application/gateways/IPaymentGateway";
+import { PaymentCreationData } from "@src/application/interfaces/gateways/IPaymentGateway";
 
 const router = Router();
 const paymentGateway = new MercadoPagoGateway();
@@ -12,7 +12,7 @@ router.post("/test/payment", async (req: Request, res: Response) => {
       description: "Produto de Teste",
       orderId: `test-order-${Date.now()}`,
       customerEmail: "test_user_123456@testuser.com", // Test user email
-      paymentMethodId: "", // Not used for preferences
+      paymentMethodId: "", // Campo reservado para futuras implementações com múltiplos gateways
     };
 
     const result = await paymentGateway.createPayment(testData);

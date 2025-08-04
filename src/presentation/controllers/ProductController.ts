@@ -1,4 +1,4 @@
-import { IDatabaseConnection } from "@interfaces/IDbConnection";
+import { IDatabaseConnection } from "@infra-interfaces/IDbConnection";
 import { ProductGateway } from "../gateways/ProductGateway";
 import { CategoryGateway } from "../gateways/CategoryGateway";
 import ProductUseCases from "@usecases/ProductUseCases";

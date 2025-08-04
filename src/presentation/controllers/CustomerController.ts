@@ -1,4 +1,4 @@
-import { IDatabaseConnection } from "@interfaces/IDbConnection";
+import { IDatabaseConnection } from "@infra-interfaces/IDbConnection";
 import { CustomerGateway } from "../gateways/CustomerGateway";
 import CustomerUseCases from "@usecases/CustomerUseCases";
 import CustomerPresenter from "@presenters/CustomerPresenter";

@@ -1,6 +1,6 @@
 import { CustomerGateway } from "../../../src/presentation/gateways/CustomerGateway";
 import Customer from "../../../src/domain/entities/Customer";
-import { IDatabaseConnection } from "../../../src/interfaces/IDbConnection";
+import { IDatabaseConnection } from "@infra-interfaces/IDbConnection";
 
 describe("CustomerGateway", () => {
   let gateway: CustomerGateway;

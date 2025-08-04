@@ -1,4 +1,4 @@
-import { IDatabaseConnection } from "@interfaces/IDbConnection";
+import { IDatabaseConnection } from "@infra-interfaces/IDbConnection";
 import { OrderGateway } from "../gateways/OrderGateway";
 import { CustomerGateway } from "../gateways/CustomerGateway";
 import { MercadoPagoGateway } from "@gateways/MercadoPagoGateway";

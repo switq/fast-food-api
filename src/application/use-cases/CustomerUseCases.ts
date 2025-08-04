@@ -1,5 +1,5 @@
 import Customer from "@entities/Customer";
-import { ICustomerRepository } from "@interfaces/repositories/ICustomerRepository";
+import { ICustomerRepository } from "@repositories/ICustomerRepository";
 
 class CustomerUseCases {
   static async createCustomer(

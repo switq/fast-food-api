@@ -1,7 +1,7 @@
 import ProductInfoService from "../../../src/application/services/ProductInfoService";
 import Order from "../../../src/domain/entities/Order";
 import Product from "../../../src/domain/entities/Product";
-import { IProductRepository } from "../../../src/interfaces/repositories/IProductRepository";
+import { IProductRepository } from "@repositories/IProductRepository";
 import OrderItem from "../../../src/domain/entities/OrderItem";
 import Category from "../../../src/domain/entities/Category";
 import { v4 as uuidv4 } from "uuid";

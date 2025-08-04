@@ -1,6 +1,6 @@
 import Order from "../../domain/entities/Order";
 import Product from "../../domain/entities/Product";
-import { IProductRepository } from "../../interfaces/repositories/IProductRepository";
+import { IProductRepository } from "@repositories/IProductRepository";
 
 class ProductInfoService {
   static async getProductsFromOrders(

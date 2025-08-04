@@ -1,4 +1,4 @@
-import { IDatabaseConnection } from "@interfaces/IDbConnection";
+import { IDatabaseConnection } from "@infra-interfaces/IDbConnection";
 import { Router } from "express";
 import OrderController from "@controllers/OrderController";
 import PaymentController from "@controllers/PaymentController";

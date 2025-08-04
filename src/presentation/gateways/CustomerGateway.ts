@@ -1,5 +1,5 @@
-import { IDatabaseConnection } from "@interfaces/IDbConnection";
-import { ICustomerRepository } from "@interfaces/repositories";
+import { IDatabaseConnection } from "@infra-interfaces/IDbConnection";
+import { ICustomerRepository } from "@repositories/ICustomerRepository";
 import Customer from "@entities/Customer";
 
 interface CustomerData {

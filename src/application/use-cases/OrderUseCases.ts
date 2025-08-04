@@ -1,8 +1,8 @@
 import Order, { OrderStatus } from "@entities/Order";
 import OrderItem from "@entities/OrderItem";
-import { IOrderRepository } from "@interfaces/repositories/IOrderRepository";
-import { IProductRepository } from "@interfaces/repositories/IProductRepository";
-import { ICustomerRepository } from "@interfaces/repositories/ICustomerRepository";
+import { IOrderRepository } from "@repositories/IOrderRepository";
+import { IProductRepository } from "@repositories/IProductRepository";
+import { ICustomerRepository } from "@repositories/ICustomerRepository";
 import ProductInfoService from "../services/ProductInfoService";
 import Product from "@entities/Product";
 

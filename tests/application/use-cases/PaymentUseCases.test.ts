@@ -1,11 +1,11 @@
 import PaymentUseCases from "../../../src/application/use-cases/PaymentUseCases";
 import Order, { OrderStatus } from "../../../src/domain/entities/Order";
 import OrderItem from "../../../src/domain/entities/OrderItem";
-import { IOrderRepository } from "../../../src/interfaces/repositories/IOrderRepository";
+import { IOrderRepository } from "@repositories/IOrderRepository";
 import {
   IPaymentGateway,
   PaymentStatus,
-} from "../../../src/application/gateways/IPaymentGateway";
+} from "@app-gateways/IPaymentGateway";
 import { v4 as uuidv4 } from "uuid";
 
 describe("PaymentUseCases", () => {

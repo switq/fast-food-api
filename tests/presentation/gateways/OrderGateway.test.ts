@@ -1,5 +1,5 @@
 import { OrderGateway } from "../../../src/presentation/gateways/OrderGateway";
-import { IDatabaseConnection } from "../../../src/interfaces/IDbConnection";
+import { IDatabaseConnection } from "@infra-interfaces/IDbConnection";
 import Order, { OrderStatus } from "../../../src/domain/entities/Order";
 import { v4 as uuidv4 } from "uuid";
 

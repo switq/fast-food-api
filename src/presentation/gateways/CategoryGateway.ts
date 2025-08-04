@@ -1,5 +1,5 @@
-import { IDatabaseConnection } from "@interfaces/IDbConnection";
-import { ICategoryRepository } from "@interfaces/repositories";
+import { IDatabaseConnection } from "@infra-interfaces/IDbConnection";
+import { ICategoryRepository } from "@repositories/ICategoryRepository";
 import Category from "@entities/Category";
 
 interface CategoryData {

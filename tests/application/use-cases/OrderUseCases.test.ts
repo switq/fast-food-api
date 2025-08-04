@@ -1,9 +1,9 @@
 import OrderUseCases from "../../../src/application/use-cases/OrderUseCases";
 import Order, { OrderStatus } from "../../../src/domain/entities/Order";
 import OrderItem from "../../../src/domain/entities/OrderItem";
-import { IOrderRepository } from "../../../src/interfaces/repositories/IOrderRepository";
-import { IProductRepository } from "../../../src/interfaces/repositories/IProductRepository";
-import { ICustomerRepository } from "../../../src/interfaces/repositories/ICustomerRepository";
+import { IOrderRepository } from "@repositories/IOrderRepository";
+import { IProductRepository } from "@repositories/IProductRepository";
+import { ICustomerRepository } from "@repositories/ICustomerRepository";
 import Customer from "../../../src/domain/entities/Customer";
 import Product from "../../../src/domain/entities/Product";
 import { v4 as uuidv4 } from "uuid";
