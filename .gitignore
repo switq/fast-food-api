@@ -5,13 +5,7 @@ dist/
 .DS_Store 
 coverage/
 
-# Demo and temporary test files (keep unit tests in tests/ folder)
-test-*.ts
-test-*.js
-demo-*.js
-demo-*.ts
-test_*.ps1
-test_*.sh
+# Database backups (but not Prisma migrations)
+*backup*.sql
+dump_*.sql
 
-# Temporary files
-temp/
