@@ -6,12 +6,11 @@ import OrderConfirmationPresenter from "../presenters/OrderConfirmationPresenter
 import { CustomerGateway } from "../gateways/CustomerGateway";
 import OrderUseCases from "@usecases/OrderUseCases";
 import EnhancedOrderPresenter from "@presenters/EnhancedOrderPresenter";
-import ProductInfoService from "../../application/services/ProductInfoService";
-import CustomerInfoService from "../../application/services/CustomerInfoService";
 import OrderItem from "@entities/OrderItem";
 import { OrderStatus } from "@entities/Order";
 
-class OrderController {  static async createOrder(
+class OrderController {
+  static async createOrder(
     items: OrderItem[],
     dbConnection: IDatabaseConnection,
     customerId?: string
@@ -27,22 +26,28 @@ class OrderController {  static async createOrder(
       customerGateway
     );
     // Get product and customer information for the created order
-    const products = await ProductInfoService.getProductsFromOrder(order, productGateway);
-    const customers = await CustomerInfoService.getCustomerFromOrder(order, customerGateway);
-    return EnhancedOrderPresenter.toJSON(order, products, customers);
+    const { order: orderWithProducts, products, customers } = await OrderUseCases.findOrderByIdWithProductsAndCustomers(
+      order.id,
+      orderGateway,
+      productGateway,
+      customerGateway
+    );
+    return EnhancedOrderPresenter.toJSON(orderWithProducts, products, customers);
   }
+
   static async getOrderById(id: string, dbConnection: IDatabaseConnection) {
     const orderGateway = new OrderGateway(dbConnection);
     const productGateway = new ProductGateway(dbConnection);
     const customerGateway = new CustomerGateway(dbConnection);
-    const { order, products } = await OrderUseCases.findOrderByIdWithProducts(
+    const { order, products, customers } = await OrderUseCases.findOrderByIdWithProductsAndCustomers(
       id,
       orderGateway,
-      productGateway
+      productGateway,
+      customerGateway
     );
-    const customers = await CustomerInfoService.getCustomerFromOrder(order, customerGateway);
     return EnhancedOrderPresenter.toJSON(order, products, customers);
   }
+
   static async getOrdersByCustomer(
     customerId: string,
     dbConnection: IDatabaseConnection
@@ -55,7 +60,11 @@ class OrderController {  static async createOrder(
       orderGateway,
       productGateway
     );
-    const customers = await CustomerInfoService.getCustomersFromOrders(orders, customerGateway);
+    const { customers } = await OrderUseCases.findOrdersByCustomerWithCustomers(
+      customerId,
+      orderGateway,
+      customerGateway
+    );
     return EnhancedOrderPresenter.toJSONArray(orders, products, customers);
   }
 
@@ -63,13 +72,15 @@ class OrderController {  static async createOrder(
     const orderGateway = new OrderGateway(dbConnection);
     const productGateway = new ProductGateway(dbConnection);
     const customerGateway = new CustomerGateway(dbConnection);
-    const { orders, products } = await OrderUseCases.findAllOrdersWithProducts(
+    const { orders, products, customers } = await OrderUseCases.findAllOrdersWithProductsAndCustomers(
       orderGateway,
-      productGateway
+      productGateway,
+      customerGateway
     );
-    const customers = await CustomerInfoService.getCustomersFromOrders(orders, customerGateway);
     return EnhancedOrderPresenter.toJSONArray(orders, products, customers);
-  }  static async getOrdersByStatus(
+  }
+
+  static async getOrdersByStatus(
     status: string,
     dbConnection: IDatabaseConnection
   ) {
@@ -81,7 +92,10 @@ class OrderController {  static async createOrder(
       orderGateway,
       productGateway
     );
-    const customers = await CustomerInfoService.getCustomersFromOrders(orders, customerGateway);
+    const { customers } = await OrderUseCases.findAllOrdersWithCustomers(
+      orderGateway,
+      customerGateway
+    );
     return EnhancedOrderPresenter.toJSONArray(orders, products, customers);
   }
 
@@ -89,13 +103,15 @@ class OrderController {  static async createOrder(
     const orderGateway = new OrderGateway(dbConnection);
     const productGateway = new ProductGateway(dbConnection);
     const customerGateway = new CustomerGateway(dbConnection);
-    const { orders, products } = await OrderUseCases.listSortedOrdersWithProducts(
+    const { orders, products, customers } = await OrderUseCases.findAllOrdersWithProductsAndCustomers(
       orderGateway,
-      productGateway
+      productGateway,
+      customerGateway
     );
-    const customers = await CustomerInfoService.getCustomersFromOrders(orders, customerGateway);
     return EnhancedOrderPresenter.toJSONArray(orders, products, customers);
-  }  static async updateOrderStatus(
+  }
+
+  static async updateOrderStatus(
     id: string,
     status: OrderStatus,
     dbConnection: IDatabaseConnection
@@ -109,9 +125,14 @@ class OrderController {  static async createOrder(
       orderGateway,
       productGateway
     );
-    const customers = await CustomerInfoService.getCustomerFromOrder(order, customerGateway);
+    const { customers } = await OrderUseCases.findOrderByIdWithCustomers(
+      order.id,
+      orderGateway,
+      customerGateway
+    );
     return EnhancedOrderPresenter.toJSON(order, products, customers);
   }
+
   static async addItemsToOrder(
     id: string,
     items: OrderItem[],
@@ -126,7 +147,11 @@ class OrderController {  static async createOrder(
       orderGateway,
       productGateway
     );
-    const customers = await CustomerInfoService.getCustomerFromOrder(order, customerGateway);
+    const { customers } = await OrderUseCases.findOrderByIdWithCustomers(
+      order.id,
+      orderGateway,
+      customerGateway
+    );
     return EnhancedOrderPresenter.toJSON(order, products, customers);
   }
 
@@ -152,7 +177,9 @@ class OrderController {  static async createOrder(
     const orderGateway = new OrderGateway(dbConnection);
     await OrderUseCases.deleteOrder(id, orderGateway);
     return { message: "Order deleted successfully" };
-  }  static async confirmOrder(id: string, dbConnection: IDatabaseConnection) {
+  }
+
+  static async confirmOrder(id: string, dbConnection: IDatabaseConnection) {
     const orderGateway = new OrderGateway(dbConnection);
     const customerGateway = new CustomerGateway(dbConnection);
     

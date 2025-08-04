@@ -1,96 +1,157 @@
-# Repositórios com Prisma
+# Repositórios - Clean Architecture
 
-Este diretório contém a implementação dos repositórios usando Prisma ORM com padrão de herança e organização hierárquica.
+Este diretório contém as **interfaces de repositórios** que fazem parte da camada **Domain** seguindo os princípios da Clean Architecture.
 
-## Estrutura de Pastas
+## Estrutura Atual
 
 ```
-repositories/
-├── interfaces/           # Interfaces dos repositórios
-│   ├── ICategoryRepository.ts
-│   ├── ICustomerRepository.ts
-│   ├── IProductRepository.ts
-│   ├── IOrderRepository.ts
-│   └── index.ts
-├── implementations/      # Implementações concretas
-│   ├── BaseRepository.ts
-│   ├── CategoryRepository.ts
-│   ├── CustomerRepository.ts
-│   ├── ProductRepository.ts
-│   ├── OrderRepository.ts
-│   └── index.ts
-├── example.ts           # Exemplo de uso
-├── README.md           # Esta documentação
-└── index.ts            # Exportações principais
+src/
+├── domain/
+│   └── repositories/  # Interfaces dos repositórios (Domain Layer)
+│       ├── ICategoryRepository.ts
+│       ├── ICustomerRepository.ts
+│       ├── IProductRepository.ts
+│       ├── IOrderRepository.ts
+│       ├── index.ts
+│       └── README.md
+├── presentation/
+│   └── gateways/              # Implementações dos repositórios (Infrastructure Layer)
+│       ├── CategoryGateway.ts
+│       ├── CustomerGateway.ts
+│       ├── ProductGateway.ts
+│       └── OrderGateway.ts
+├── infrastructure/
+│   ├── database/
+│   │   └── prisma/
+│   │       ├── implementations/
+│   │       │   └── CategoryRepository.ts  # (Vazio - não usado)
+│   │       ├── PrismaDBConnection.ts
+│   │       └── schema.prisma
+│   └── interfaces/
+│       └── IDbConnection.ts
+└── application/
+    ├── use-cases/             # Use Cases que usam as interfaces
+    │   ├── CategoryUseCases.ts
+    │   ├── CustomerUseCases.ts
+    │   ├── ProductUseCases.ts
+    │   ├── OrderUseCases.ts
+    │   ├── PaymentUseCases.ts
+    │   ├── KitchenUseCases.ts
+    │   └── OrderConfirmationUseCases.ts
+    └── interfaces/
+        └── gateways/
+            └── IPaymentGateway.ts
 ```
 
-## Arquitetura
+## Arquitetura Clean
 
-### Interfaces (`/interfaces`)
+### Camada Domain (`src/domain/repositories/`)
 
-Contém as definições de contrato para cada repositório:
+Contém **apenas as interfaces** que definem os contratos para operações de dados:
 
 - `ICategoryRepository`: Contrato para operações de categorias
-- `ICustomerRepository`: Contrato para operações de clientes
+- `ICustomerRepository`: Contrato para operações de clientes  
 - `IProductRepository`: Contrato para operações de produtos
 - `IOrderRepository`: Contrato para operações de pedidos
 
-### Implementações (`/implementations`)
+### Camada Infrastructure (`src/presentation/gateways/`)
 
-Contém as implementações concretas usando Prisma:
+Contém as **implementações concretas** dos repositórios que implementam as interfaces do domain:
 
-#### BaseRepository
+- **CategoryGateway**: Implementa `ICategoryRepository` usando `IDatabaseConnection`
+- **CustomerGateway**: Implementa `ICustomerRepository` usando `IDatabaseConnection`
+- **ProductGateway**: Implementa `IProductRepository` usando `IDatabaseConnection`
+- **OrderGateway**: Implementa `IOrderRepository` usando `IDatabaseConnection`
 
-Classe abstrata que fornece funcionalidades básicas de CRUD:
+### Camada Application (`src/application/use-cases/`)
 
-- `create(entity)`: Cria uma nova entidade
-- `findById(id)`: Busca entidade por ID
-- `findAll()`: Lista todas as entidades
-- `update(entity)`: Atualiza uma entidade
-- `delete(id)`: Remove uma entidade
-- `disconnect()`: Fecha a conexão com o banco
+Contém os **Use Cases** que orchestram as regras de negócio usando apenas as interfaces:
 
-#### Repositórios Específicos
+- **CategoryUseCases**: Operações de negócio para categorias
+- **CustomerUseCases**: Operações de negócio para clientes
+- **ProductUseCases**: Operações de negócio para produtos
+- **OrderUseCases**: Operações de negócio para pedidos
+- **PaymentUseCases**: Operações de negócio para pagamentos
+- **KitchenUseCases**: Operações de negócio para cozinha
 
-- **CategoryRepository**: Herda de `BaseRepository<Category>`, implementa `ICategoryRepository`
-- **CustomerRepository**: Herda de `BaseRepository<Customer>`, implementa `ICustomerRepository`
-- **ProductRepository**: Herda de `BaseRepository<Product>`, implementa `IProductRepository`
-- **OrderRepository**: Herda de `BaseRepository<Order>`, implementa `IOrderRepository`
+### Fluxo de Dependências
+
+```
+Application Layer (Use Cases)
+    ↓ (depende apenas das interfaces)
+Domain Layer (Repository Interfaces)
+    ↑ (implementadas por)
+Infrastructure Layer (Gateways)
+    ↓ (usam)
+Database Connection (Prisma)
+```
 
 ## Exemplo de Uso
 
 ```typescript
-// Importar interfaces
-import {
-  ICategoryRepository,
-  ICustomerRepository,
-} from "./repositories/interfaces";
+// Use Cases dependem apenas das interfaces (Domain)
+import { ICategoryRepository } from "@repositories/ICategoryRepository";
+import CategoryUseCases from "@usecases/CategoryUseCases";
 
-// Importar implementações
-import {
-  CategoryRepository,
-  CustomerRepository,
-} from "./repositories/implementations";
+// Controllers usam os Use Cases e instanciam os Gateways (Infrastructure)
+import { CategoryGateway } from "@presentation-gateways/CategoryGateway";
+import { IDatabaseConnection } from "@infra-interfaces/IDbConnection";
 
-// Ou importar tudo de uma vez
-import { CategoryRepository, ICategoryRepository } from "./repositories";
-
-// Criar instâncias
-const categoryRepo: ICategoryRepository = new CategoryRepository();
-const customerRepo: ICustomerRepository = new CustomerRepository();
-
-// Usar os repositórios
-const category = await categoryRepo.create(
-  new Category("Bebidas", "Todas as bebidas")
-);
-const customer = await customerRepo.findByEmail("joao@email.com");
+class CategoryController {
+  static async createCategory(
+    name: string,
+    description: string,
+    dbConnection: IDatabaseConnection
+  ) {
+    // Instancia o gateway (infrastructure)
+    const categoryGateway = new CategoryGateway(dbConnection);
+    
+    // Chama o use case passando a interface
+    const category = await CategoryUseCases.createCategory(
+      name,
+      description,
+      categoryGateway // passa a implementação
+    );
+    
+    return category;
+  }
+}
 ```
 
-## Características
+## Características da Implementação
 
-- **Separação de Responsabilidades**: Interfaces separadas das implementações
-- **Herança**: Todos os repositórios herdam de `BaseRepository`
-- **Type Safety**: Uso de generics para type safety
-- **Transações**: OrderRepository usa transações para operações complexas
-- **Mapeamento**: Conversão automática entre entidades de domínio e dados do Prisma
-- **Injeção de Dependência**: Fácil substituição de implementações através das interfaces
+- **Separação Rigorosa de Camadas**: Domain contém apenas interfaces, Infrastructure contém implementações
+- **Inversão de Dependência**: Use Cases dependem de abstrações, não de implementações concretas
+- **Injeção de Dependência**: Gateways são injetados via constructor nos Controllers
+- **Type Safety**: Uso de TypeScript com tipagem forte em todas as camadas
+- **Database Abstraction**: `IDatabaseConnection` abstrai o acesso ao banco de dados
+- **Clean Architecture**: Fluxo de dependências sempre aponta para o Domain
+- **Testabilidade**: Interfaces permitem fácil mocking nos testes
+- **Extensibilidade**: Novas implementações podem ser criadas sem alterar Use Cases
+
+## Princípios Seguidos
+
+1. **Single Responsibility**: Cada repositório tem uma responsabilidade específica
+2. **Open/Closed**: Interfaces abertas para extensão, fechadas para modificação  
+3. **Liskov Substitution**: Qualquer implementação pode substituir outra
+4. **Interface Segregation**: Interfaces específicas para cada domínio
+5. **Dependency Inversion**: Use Cases dependem de abstrações, não de concreções
+
+## Estrutura de Testes
+
+```
+tests/
+├── application/
+│   └── use-cases/           # Testes dos Use Cases com mocks
+│       ├── CategoryUseCases.test.ts
+│       ├── CustomerUseCases.test.ts
+│       ├── ProductUseCases.test.ts
+│       ├── OrderUseCases.test.ts
+│       └── PaymentUseCases.test.ts
+└── presentation/
+    └── gateways/           # Testes de integração dos Gateways
+        ├── CategoryGateway.test.ts
+        ├── CustomerGateway.test.ts
+        ├── ProductGateway.test.ts
+        └── OrderGateway.test.ts
+```

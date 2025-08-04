@@ -1,6 +1,6 @@
 import Order from "../../domain/entities/Order";
-import { IOrderRepository } from "../../interfaces/repositories/IOrderRepository";
-import { ICustomerRepository } from "../../interfaces/repositories/ICustomerRepository";
+import { IOrderRepository } from "@repositories/IOrderRepository";
+import { ICustomerRepository } from "@repositories/ICustomerRepository";
 import Customer from "../../domain/entities/Customer";
 
 class OrderConfirmationUseCases {
