@@ -117,12 +117,13 @@ describe("PaymentUseCases", () => {
     });
   });
 
-  describe("createPayment", () => {
-    it("should create payment for pending order without customer", async () => {      const order = new Order();
+  describe("createPayment", () => {    it("should create payment for confirmed order without customer", async () => {
+      const order = new Order();
       const productId = uuidv4();
       const orderId = uuidv4();
       const itemId = uuidv4();
       order.addItem([new OrderItem(productId, 2, 15.99, orderId, itemId, "No onions")]);
+      order.confirm(); // Confirm the order so it can accept payment
       
       const paymentResult = {
         paymentProviderId: "mp-12345",
@@ -158,12 +159,13 @@ describe("PaymentUseCases", () => {
 
       expect(order.paymentProviderId).toBe("mp-12345");
       expect(mockOrderRepository.update).toHaveBeenCalledWith(order);
-    });    it("should create payment for pending order with customer", async () => {
+    });    it("should create payment for confirmed order with customer", async () => {
       const customerId = uuidv4();
       const order = new Order(uuidv4(), customerId);
       const productId = uuidv4();
       const itemId = uuidv4();
       order.addItem([new OrderItem(productId, 2, 15.99, order.id, itemId, "No onions")]);
+      order.confirm(); // Confirm the order so it can accept payment
       
       const customer = {
         id: customerId,
@@ -219,6 +221,7 @@ describe("PaymentUseCases", () => {
       const productId = uuidv4();
       const itemId = uuidv4();
       order.addItem([new OrderItem(productId, 2, 15.99, order.id, itemId, "No onions")]);
+      order.confirm(); // Confirm the order so it can accept payment
       
       const paymentResult = {
         paymentProviderId: "mp-12345",
@@ -265,12 +268,12 @@ describe("PaymentUseCases", () => {
           mockPaymentGateway
         )
       ).rejects.toThrow("Order not found");
-    });    it("should throw error when order is not pending", async () => {
+    });    it("should throw error when order is not confirmed", async () => {
       const order = new Order();
       const productId = uuidv4();
       const itemId = uuidv4();
       order.addItem([new OrderItem(productId, 2, 15.99, order.id, itemId, "No onions")]);
-      order.confirm(); // Change status to CONFIRMED
+      // Order remains in PENDING status (not confirmed)
       
       mockOrderRepository.findById.mockResolvedValue(order);
 
@@ -281,7 +284,7 @@ describe("PaymentUseCases", () => {
           mockOrderRepository,
           mockPaymentGateway
         )
-      ).rejects.toThrow("Order must be in PENDING status to create payment");
+      ).rejects.toThrow("Order must be in CONFIRMED status to create payment");
     });
   });
 

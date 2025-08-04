@@ -983,7 +983,7 @@
           },
           "response": []
         },        {
-          "name": "3. Confirm the Order (CONFIRMED)",
+          "name": "3. Checkout the Order (CONFIRMED)",
           "request": {
             "method": "PATCH",
             "header": [],

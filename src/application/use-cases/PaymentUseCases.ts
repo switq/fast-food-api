@@ -84,14 +84,13 @@ class PaymentUseCases {
     orderRepository: IOrderRepository,
     paymentGateway: IPaymentGateway,
     customerRepository?: ICustomerRepository
-  ) {
-    const order = await orderRepository.findById(orderId);
+  ) {    const order = await orderRepository.findById(orderId);
     if (!order) {
       throw new Error("Order not found");
     }
 
-    if (order.status !== "PENDING") {
-      throw new Error("Order must be in PENDING status to create payment");
+    if (order.status !== "CONFIRMED") {
+      throw new Error("Order must be in CONFIRMED status to create payment");
     }
 
     let customerEmail = "guest@example.com";
