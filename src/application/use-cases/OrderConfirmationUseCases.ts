@@ -1,4 +1,4 @@
-import Order from "../../domain/entities/Order";
+import Order from "@entities/Order";
 import { IOrderRepository } from "@repositories/IOrderRepository";
 import { ICustomerRepository } from "@repositories/ICustomerRepository";
 import Customer from "../../domain/entities/Customer";
