@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "complete-fast-food-api-2025",
     "name": "Fast Food API - Complete Collection",
-    "description": "Collection completa com TODOS os endpoints da Fast Food API - Atualizada em 08/01/2025\n\n📋 Includes complete order lifecycle testing with automatic ID management",
+    "description": "Collection completa com TODOS os endpoints da Fast Food API - Atualizada em 08/01/2025\n\n📋 Includes complete order lifecycle testing with automatic ID management\n🔄 UPDATED: Rotas de teste removidas (/api/test/*) - API limpa e organizada",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -891,52 +891,7 @@
               "path": ["webhooks", "paymentwebhook"]
             }
           },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "🧪 Test",
-      "item": [
-        {
-          "name": "Test Payment QR Generation",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:3000/api/test/payment",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "3000",
-              "path": ["api", "test", "payment"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Test Webhook",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"data\": {\n        \"id\": \"test-payment-id\"\n    }\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://localhost:3000/api/test/webhook",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "3000",
-              "path": ["api", "test", "webhook"]
-            }
-          },
-          "response": []
-        }
+          "response": []        }
       ]
     },
     {

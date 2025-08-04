@@ -64,7 +64,6 @@ Esta é a collection principal que contém todos os endpoints organizados por ca
 - **🍳 Kitchen**: Endpoints específicos da cozinha
 - **💳 Payments**: Gestão de pagamentos
 - **🔔 Webhooks**: Webhooks do Mercado Pago
-- **🧪 Test**: Endpoints de teste
 - **🚀 Full Order Flow**: **Fluxo completo passo a passo**
 
 #### 2. **🚀 Full Order Flow** - Grupo Especial
@@ -120,6 +119,23 @@ GET /api/products
 
 Ou use um dos produtos criados pelo seed do banco de dados.
 
+## 🔄 Atualizações Recentes da API
+
+### ✅ Rotas Removidas (Agosto 2025)
+
+As seguintes rotas de **teste/desenvolvimento** foram removidas da API para limpar a documentação:
+
+- ❌ `POST /api/test/payment` - Era usada apenas para testes de desenvolvimento
+- ❌ `POST /api/test/webhook` - Era usada apenas para debug de webhooks
+
+**🎯 Impacto:** Nenhum! Essas rotas eram apenas para desenvolvimento interno. Todas as funcionalidades de pagamento continuam disponíveis através das rotas oficiais de Orders e Payments.
+
+### 🔧 Rota de Identificação de Cliente
+
+- ✅ `GET /api/customers/identify/{cpf}` - **Mantida** como rota principal para identificação
+- 📝 **Funcionalidade:** Aceita CPF com ou sem formatação (`12345678901` ou `123.456.789-01`)
+- 🎯 **Uso:** Identificar clientes existentes antes de criar pedidos
+
 ## 📋 Endpoints da API
 
 ### 🏥 Health & Documentação
@@ -135,7 +151,7 @@ Ou use um dos produtos criados pelo seed do banco de dados.
 |--------|----------|-----------|-----------------|
 | GET | `/api/customers` | Listar todos os clientes | - |
 | GET | `/api/customers/:id` | Buscar cliente por ID | `id` (path param) |
-| GET | `/api/customers/identify/:cpf` | Identificar cliente por CPF | `cpf` (path param) |
+| GET | `/api/customers/identify/:cpf` | **Identificar cliente por CPF** | `cpf` (path param) - Ex: `12345678901` ou `123.456.789-01` |
 | POST | `/api/customers` | Criar novo cliente | `{ name, email, cpf, phone }` |
 | PUT | `/api/customers/:id` | Atualizar cliente | `id` (path param) + dados para atualizar |
 | DELETE | `/api/customers/:id` | Deletar cliente | `id` (path param) |
@@ -210,13 +226,6 @@ Ou use um dos produtos criados pelo seed do banco de dados.
 | Método | Endpoint | Descrição | Body/Parâmetros |
 |--------|----------|-----------|-----------------|
 | POST | `/webhooks/paymentwebhook` | Webhook dedicado do Mercado Pago | Payload do MP |
-
-### 🧪 Testes
-
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| POST | `/api/test/payment` | Simular criação de pagamento |
-| POST | `/api/test/webhook` | Simular webhook do Mercado Pago |
 
 ## 🔄 Fluxo de Uso da API
 

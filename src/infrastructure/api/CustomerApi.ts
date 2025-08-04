@@ -92,12 +92,11 @@ import CustomerController from "@controllers/CustomerController";
  *         description: Cliente removido com sucesso
  *       404:
  *         description: Cliente não encontrado
- *
- * /customers/identify/{cpf}:
+ * * /customers/identify/{cpf}:
  *   get:
  *     tags: [Customers]
- *     summary: Identifica um cliente pelo CPF/documento
- *     description: Busca um cliente usando o CPF para identificação. Suporta CPF formatado ou apenas números.
+ *     summary: Busca um cliente pelo CPF
+ *     description: Encontra um cliente específico usando o CPF para busca. Suporta CPF formatado ou apenas números.
  *     parameters:
  *       - in: path
  *         name: cpf
@@ -159,9 +158,7 @@ export function setupCustomerRoutes(dbConnection: IDatabaseConnection) {
       res.json(result);
     } catch (err) {
       res.status(400).json({ error: (err as Error).message });
-    }  });
-  
-  // Endpoint para identificação do cliente por CPF - deve vir antes da rota /:id
+    }  });    // Endpoint para identificação do cliente por CPF - deve vir antes da rota /:id
   router.get("/customers/identify/:cpf", async (req, res) => {
     try {
       const result = await CustomerController.getCustomerByCPF(
