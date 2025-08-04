@@ -337,8 +337,7 @@ import { ProductGateway } from "@presentation-gateways/ProductGateway";
  *         required: true
  *         schema:
  *           type: string
- *         description: ID do pedido para o qual o pagamento será gerado
- *     requestBody:
+ *         description: ID do pedido para o qual o pagamento será gerado *     requestBody:
  *       required: false
  *       content:
  *         application/json:
@@ -348,7 +347,9 @@ import { ProductGateway } from "@presentation-gateways/ProductGateway";
  *               paymentMethodId:
  *                 type: string
  *                 example: pix
- *                 description: Opcional - para futuras integrações com outros gateways
+ *                 description: |
+ *                   OPCIONAL - Atualmente ignorado. O cliente escolhe o método de pagamento 
+ *                   na interface do Mercado Pago. Mantido para compatibilidade futura.
  *     responses:
  *       200:
  *         description: Pagamento criado com sucesso

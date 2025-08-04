@@ -12,6 +12,15 @@ Uma API REST completa para gerenciamento de restaurante fast food, desenvolvida 
 - [💳 Integração com Mercado Pago](#-integração-com-mercado-pago)
 - [🧪 Testes e Validação](#-testes-e-validação)
 
+## 📁 Documentação do Projeto
+
+Este repositório contém documentação organizada por contexto:
+
+- **[README.md](./README.md)** (este arquivo): Documentação principal com API, desenvolvimento e uso
+- **[k8s/README.md](./k8s/README.md)**: Documentação específica para deploy em Kubernetes
+- **[k8s/desenho-arquitetura.md](./k8s/desenho-arquitetura.md)**: Arquitetura completa e diagramas da solução
+- **[collections/](./collections/)**: Collections do Postman para teste da API
+
 ## 🚀 Início Rápido
 
 ### Para desenvolvedores que querem testar rapidamente:
@@ -252,7 +261,8 @@ PATCH /api/orders/{orderId}/status/confirmOrder
 
 # 7. Gerar pagamento para o pedido (somente se estiver CONFIRMED)
 POST /api/orders/{orderId}/payment
-# Retorna QR Code para pagamento
+# Body opcional: {} ou {"paymentMethodId": "any-value"} - o campo é ignorado
+# Retorna QR Code para pagamento - cliente escolhe método no Mercado Pago
 
 # 8. Webhook do Mercado Pago atualiza o status para PAYMENT_CONFIRMED
 # após o pagamento ser aprovado.
@@ -350,8 +360,11 @@ POST /api/orders
 # 2. Confirmar o pedido (status: CONFIRMED)
 PATCH /api/orders/{orderId}/status/confirmOrder
 
-# 3. Gerar pagamento (QR Code PIX)
+# 3. Gerar pagamento (cliente escolhe método no Mercado Pago)
+# NOTA: Na implementação atual, o cliente escolhe o método na interface do Mercado Pago.
+# O campo paymentMethodId está preparado para futuras integrações com outros gateways.
 POST /api/orders/{orderId}/payment
+# Body opcional: {} ou {"paymentMethodId": "ignored"}
 # Resposta inclui qrCode e qrCodeBase64
 
 # 4. Cliente escaneia QR Code e paga
@@ -462,11 +475,13 @@ PENDING → CONFIRMED → PAYMENT_CONFIRMED → PREPARING → READY → DELIVERE
 
 #### Atualizar Status do Pedido
 
-```json
-{
-  "status": "PREPARING"
-}
-```
+A API utiliza endpoints específicos para cada transição de status:
+
+- **Iniciar Preparo**: `PATCH /api/orders/{id}/status/startPreparing`
+- **Marcar como Pronto**: `PATCH /api/orders/{id}/status/markReady`  
+- **Marcar como Entregue**: `PATCH /api/orders/{id}/status/markDelivered`
+
+*Não há payload necessário - apenas o ID do pedido na URL.*
 
 ## ⚙️ Configuração Detalhada
 
@@ -545,55 +560,47 @@ npm run dev
 
 ### Opção 3: Kubernetes (Produção/Cloud)
 
-Para deploy em cluster Kubernetes:
+Para deploy em cluster Kubernetes, consulte a **[documentação completa do Kubernetes](./k8s/README.md)** que inclui:
 
-1. **Configure o ambiente:**
-   - Certifique-se de ter um cluster Kubernetes rodando (minikube, kind, ou cloud)
-   - Configure o Docker para usar o registry do cluster
+- 🚀 **Deploy completo** com PostgreSQL integrado
+- 🔧 **Auto-scaling** e configuração de recursos
+- 🔒 **Políticas de segurança** e network policies
+- 📊 **Health checks** e monitoramento
+- 🛠️ **Comandos úteis** para gerenciamento
 
-2. **Build e deploy da imagem:**
+Para entender a **arquitetura completa da solução**, consulte **[k8s/desenho-arquitetura.md](./k8s/desenho-arquitetura.md)** que contém:
+
+- 📋 **Análise de requisitos** de negócio e problemas identificados
+- 🏗️ **Diagramas de arquitetura** (Mermaid) com componentes detalhados
+- ⚙️ **Configurações técnicas** de HPA, deployment e segurança
+- 📈 **KPIs e métricas** de performance e disponibilidade
+- 🔄 **Fluxos de dados** e sequência de operações
+
+**Deploy rápido:**
 
 ```bash
-# Build da imagem
-docker build -t fast-food-api:latest .
-
-# Se usando minikube
-eval $(minikube docker-env)
-docker build -t fast-food-api:latest .
-
-# Deploy no Kubernetes
+# Deploy principal
 kubectl apply -f k8s/kubernetes.yaml
-```
 
-3. **Verifique o deploy:**
+# Políticas de rede (opcional)
+kubectl apply -f k8s/network-policies.yaml
 
-```bash
-# Verificar status dos pods
+# Verificar status
 kubectl get pods -n fast-food-api
-
-# Verificar serviços
-kubectl get services -n fast-food-api
-
-# Verificar logs
-kubectl logs -f deployment/fast-food-api -n fast-food-api
 ```
 
-4. **Acesse a aplicação:**
+**Acessar aplicação:**
 
 ```bash
-# Port-forward para acesso local
-kubectl port-forward service/fast-food-api-service 3000:80 -n fast-food-api
+# Port-forward para desenvolvimento
+kubectl port-forward -n fast-food-api service/fast-food-api-service 3000:80
 
-# Ou use minikube tunnel (se aplicável)
-minikube tunnel
+# URLs (com ingress configurado)
+# API: http://fast-food-api.local
+# Swagger: http://fast-food-api.local/api-docs
 ```
 
-**Nota:** A implementação atual do Kubernetes é básica e inclui apenas:
-
-- Namespace `fast-food-api`
-- Deployment com 1 réplica
-- Service ClusterIP na porta 80
-- Configuração para PostgreSQL local via `host.minikube.internal`
+> 📖 **Documentação completa:** Para configurações avançadas, troubleshooting e comandos detalhados, consulte **[k8s/README.md](./k8s/README.md)**
 
 ### Perfis Docker
 
@@ -774,7 +781,13 @@ POST /api/orders
 #### Passo 2: Gere o QR Code de Pagamento
 
 ```bash
-# Gere o pagamento
+# Gere o pagamento (sem payload necessário)
+POST /api/orders/{orderId}/payment
+
+# OU com payload opcional
+# NOTA: O campo paymentMethodId é ignorado na implementação atual com Mercado Pago,
+# mas está preparado para futuras implementações com outros meios de pagamento
+# (PayPal, Stripe, PIX direto, cartão de crédito, etc.)
 POST /api/orders/{orderId}/payment
 {
   "paymentMethodId": "pix"
@@ -972,3 +985,11 @@ npm run test:coverage   # Testes + Coverage
 - **ESLint**: `.eslintrc.js` - Regras de linting para TypeScript
 - **Prettier**: `.prettierrc` - Formatação de código
 - **Jest**: `jest.config.js` - Configuração de testes e coverage
+
+---
+
+## 📖 Documentação Relacionada
+
+- **[Kubernetes Deployment](./k8s/README.md)**: Configurações para deploy em produção
+- **[Arquitetura da Solução](./k8s/desenho-arquitetura.md)**: Diagramas e documentação técnica completa
+- **[Collections Postman](./collections/)**: Teste automatizado da API
