@@ -2,6 +2,8 @@
 
 Configurações Kubernetes para deploy da Fast Food API em produção.
 
+> 📖 **Documentação principal:** Para informações completas sobre a API, endpoints, desenvolvimento e testes, consulte o **[README principal](../README.md)**
+
 ## 📁 Arquivos
 
 ```
@@ -128,8 +130,17 @@ kubectl delete namespace fast-food-api
 # Em produção, faça backup antes de deletar o namespace
 ```
 
+---
+
+## 📖 Documentação Relacionada
+
+- **[README Principal](../README.md)**: Documentação completa da API, desenvolvimento e testes
+- **[Arquitetura da Solução](./desenho-arquitetura.md)**: Diagramas e documentação técnica detalhada
+- **[Collections Postman](../collections/)**: Teste da API com dados de exemplo
+
 ## 📝 Notas
 
+1. **Backup**: Sempre faça backup dos dados antes de atualizações
 2. **Secrets**: Use Vault/AWS Secrets Manager em produção
 3. **Ingress**: Configure SSL/TLS para produção
 4. **Logs**: Considere ELK Stack para logs centralizados
