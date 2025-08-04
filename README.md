@@ -17,6 +17,7 @@ Uma API REST completa para gerenciamento de restaurante fast food, desenvolvida 
 Este repositório contém documentação organizada por contexto:
 
 - **[README.md](./README.md)** (este arquivo): Documentação principal com API, desenvolvimento e uso
+- **[src/domain/repositories/README.md](./src/domain/repositories/README.md)**: 🏗️ **Arquitetura Clean** - Documentação detalhada da estrutura de repositórios, camadas e princípios SOLID
 - **[k8s/README.md](./k8s/README.md)**: Documentação específica para deploy em Kubernetes
 - **[k8s/desenho-arquitetura.md](./k8s/desenho-arquitetura.md)**: Arquitetura completa e diagramas da solução
 - **[collections/](./collections/)**: Collections do Postman para teste da API
@@ -524,13 +525,26 @@ npm install
 cp env.example .env
 ```
 
-3. Atualize o arquivo `.env` com sua configuração de banco de dados:
+3. Atualize o arquivo `.env` com sua configuração de banco de dados e Mercado Pago:
 
 ```env
+# Banco de Dados
 DATABASE_URL="postgresql://user:password@localhost:5432/fast_food_db?schema=public"
+
+# Servidor
 PORT=3000
 NODE_ENV=development
+
+# Mercado Pago (obrigatório para pagamentos)
+MERCADO_PAGO_ACCESS_TOKEN=TEST-seu-access-token-aqui
+MERCADO_PAGO_NOTIFICATION_URL=https://sua-url-ngrok.ngrok-free.app/webhooks/paymentwebhook
 ```
+
+> 📝 **Nota**: Para obter as credenciais do Mercado Pago:
+> 1. Acesse [Mercado Pago Developers](https://www.mercadopago.com.br/developers)
+> 2. Crie uma aplicação de teste
+> 3. Copie o Access Token de teste
+> 4. Configure o ngrok para webhook (veja seção "Integração com Mercado Pago")
 
 4. Inicialize o banco de dados:
 
