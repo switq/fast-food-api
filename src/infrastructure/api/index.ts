@@ -9,7 +9,8 @@ import express from "express";
 import swaggerUi from "swagger-ui-express";
 import swaggerJsdoc from "swagger-jsdoc";
 import testApi from "./testApi";
-import { IDatabaseConnection } from "@interfaces/IDbConnection";
+import { IDatabaseConnection } from "@src/interfaces/IDbConnection";
+import { setupPaymentWebhookRoute } from "./PaymentWebhookApi";
 
 export class FastFoodApp {
   start(dbConnection: IDatabaseConnection) {
@@ -42,6 +43,7 @@ export class FastFoodApp {
     app.use("/api", setupKitchenRoutes(dbConnection));
     app.use("/api", setupPaymentRoutes(dbConnection));
     app.use("/api", testApi);
+    app.use(setupPaymentWebhookRoute(dbConnection));
 
     // Health check
     app.get("/health", (req, res) => {

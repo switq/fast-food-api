@@ -2,12 +2,8 @@ import { IDatabaseConnection } from "@interfaces/IDbConnection";
 import { Router } from "express";
 import OrderController from "@controllers/OrderController";
 import PaymentController from "@controllers/PaymentController";
-import Order from "@entities/Order";
 import OrderItem from "@entities/OrderItem";
-import { OrderGateway } from "@presentation-gateways/OrderGateway";
 import { ProductGateway } from "@presentation-gateways/ProductGateway";
-import { CustomerGateway } from "@presentation-gateways/CustomerGateway";
-import OrderPresenter from "@presenters/OrderPresenter";
 
 /**
  * @openapi
@@ -482,26 +478,13 @@ export function setupOrderRoutes(dbConnection: IDatabaseConnection) {
       res.status(404).json({ error: (err as Error).message });
     }
   });
-
   router.post("/orders", async (req, res) => {
     try {
       const { items, customerId } = req.body;
-      const orderGateway = new OrderGateway(dbConnection);
-      const productGateway = new ProductGateway(dbConnection);
-      const customerGateway = new CustomerGateway(dbConnection);
-      // Se customerId for informado, valida se existe
-      if (customerId) {
-        if (typeof customerId !== "string" || customerId.trim().length === 0) {
-          throw new Error("customerId must be a valid UUID string if provided");
-        }
-        const customer = await customerGateway.findById(customerId);
-        if (!customer) {
-          throw new Error("Customer not found");
-        }
-      }
       // Instancia os itens antes de criar o pedido
       const orderItems = await Promise.all(
         items.map(async (item: any) => {
+          const productGateway = new ProductGateway(dbConnection);
           let unitPrice = item.unitPrice;
           if (unitPrice == null) {
             // Busca o preço do produto se não informado
@@ -519,10 +502,12 @@ export function setupOrderRoutes(dbConnection: IDatabaseConnection) {
           );
         })
       );
-      // Cria o pedido já com os itens, customerId pode ser undefined
-      const order = new Order(undefined, customerId, orderItems);
-      const createdOrder = await orderGateway.create(order);
-      res.status(201).json(OrderPresenter.toJSON(createdOrder));
+      const result = await OrderController.createOrder(
+        orderItems,
+        dbConnection,
+        customerId
+      );
+      res.status(201).json(result);
     } catch (err) {
       res.status(400).json({ error: (err as Error).message });
     }

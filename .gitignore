@@ -8,3 +8,4 @@ coverage/
 # Database backups (but not Prisma migrations)
 *backup*.sql
 dump_*.sql
+

@@ -3,6 +3,8 @@ import OrderItem from "@entities/OrderItem";
 import { IOrderRepository } from "@interfaces/repositories/IOrderRepository";
 import { IProductRepository } from "@interfaces/repositories/IProductRepository";
 import { ICustomerRepository } from "@interfaces/repositories/ICustomerRepository";
+import ProductInfoService from "../services/ProductInfoService";
+import Product from "@entities/Product";
 
 class OrderUseCases {
   static async createOrder(
@@ -256,6 +258,150 @@ class OrderUseCases {
     }
     order.cancel();
     return repository.update(order);
+  }
+
+  // Enhanced methods that include product information
+  static async findOrderByIdWithProducts(
+    id: string,
+    orderRepository: IOrderRepository,
+    productRepository: IProductRepository
+  ): Promise<{ order: Order; products: Map<string, Product> }> {
+    const order = await this.findOrderById(id, orderRepository);
+    const products = await ProductInfoService.getProductsFromOrder(order, productRepository);
+    return { order, products };
+  }
+
+  static async findOrdersByCustomerWithProducts(
+    customerId: string,
+    orderRepository: IOrderRepository,
+    productRepository: IProductRepository
+  ): Promise<{ orders: Order[]; products: Map<string, Product> }> {
+    const orders = await orderRepository.findByCustomerId(customerId);
+    const products = await ProductInfoService.getProductsFromOrders(orders, productRepository);
+    return { orders, products };
+  }
+
+  static async findAllOrdersWithProducts(
+    orderRepository: IOrderRepository,
+    productRepository: IProductRepository
+  ): Promise<{ orders: Order[]; products: Map<string, Product> }> {
+    const orders = await orderRepository.findAll();
+    const products = await ProductInfoService.getProductsFromOrders(orders, productRepository);
+    return { orders, products };
+  }
+
+  static async findOrdersByStatusWithProducts(
+    status: string,
+    orderRepository: IOrderRepository,
+    productRepository: IProductRepository
+  ): Promise<{ orders: Order[]; products: Map<string, Product> }> {
+    const orders = await orderRepository.findByStatus(status);
+    const products = await ProductInfoService.getProductsFromOrders(orders, productRepository);
+    return { orders, products };
+  }
+
+  static async listSortedOrdersWithProducts(
+    orderRepository: IOrderRepository,
+    productRepository: IProductRepository
+  ): Promise<{ orders: Order[]; products: Map<string, Product> }> {
+    const orders = await orderRepository.findAllSorted();
+    const products = await ProductInfoService.getProductsFromOrders(orders, productRepository);
+    return { orders, products };
+  }
+
+  // Enhanced methods for status updates that return orders with product information
+  static async updateOrderStatusWithProducts(
+    id: string,
+    status: OrderStatus,
+    orderRepository: IOrderRepository,
+    productRepository: IProductRepository
+  ): Promise<{ order: Order; products: Map<string, Product> }> {
+    const order = await this.updateOrderStatus(id, status, orderRepository);
+    const products = await ProductInfoService.getProductsFromOrder(order, productRepository);
+    return { order, products };
+  }
+
+  static async addItemsToOrderWithProducts(
+    id: string,
+    items: OrderItem[],
+    orderRepository: IOrderRepository,
+    productRepository: IProductRepository
+  ): Promise<{ order: Order; products: Map<string, Product> }> {
+    const order = await this.addItemsToOrder(id, items, orderRepository, productRepository);
+    const products = await ProductInfoService.getProductsFromOrder(order, productRepository);
+    return { order, products };
+  }
+
+  static async updateItemQuantityWithProducts(
+    orderId: string,
+    itemId: string,
+    quantity: number,
+    orderRepository: IOrderRepository,
+    productRepository: IProductRepository
+  ): Promise<{ order: Order; products: Map<string, Product> }> {
+    const order = await this.updateItemQuantity(orderId, itemId, quantity, orderRepository);
+    const products = await ProductInfoService.getProductsFromOrder(order, productRepository);
+    return { order, products };
+  }
+
+  static async confirmOrderWithProducts(
+    id: string,
+    orderRepository: IOrderRepository,
+    productRepository: IProductRepository
+  ): Promise<{ order: Order; products: Map<string, Product> }> {
+    const order = await this.confirmOrder(id, orderRepository);
+    const products = await ProductInfoService.getProductsFromOrder(order, productRepository);
+    return { order, products };
+  }
+
+  static async confirmPaymentWithProducts(
+    id: string,
+    orderRepository: IOrderRepository,
+    productRepository: IProductRepository
+  ): Promise<{ order: Order; products: Map<string, Product> }> {
+    const order = await this.confirmPayment(id, orderRepository);
+    const products = await ProductInfoService.getProductsFromOrder(order, productRepository);
+    return { order, products };
+  }
+
+  static async startPreparingOrderWithProducts(
+    id: string,
+    orderRepository: IOrderRepository,
+    productRepository: IProductRepository
+  ): Promise<{ order: Order; products: Map<string, Product> }> {
+    const order = await this.startPreparingOrder(id, orderRepository);
+    const products = await ProductInfoService.getProductsFromOrder(order, productRepository);
+    return { order, products };
+  }
+
+  static async markOrderAsReadyWithProducts(
+    id: string,
+    orderRepository: IOrderRepository,
+    productRepository: IProductRepository
+  ): Promise<{ order: Order; products: Map<string, Product> }> {
+    const order = await this.markOrderAsReady(id, orderRepository);
+    const products = await ProductInfoService.getProductsFromOrder(order, productRepository);
+    return { order, products };
+  }
+
+  static async markOrderAsDeliveredWithProducts(
+    id: string,
+    orderRepository: IOrderRepository,
+    productRepository: IProductRepository
+  ): Promise<{ order: Order; products: Map<string, Product> }> {
+    const order = await this.markOrderAsDelivered(id, orderRepository);
+    const products = await ProductInfoService.getProductsFromOrder(order, productRepository);
+    return { order, products };
+  }
+
+  static async cancelOrderWithProducts(
+    id: string,
+    orderRepository: IOrderRepository,
+    productRepository: IProductRepository
+  ): Promise<{ order: Order; products: Map<string, Product> }> {
+    const order = await this.cancelOrder(id, orderRepository);
+    const products = await ProductInfoService.getProductsFromOrder(order, productRepository);
+    return { order, products };
   }
 }
 

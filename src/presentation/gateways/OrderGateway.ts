@@ -31,45 +31,10 @@ export class OrderGateway implements IOrderRepository {
   private readonly dbConnection: IDatabaseConnection;
   private readonly orderTable: string = "order"; // Prisma client expects lowercase model name
   private readonly orderItemTable: string = "orderItem"; // Prisma client expects lowercase model name
-
   constructor(dbConnection: IDatabaseConnection) {
     this.dbConnection = dbConnection;
   }
 
-  private async getNextOrderNumber(): Promise<number> {
-    const today = new Date();
-    const startOfDay = new Date(
-      today.getFullYear(),
-      today.getMonth(),
-      today.getDate()
-    );
-    const endOfDay = new Date(
-      today.getFullYear(),
-      today.getMonth(),
-      today.getDate() + 1
-    );
-
-    // Buscar o maior orderNumber do dia atual
-    const orders = await this.dbConnection.findMany<OrderData>(
-      this.orderTable,
-      {
-        createdAt: {
-          gte: startOfDay,
-          lt: endOfDay,
-        },
-      }
-    );
-
-    if (orders.length === 0) {
-      return 1; // Primeiro pedido do dia
-    }
-
-    // Encontrar o maior orderNumber do dia
-    const maxOrderNumber = Math.max(
-      ...orders.map((order: OrderData) => order.orderNumber || 0)
-    );
-    return maxOrderNumber + 1;
-  }
   private async getOrderItems(orderId: string): Promise<OrderItem[]> {
     const items = await this.dbConnection.findByField<OrderItemData>(
       this.orderItemTable,
@@ -87,13 +52,9 @@ export class OrderGateway implements IOrderRepository {
           item.observation
         )
     );
-  }
-  async create(order: Order): Promise<Order> {
+  }  async create(order: Order): Promise<Order> {
     const orderData = order.toJSON();
     console.log("OrderGateway.create payload:", orderData);
-
-    // Gerar o próximo orderNumber automaticamente
-    const nextOrderNumber = await this.getNextOrderNumber();
 
     const createdOrder = await this.dbConnection.create<Omit<OrderData, "id">>(
       this.orderTable,
@@ -103,7 +64,7 @@ export class OrderGateway implements IOrderRepository {
         totalAmount: orderData.totalAmount,
         paymentStatus: orderData.paymentStatus,
         paymentProviderId: orderData.paymentProviderId,
-        orderNumber: nextOrderNumber,
+        // orderNumber não é definido na criação, será gerado na confirmação
         createdAt: orderData.createdAt,
         updatedAt: orderData.updatedAt,
       }
@@ -126,18 +87,16 @@ export class OrderGateway implements IOrderRepository {
         }
       );
     }
-    const items = await this.getOrderItems((createdOrder as any).id);
-    return new Order(
+    const items = await this.getOrderItems((createdOrder as any).id);    return new Order(
       (createdOrder as any).id,
       orderData.customerId,
       items,
       orderData.status,
       orderData.paymentStatus,
-      orderData.paymentProviderId,
-      (createdOrder as any).orderNumber
+      orderData.paymentProviderId
     );
+    // Note: orderNumber will be set later when order is confirmed
   }
-
   async update(order: Order): Promise<Order> {
     const orderData = order.toJSON();
     const updatedOrder = await this.dbConnection.update<OrderData>(
@@ -149,6 +108,7 @@ export class OrderGateway implements IOrderRepository {
         totalAmount: orderData.totalAmount,
         paymentStatus: orderData.paymentStatus,
         paymentProviderId: orderData.paymentProviderId,
+        orderNumber: orderData.orderNumber,
         updatedAt: new Date(),
       }
     );
@@ -172,14 +132,20 @@ export class OrderGateway implements IOrderRepository {
           updatedAt: new Date(),
         }
       );
-    }
-    const items = await this.getOrderItems(order.id);
-    return new Order(
+    }    const items = await this.getOrderItems(order.id);
+    const orderInstance = new Order(
       updatedOrder.id,
       updatedOrder.customerId,
       items,
-      updatedOrder.status
+      updatedOrder.status,
+      updatedOrder.paymentStatus,
+      updatedOrder.paymentProviderId
     );
+    // Set orderNumber manually if it exists
+    if (updatedOrder.orderNumber) {
+      (orderInstance as any)._orderNumber = updatedOrder.orderNumber;
+    }
+    return orderInstance;
   }
 
   async findById(id: string): Promise<Order | null> {
@@ -189,9 +155,8 @@ export class OrderGateway implements IOrderRepository {
     );
     if (!order) {
       return null;
-    }
-    const items = await this.getOrderItems(order.id);
-    return new Order(
+    }    const items = await this.getOrderItems(order.id);
+    const orderInstance = new Order(
       order.id,
       order.customerId,
       items,
@@ -199,31 +164,47 @@ export class OrderGateway implements IOrderRepository {
       order.paymentStatus,
       order.paymentProviderId
     );
-  }
-
-  async findAll(): Promise<Order[]> {
+    // Set orderNumber manually if it exists
+    if (order.orderNumber) {
+      (orderInstance as any)._orderNumber = order.orderNumber;
+    }
+    return orderInstance;
+  }  async findAll(): Promise<Order[]> {
     const orders = await this.dbConnection.findAll<OrderData>(this.orderTable);
     const result: Order[] = [];
     for (const order of orders) {
       const items = await this.getOrderItems(order.id);
-      result.push(new Order(order.id, order.customerId, items, order.status));
+      const orderInstance = new Order(
+        order.id, 
+        order.customerId, 
+        items, 
+        order.status, 
+        order.paymentStatus, 
+        order.paymentProviderId
+      );
+      // Set orderNumber manually if it exists
+      if (order.orderNumber) {
+        (orderInstance as any)._orderNumber = order.orderNumber;
+      }
+      result.push(orderInstance);
     }
     return result;
   }
-
   async findAllSorted(): Promise<Order[]> {
     const allOrders = await this.findAll();
 
+    // Incluir apenas pedidos em andamento, excluindo DELIVERED (finalizados)
     const kitchenStatuses = [
-      OrderStatus.PAYMENT_CONFIRMED,
-      OrderStatus.PREPARING,
-      OrderStatus.READY,
+      OrderStatus.READY,          // Prioridade 1
+      OrderStatus.PREPARING,      // Prioridade 2
+      OrderStatus.PAYMENT_CONFIRMED // Prioridade 3
     ];
 
     const filteredOrders = allOrders.filter((order) =>
       kitchenStatuses.includes(order.status)
     );
 
+    // Definir ordem de prioridade: READY (1) > PREPARING (2) > PAYMENT_CONFIRMED (3)
     const statusOrder: { [key: string]: number } = {
       [OrderStatus.READY]: 1,
       [OrderStatus.PREPARING]: 2,
@@ -234,17 +215,17 @@ export class OrderGateway implements IOrderRepository {
       const statusA = statusOrder[a.status] || 4;
       const statusB = statusOrder[b.status] || 4;
 
+      // Primeiro critério: ordenar por status (prioridade)
       if (statusA !== statusB) {
         return statusA - statusB;
       }
 
+      // Segundo critério: dentro do mesmo status, pedidos mais antigos primeiro
       return a.createdAt.getTime() - b.createdAt.getTime();
     });
 
     return sortedOrders;
-  }
-
-  async findByCustomerId(customerId: string): Promise<Order[]> {
+  }async findByCustomerId(customerId: string): Promise<Order[]> {
     const orders = await this.dbConnection.findByField<OrderData>(
       this.orderTable,
       "customerId",
@@ -253,12 +234,22 @@ export class OrderGateway implements IOrderRepository {
     const result: Order[] = [];
     for (const order of orders) {
       const items = await this.getOrderItems(order.id);
-      result.push(new Order(order.id, order.customerId, items, order.status));
+      const orderInstance = new Order(
+        order.id, 
+        order.customerId, 
+        items, 
+        order.status, 
+        order.paymentStatus, 
+        order.paymentProviderId
+      );
+      // Set orderNumber manually if it exists
+      if (order.orderNumber) {
+        (orderInstance as any)._orderNumber = order.orderNumber;
+      }
+      result.push(orderInstance);
     }
     return result;
-  }
-
-  async findByStatus(status: string): Promise<Order[]> {
+  }  async findByStatus(status: string): Promise<Order[]> {
     const orders = await this.dbConnection.findByField<OrderData>(
       this.orderTable,
       "status",
@@ -267,7 +258,19 @@ export class OrderGateway implements IOrderRepository {
     const result: Order[] = [];
     for (const order of orders) {
       const items = await this.getOrderItems(order.id);
-      result.push(new Order(order.id, order.customerId, items, order.status));
+      const orderInstance = new Order(
+        order.id, 
+        order.customerId, 
+        items, 
+        order.status, 
+        order.paymentStatus, 
+        order.paymentProviderId
+      );
+      // Set orderNumber manually if it exists
+      if (order.orderNumber) {
+        (orderInstance as any)._orderNumber = order.orderNumber;
+      }
+      result.push(orderInstance);
     }
     return result;
   }

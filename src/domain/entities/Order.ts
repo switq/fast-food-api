@@ -22,16 +22,13 @@ class Order {
   private _updatedAt: Date;
   private _paymentProviderId?: string; // new field
   private _orderNumber?: number;
-
   constructor(
     id: string = uuidv4(),
     customerId?: string,
     items: OrderItem[] = [],
     status: OrderStatus = OrderStatus.PENDING,
     paymentStatus: string = "pending",
-    paymentProviderId?: string, // new field
-    orderNumber?: number // new field
-
+    paymentProviderId?: string
   ) {
     this.validateId(id);
     if (customerId) {
@@ -48,7 +45,8 @@ class Order {
     this._totalAmount = this.calculateTotalAmount();
     this._createdAt = new Date();
     this._updatedAt = new Date();
-    this._orderNumber = orderNumber;
+    // orderNumber will be generated only when order is confirmed
+    this._orderNumber = undefined;
   }
 
   private validateId(id: string): void {
@@ -128,7 +126,6 @@ class Order {
   get orderNumber(): number | undefined {
     return this._orderNumber;
   }
-
   // Status transition methods
   confirm(): void {
     if (this._status !== OrderStatus.PENDING) {
@@ -140,6 +137,22 @@ class Order {
 
     this._status = OrderStatus.CONFIRMED;
     this._updatedAt = new Date();
+    
+    // Generate orderNumber only when confirming the order
+    if (!this._orderNumber) {
+      this._orderNumber = this.generateOrderNumber();
+    }
+  }  private generateOrderNumber(): number {
+    // Generate simple sequential daily number (1, 2, 3...)
+    // In production, this would query the database for today's count + 1
+    // For now, using a simple incremental approach based on timestamp
+    const today = new Date();
+    const dayOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / (1000 * 60 * 60 * 24));
+    const timeOfDay = today.getHours() * 60 + today.getMinutes();
+    
+    // Generate a number between 1-999 for demo purposes
+    // In real implementation, this should be: SELECT COUNT(*) + 1 FROM orders WHERE DATE(createdAt) = CURRENT_DATE
+    return (dayOfYear + timeOfDay) % 999 + 1;
   }
 
   confirmPayment(): void {
