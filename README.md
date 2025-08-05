@@ -83,6 +83,7 @@ Este grupo foi criado especificamente para testar o **ciclo de vida completo** d
 11. **Mark as Delivered (DELIVERED)** - Finaliza o pedido
 
 **Recursos especiais do grupo:**
+
 - **Scripts automáticos**: Passa automaticamente `customerId` e `orderId` entre requisições
 - **Sem necessidade de copiar IDs manualmente**: Tudo é feito automaticamente
 - **Fluxo realista**: Simula exatamente o que acontece em produção
@@ -126,92 +127,92 @@ Ou use um dos produtos criados pelo seed do banco de dados.
 
 ### 🏥 Health & Documentação
 
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| GET | `/health` | Health check da aplicação |
-| GET | `/api-docs` | Documentação Swagger interativa |
+| Método | Endpoint    | Descrição                       |
+| ------ | ----------- | ------------------------------- |
+| GET    | `/health`   | Health check da aplicação       |
+| GET    | `/api-docs` | Documentação Swagger interativa |
 
 ### 👤 Clientes (Customers)
 
-| Método | Endpoint | Descrição | Body/Parâmetros |
-|--------|----------|-----------|-----------------|
-| GET | `/api/customers` | Listar todos os clientes | - |
-| GET | `/api/customers/:id` | Buscar cliente por ID | `id` (path param) |
-| GET | `/api/customers/identify/:cpf` | **Identificar cliente por CPF** | `cpf` (path param) - Ex: `12345678901` ou `123.456.789-01` |
-| POST | `/api/customers` | Criar novo cliente | `{ name, email, cpf, phone }` |
-| PUT | `/api/customers/:id` | Atualizar cliente | `id` (path param) + dados para atualizar |
-| DELETE | `/api/customers/:id` | Deletar cliente | `id` (path param) |
+| Método | Endpoint                       | Descrição                       | Body/Parâmetros                                            |
+| ------ | ------------------------------ | ------------------------------- | ---------------------------------------------------------- |
+| GET    | `/api/customers`               | Listar todos os clientes        | -                                                          |
+| GET    | `/api/customers/:id`           | Buscar cliente por ID           | `id` (path param)                                          |
+| GET    | `/api/customers/identify/:cpf` | **Identificar cliente por CPF** | `cpf` (path param) - Ex: `12345678901` ou `123.456.789-01` |
+| POST   | `/api/customers`               | Criar novo cliente              | `{ name, email, cpf, phone }`                              |
+| PUT    | `/api/customers/:id`           | Atualizar cliente               | `id` (path param) + dados para atualizar                   |
+| DELETE | `/api/customers/:id`           | Deletar cliente                 | `id` (path param)                                          |
 
 ### 📦 Categorias (Categories)
 
-| Método | Endpoint | Descrição | Body/Parâmetros |
-|--------|----------|-----------|-----------------|
-| GET | `/api/categories` | Listar todas as categorias | - |
-| GET | `/api/categories/:id` | Buscar categoria por ID | `id` (path param) |
-| POST | `/api/categories` | Criar nova categoria | `{ name, description }` |
-| PUT | `/api/categories/:id` | Atualizar categoria | `id` (path param) + dados para atualizar |
-| DELETE | `/api/categories/:id` | Deletar categoria | `id` (path param) |
+| Método | Endpoint              | Descrição                  | Body/Parâmetros                          |
+| ------ | --------------------- | -------------------------- | ---------------------------------------- |
+| GET    | `/api/categories`     | Listar todas as categorias | -                                        |
+| GET    | `/api/categories/:id` | Buscar categoria por ID    | `id` (path param)                        |
+| POST   | `/api/categories`     | Criar nova categoria       | `{ name, description }`                  |
+| PUT    | `/api/categories/:id` | Atualizar categoria        | `id` (path param) + dados para atualizar |
+| DELETE | `/api/categories/:id` | Deletar categoria          | `id` (path param)                        |
 
 ### 🍔 Produtos (Products)
 
-| Método | Endpoint | Descrição | Body/Parâmetros |
-|--------|----------|-----------|-----------------|
-| GET | `/api/products` | Listar todos os produtos | - |
-| GET | `/api/products/:id` | Buscar produto por ID | `id` (path param) |
-| GET | `/api/category/:categoryId/products` | Listar produtos por categoria | `categoryId` (path param) |
-| POST | `/api/products` | Criar novo produto | `{ name, description, price, categoryId, imageUrl }` |
-| PUT | `/api/products/:id` | Atualizar produto | `id` (path param) + dados para atualizar |
-| DELETE | `/api/products/:id` | Deletar produto | `id` (path param) |
+| Método | Endpoint                             | Descrição                     | Body/Parâmetros                                      |
+| ------ | ------------------------------------ | ----------------------------- | ---------------------------------------------------- |
+| GET    | `/api/products`                      | Listar todos os produtos      | -                                                    |
+| GET    | `/api/products/:id`                  | Buscar produto por ID         | `id` (path param)                                    |
+| GET    | `/api/category/:categoryId/products` | Listar produtos por categoria | `categoryId` (path param)                            |
+| POST   | `/api/products`                      | Criar novo produto            | `{ name, description, price, categoryId, imageUrl }` |
+| PUT    | `/api/products/:id`                  | Atualizar produto             | `id` (path param) + dados para atualizar             |
+| DELETE | `/api/products/:id`                  | Deletar produto               | `id` (path param)                                    |
 
 ### 📋 Pedidos (Orders) - Gestão Básica
 
-| Método | Endpoint | Descrição | Body/Parâmetros |
-|--------|----------|-----------|-----------------|
-| GET | `/api/orders` | Listar todos os pedidos | - |
-| GET | `/api/orders/:id` | Buscar pedido por ID | `id` (path param) |
-| POST | `/api/orders` | Criar novo pedido | `{ customerId?, items: [{ productId, quantity, observation? }] }` |
-| DELETE | `/api/orders/:id` | Deletar pedido | `id` (path param) |
+| Método | Endpoint          | Descrição               | Body/Parâmetros                                                   |
+| ------ | ----------------- | ----------------------- | ----------------------------------------------------------------- |
+| GET    | `/api/orders`     | Listar todos os pedidos | -                                                                 |
+| GET    | `/api/orders/:id` | Buscar pedido por ID    | `id` (path param)                                                 |
+| POST   | `/api/orders`     | Criar novo pedido       | `{ customerId?, items: [{ productId, quantity, observation? }] }` |
+| DELETE | `/api/orders/:id` | Deletar pedido          | `id` (path param)                                                 |
 
 ### 📋 Pedidos (Orders) - Gestão Avançada
 
-| Método | Endpoint | Descrição | Body/Parâmetros |
-|--------|----------|-----------|-----------------|
-| GET | `/api/orders/status/:status` | Listar pedidos por status | `status` (PENDING, CONFIRMED, etc.) |
-| GET | `/api/orders/customer/:customerId` | Listar pedidos de um cliente | `customerId` (path param) |
-| PATCH | `/api/orders/:id/status` | Atualizar status do pedido | `{ status }` |
-| PATCH | `/api/orders/:id/items` | Adicionar itens ao pedido | `{ items: [{ productId, quantity, observation? }] }` |
-| PATCH | `/api/orders/:orderId/items/:itemId` | Atualizar quantidade do item | `{ quantity }` |
+| Método | Endpoint                             | Descrição                    | Body/Parâmetros                                      |
+| ------ | ------------------------------------ | ---------------------------- | ---------------------------------------------------- |
+| GET    | `/api/orders/status/:status`         | Listar pedidos por status    | `status` (PENDING, CONFIRMED, etc.)                  |
+| GET    | `/api/orders/customer/:customerId`   | Listar pedidos de um cliente | `customerId` (path param)                            |
+| PATCH  | `/api/orders/:id/status`             | Atualizar status do pedido   | `{ status }`                                         |
+| PATCH  | `/api/orders/:id/items`              | Adicionar itens ao pedido    | `{ items: [{ productId, quantity, observation? }] }` |
+| PATCH  | `/api/orders/:orderId/items/:itemId` | Atualizar quantidade do item | `{ quantity }`                                       |
 
 ### 📋 Pedidos (Orders) - Controle de Status
 
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| PATCH | `/api/orders/:id/status/confirmOrder` | Confirmar pedido |
-| PATCH | `/api/orders/:id/status/confirmPayment` | Confirmar pagamento |
-| PATCH | `/api/orders/:id/status/startPreparing` | Iniciar preparo |
-| PATCH | `/api/orders/:id/status/markReady` | Marcar como pronto |
-| PATCH | `/api/orders/:id/status/markDelivered` | Marcar como entregue |
-| PATCH | `/api/orders/:id/status/cancel` | Cancelar pedido |
+| Método | Endpoint                                | Descrição            |
+| ------ | --------------------------------------- | -------------------- |
+| PATCH  | `/api/orders/:id/status/confirmOrder`   | Confirmar pedido     |
+| PATCH  | `/api/orders/:id/status/confirmPayment` | Confirmar pagamento  |
+| PATCH  | `/api/orders/:id/status/startPreparing` | Iniciar preparo      |
+| PATCH  | `/api/orders/:id/status/markReady`      | Marcar como pronto   |
+| PATCH  | `/api/orders/:id/status/markDelivered`  | Marcar como entregue |
+| PATCH  | `/api/orders/:id/status/cancel`         | Cancelar pedido      |
 
 ### 🍳 Cozinha (Kitchen)
 
-| Método | Endpoint | Descrição | Body/Parâmetros |
-|--------|----------|-----------|-----------------|
-| GET | `/api/kitchen/orders` | Listar pedidos ordenados para cozinha | - |
-| GET | `/api/kitchen/orders/awaiting-preparation` | Listar pedidos aguardando preparo | - |
+| Método | Endpoint                                   | Descrição                             | Body/Parâmetros |
+| ------ | ------------------------------------------ | ------------------------------------- | --------------- |
+| GET    | `/api/kitchen/orders`                      | Listar pedidos ordenados para cozinha | -               |
+| GET    | `/api/kitchen/orders/awaiting-preparation` | Listar pedidos aguardando preparo     | -               |
 
 ### 💳 Pagamentos (Payments)
 
-| Método | Endpoint | Descrição | Body/Parâmetros |
-|--------|----------|-----------|-----------------|
-| POST | `/api/orders/:orderId/payment` | Gerar pagamento para pedido | `orderId` (path param) |
-| GET | `/api/payments/order/:orderId/status` | Consultar status do pagamento | `orderId` (path param) |
+| Método | Endpoint                              | Descrição                     | Body/Parâmetros        |
+| ------ | ------------------------------------- | ----------------------------- | ---------------------- |
+| POST   | `/api/orders/:orderId/payment`        | Gerar pagamento para pedido   | `orderId` (path param) |
+| GET    | `/api/payments/order/:orderId/status` | Consultar status do pagamento | `orderId` (path param) |
 
 ### 🔔 Webhooks
 
-| Método | Endpoint | Descrição | Body/Parâmetros |
-|--------|----------|-----------|-----------------|
-| POST | `/webhooks/paymentwebhook` | Webhook dedicado do Mercado Pago | Payload do MP |
+| Método | Endpoint                   | Descrição                        | Body/Parâmetros |
+| ------ | -------------------------- | -------------------------------- | --------------- |
+| POST   | `/webhooks/paymentwebhook` | Webhook dedicado do Mercado Pago | Payload do MP   |
 
 ## 🔄 Fluxo de Uso da API
 
@@ -270,14 +271,17 @@ GET /api/orders/{orderId}
 #### 📋 Regras Importantes sobre Número do Pedido
 
 **🔢 Quando é gerado:**
+
 - ✅ **APENAS na confirmação** do pedido (step 6)
 - ❌ **NÃO na criação** do pedido (step 5)
 
 **📝 Formato:**
+
 - Números sequenciais: `000001`, `000002`, `000003`...
 - Sempre 6 dígitos com zeros à esquerda
 
 **🎯 Finalidade:**
+
 - Cliente usa para acompanhar pedido no display/painel
 - Números limpos e fáceis de memorizar
 - Apenas pedidos válidos (confirmados) recebem número
@@ -401,6 +405,7 @@ PENDING → CONFIRMED → PAYMENT_CONFIRMED → PREPARING → READY → DELIVERE
 ```
 
 **Status Detalhados:**
+
 - **PENDING**: Pedido criado, aguardando confirmação
 - **CONFIRMED**: Pedido confirmado, aguardando pagamento
 - **PAYMENT_CONFIRMED**: Pagamento recebido, pronto para preparação
@@ -410,6 +415,7 @@ PENDING → CONFIRMED → PAYMENT_CONFIRMED → PREPARING → READY → DELIVERE
 - **CANCELLED**: Pedido foi cancelado (não permitido após DELIVERED)
 
 **Regras de Transição:**
+
 - Só pode confirmar pagamento se estiver em CONFIRMED
 - Só pode iniciar preparo se pagamento estiver confirmado
 - Só pode marcar como pronto se estiver preparando
@@ -444,7 +450,7 @@ PENDING → CONFIRMED → PAYMENT_CONFIRMED → PREPARING → READY → DELIVERE
 {
   "name": "Big Burger",
   "description": "Hambúrguer duplo com queijo e bacon",
-  "price": 25.90,
+  "price": 25.9,
   "categoryId": "uuid-da-categoria",
   "imageUrl": "https://example.com/big-burger.jpg"
 }
@@ -474,10 +480,10 @@ PENDING → CONFIRMED → PAYMENT_CONFIRMED → PREPARING → READY → DELIVERE
 A API utiliza endpoints específicos para cada transição de status:
 
 - **Iniciar Preparo**: `PATCH /api/orders/{id}/status/startPreparing`
-- **Marcar como Pronto**: `PATCH /api/orders/{id}/status/markReady`  
+- **Marcar como Pronto**: `PATCH /api/orders/{id}/status/markReady`
 - **Marcar como Entregue**: `PATCH /api/orders/{id}/status/markDelivered`
 
-*Não há payload necessário - apenas o ID do pedido na URL.*
+_Não há payload necessário - apenas o ID do pedido na URL._
 
 ## ⚙️ Configuração Detalhada
 
@@ -536,6 +542,7 @@ MERCADO_PAGO_NOTIFICATION_URL=https://sua-url-ngrok.ngrok-free.app/webhooks/paym
 ```
 
 > 📝 **Nota**: Para obter as credenciais do Mercado Pago:
+>
 > 1. Acesse [Mercado Pago Developers](https://www.mercadopago.com.br/developers)
 > 2. Crie uma aplicação de teste
 > 3. Copie o Access Token de teste
@@ -588,14 +595,16 @@ Para entender a **arquitetura completa da solução**, consulte **[k8s/desenho-a
 **Deploy rápido:**
 
 ```bash
-# Deploy principal
-kubectl apply -f k8s/kubernetes.yaml
+# Deploy local (recomendado para desenvolvimento)
+kubectl apply -k k8s/overlays/local
 
-# Políticas de rede (opcional)
-kubectl apply -f k8s/network-policies.yaml
+# Deploy cloud (apenas para aprendizado)
+kubectl apply -k k8s/overlays/cloud
 
 # Verificar status
 kubectl get pods -n fast-food-api
+kubectl get services -n fast-food-api
+kubectl get ingress -n fast-food-api
 ```
 
 **Acessar aplicação:**
@@ -629,6 +638,7 @@ kubectl port-forward -n fast-food-api service/fast-food-api-service 3000:80
 ### Comandos Docker
 
 **Comandos Básicos:**
+
 ```bash
 # Desenvolvimento
 docker compose --profile dev up --build
@@ -648,6 +658,7 @@ docker compose --profile dev up --build --force-recreate
 ```
 
 **Acesso aos Containers:**
+
 ```bash
 # Desenvolvimento
 docker compose exec app_development sh
@@ -657,6 +668,7 @@ docker compose exec app_production sh
 ```
 
 **Comandos de Validação:**
+
 ```bash
 npm run ci          # Executa todas as validações
 npm run lint        # Verifica linting
@@ -715,18 +727,20 @@ curl http://localhost:4040/api/tunnels
 
 #### 3. Configuração Automática do Webhook
 
-**A URL do webhook é configurada automaticamente!** 
+**A URL do webhook é configurada automaticamente!**
 
-A aplicação envia a URL do webhook dinamicamente para o Mercado Pago durante a criação de cada pagamento, usando a variável `MERCADO_PAGO_NOTIFICATION_URL` do arquivo `.env`. 
+A aplicação envia a URL do webhook dinamicamente para o Mercado Pago durante a criação de cada pagamento, usando a variável `MERCADO_PAGO_NOTIFICATION_URL` do arquivo `.env`.
 
 **Não é necessário configurar manualmente no painel do Mercado Pago.**
 
 **Como funciona:**
+
 - Quando você cria um pagamento via `POST /api/orders/{orderId}/payment`
 - A aplicação automaticamente informa ao Mercado Pago: "use esta URL para notificações"
 - O Mercado Pago enviará as notificações diretamente para sua URL do ngrok
 
 **Teste o webhook:**
+
 - Use a coleção do Postman fornecida
 - Ou teste manualmente com curl (veja seção de troubleshooting)
 
@@ -927,54 +941,65 @@ Use **webhook.site** para teste temporário:
 A API suporta um fluxo completo de pedidos seguindo estas etapas:
 
 ### 1. Identificação do Cliente
+
 - **Endpoint**: `GET /api/customers/identify/{cpf}`
 - **Descrição**: Identifica o cliente pelo CPF para personalizar o atendimento
 - **Exemplo**: `GET /api/customers/identify/12345678900`
 
 ### 2. Criação do Cliente (Opcional)
+
 - **Endpoint**: `POST /api/customers`
 - **Descrição**: Cria novo cliente se não existir ou para pedidos identificados
 
 ### 3. Criação do Pedido
+
 - **Status Inicial**: `PENDING`
 - **Endpoint**: `POST /api/orders`
 - **Descrição**: Cria o pedido com itens selecionados
 
 ### 4. Confirmação do Pedido
+
 - **Status**: `PENDING` → `CONFIRMED`
 - **Endpoint**: `PATCH /api/orders/{id}/status/confirmOrder`
 - **Descrição**: Confirma o pedido e gera número para acompanhamento
 
 ### 5. Verificação do Status
+
 - **Endpoint**: `GET /api/orders/{id}/status`
 - **Descrição**: Permite verificar o status atual do pedido a qualquer momento
 
 ### 6. Geração do Pagamento
+
 - **Endpoint**: `POST /api/orders/{id}/payment`
 - **Descrição**: Gera QR Code PIX e dados para pagamento
 - **Requisito**: Pedido deve estar em status `CONFIRMED`
 
 ### 7. Confirmação do Pagamento
+
 - **Status**: `CONFIRMED` → `PAYMENT_CONFIRMED`
 - **Endpoint**: `PATCH /api/orders/{id}/status/confirmPayment`
 - **Descrição**: Confirma pagamento (normalmente via webhook)
 
 ### 8. Preparo na Cozinha
+
 - **Status**: `PAYMENT_CONFIRMED` → `PREPARING`
 - **Endpoint**: `PATCH /api/orders/{id}/status/startPreparing`
 - **Descrição**: Inicia o preparo do pedido
 
 ### 9. Pedido Pronto
+
 - **Status**: `PREPARING` → `READY`
 - **Endpoint**: `PATCH /api/orders/{id}/status/markReady`
 - **Descrição**: Marca pedido como pronto para retirada
 
 ### 10. Entrega Finalizada
+
 - **Status**: `READY` → `DELIVERED`
 - **Endpoint**: `PATCH /api/orders/{id}/status/markDelivered`
 - **Descrição**: Finaliza o pedido
 
 ### Estados do Pedido
+
 - `PENDING`: Pedido criado, aguardando confirmação
 - `CONFIRMED`: Pedido confirmado, aguardando pagamento
 - `PAYMENT_CONFIRMED`: Pagamento confirmado, aguardando preparo
@@ -1007,6 +1032,7 @@ O banco de dados é automaticamente preenchido com:
 ### Comandos do Banco de Dados
 
 **Via Docker:**
+
 ```bash
 # Acessar container
 docker compose exec app_development sh    # dev
@@ -1020,6 +1046,7 @@ npm run db:reset       # Reseta e preenche o banco
 ```
 
 **Localmente:**
+
 ```bash
 npm run db:generate      # Gera o cliente Prisma
 npm run db:push         # Envia alterações do schema
@@ -1045,7 +1072,7 @@ O projeto inclui validações automatizadas que são executadas em cada Pull Req
 
 ```bash
 npm run ci              # Todas as validações
-npm run type-check      # TypeScript 
+npm run type-check      # TypeScript
 npm run lint           # ESLint
 npm run test:coverage   # Testes + Coverage
 ```
