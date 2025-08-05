@@ -16,6 +16,7 @@ k8s/
 ## 🚀 Deploy
 
 ### Pré-requisitos
+
 - Cluster Kubernetes configurado
 - `kubectl` instalado
 - Ingress Controller (nginx-ingress)
@@ -26,7 +27,7 @@ O PostgreSQL está configurado para rodar dentro do cluster Kubernetes:
 
 ```yaml
 # Configuração automática no kubernetes.yaml
-DATABASE_HOST: "postgres-service"  # Service interno do cluster
+DATABASE_HOST: "postgres-service" # Service interno do cluster
 DATABASE_PORT: "5432"
 DATABASE_NAME: "fastfood"
 ```
@@ -44,17 +45,20 @@ kubectl apply -f k8s/network-policies.yaml
 ## 🔧 Configurações
 
 ### Recursos da API
+
 - **Replicas**: 2-10 (auto-scaling)
 - **CPU**: 250m/500m (request/limit)
 - **Memory**: 256Mi/512Mi (request/limit)
 
 ### Recursos do PostgreSQL
+
 - **Replicas**: 1 (com persistent volume)
 - **CPU**: 250m/500m (request/limit)
 - **Memory**: 256Mi/512Mi (request/limit)
 - **Storage**: 1Gi (persistent volume claim)
 
 ### Auto-scaling
+
 - **CPU**: 70% threshold
 - **Memory**: 80% threshold
 - **Scale**: 100% up, 10% down (60s intervals)
@@ -86,6 +90,7 @@ kubectl port-forward -n fast-food-api service/fast-food-api-service 3000:80
 ## 🛠️ Comandos Úteis
 
 ### Status
+
 ```bash
 kubectl get pods -n fast-food-api
 kubectl get services -n fast-food-api
@@ -94,6 +99,7 @@ kubectl logs -n fast-food-api deployment/postgres -f
 ```
 
 ### Troubleshooting
+
 ```bash
 kubectl describe pod -n fast-food-api <pod-name>
 kubectl exec -it -n fast-food-api <pod-name> -- /bin/sh
@@ -103,6 +109,7 @@ kubectl exec -it -n fast-food-api deployment/postgres -- psql -U postgres -d fas
 ```
 
 ### Scaling
+
 ```bash
 kubectl scale deployment fast-food-api -n fast-food-api --replicas=3
 kubectl get hpa -n fast-food-api

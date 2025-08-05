@@ -17,7 +17,7 @@ data:
   PORT: "3000"
   LOG_LEVEL: "info"
   # Configurações do banco externo - ajuste conforme seu ambiente
-  DATABASE_HOST: "postgres-service"  # Kubernetes PostgreSQL service
+  DATABASE_HOST: "postgres-service" # Kubernetes PostgreSQL service
   DATABASE_PORT: "5432"
   DATABASE_NAME: "fastfood"
 ---
@@ -30,8 +30,8 @@ metadata:
 type: Opaque
 data:
   # Base64 encoded values - em produção, use ferramentas como kubectl create secret
-  DATABASE_USER: cG9zdGdyZXM=  # postgres
-  DATABASE_PASSWORD: cG9zdGdyZXM=  # postgres
+  DATABASE_USER: cG9zdGdyZXM= # postgres
+  DATABASE_PASSWORD: cG9zdGdyZXM= # postgres
   # Adicione outros secrets conforme necessário
   # JWT_SECRET: <base64-encoded-jwt-secret>
   # MERCADO_PAGO_ACCESS_TOKEN: <base64-encoded-token>
@@ -46,7 +46,7 @@ metadata:
     app: fast-food-api
     version: v1
 spec:
-  replicas: 2  # Múltiplas réplicas para alta disponibilidade
+  replicas: 2 # Múltiplas réplicas para alta disponibilidade
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -70,80 +70,80 @@ spec:
       # imagePullSecrets:
       # - name: registry-secret
       containers:
-      - name: fast-food-api
-        image: fast-food-api:latest
-        imagePullPolicy: IfNotPresent
-        command: ["/bin/sh", "-c"]
-        args:
-        - |
-          echo "Starting production deployment..."
-          npm run start:prod
-        ports:
-        - containerPort: 3000
-          name: http
-          protocol: TCP
-        # Security Context para o Container
-        securityContext:
-          allowPrivilegeEscalation: false
-          runAsNonRoot: true
-          runAsUser: 1000
-          capabilities:
-            drop:
-            - ALL
-        # Configurações de recursos
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "250m"
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
-        # Health Checks
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 3000
-            scheme: HTTP
-          initialDelaySeconds: 30
-          periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 3
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: 3000
-            scheme: HTTP
-          initialDelaySeconds: 5
-          periodSeconds: 5
-          timeoutSeconds: 3
-          failureThreshold: 3
-        # Variáveis de ambiente do ConfigMap
-        envFrom:
-        - configMapRef:
-            name: fast-food-api-config
-        # Variáveis de ambiente do Secret
-        env:
-        - name: DATABASE_USER
-          valueFrom:
-            secretKeyRef:
-              name: fast-food-api-secrets
-              key: DATABASE_USER
-        - name: DATABASE_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: fast-food-api-secrets
-              key: DATABASE_PASSWORD
-        # Construir DATABASE_URL dinamicamente para banco externo
-        - name: DATABASE_URL
-          value: "postgresql://$(DATABASE_USER):$(DATABASE_PASSWORD)@$(DATABASE_HOST):$(DATABASE_PORT)/$(DATABASE_NAME)"
-        # Volume para logs (se necessário)
-        volumeMounts:
-        - name: logs
-          mountPath: /usr/src/app/logs
-          subPath: logs
+        - name: fast-food-api
+          image: fast-food-api:latest
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              echo "Starting production deployment..."
+              npm run start:prod
+          ports:
+            - containerPort: 3000
+              name: http
+              protocol: TCP
+          # Security Context para o Container
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            runAsUser: 1000
+            capabilities:
+              drop:
+                - ALL
+          # Configurações de recursos
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          # Health Checks
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          # Variáveis de ambiente do ConfigMap
+          envFrom:
+            - configMapRef:
+                name: fast-food-api-config
+          # Variáveis de ambiente do Secret
+          env:
+            - name: DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: fast-food-api-secrets
+                  key: DATABASE_USER
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: fast-food-api-secrets
+                  key: DATABASE_PASSWORD
+            # Construir DATABASE_URL dinamicamente para banco externo
+            - name: DATABASE_URL
+              value: "postgresql://$(DATABASE_USER):$(DATABASE_PASSWORD)@$(DATABASE_HOST):$(DATABASE_PORT)/$(DATABASE_NAME)"
+          # Volume para logs (se necessário)
+          volumeMounts:
+            - name: logs
+              mountPath: /usr/src/app/logs
+              subPath: logs
       volumes:
-      - name: logs
-        emptyDir: {}
+        - name: logs
+          emptyDir: {}
 ---
 # Service para expor a aplicação
 apiVersion: v1
@@ -157,10 +157,10 @@ spec:
   selector:
     app: fast-food-api
   ports:
-  - name: http
-    protocol: TCP
-    port: 80
-    targetPort: 3000
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 3000
   type: ClusterIP
 ---
 # Ingress para acesso externo (opcional)
@@ -174,16 +174,16 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
 spec:
   rules:
-  - host: fast-food-api.local  # Configure conforme seu domínio
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: fast-food-api-service
-            port:
-              number: 80
+    - host: fast-food-api.local # Configure conforme seu domínio
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: fast-food-api-service
+                port:
+                  number: 80
 ---
 # Horizontal Pod Autoscaler (HPA) para auto-scaling
 apiVersion: autoscaling/v2
@@ -199,31 +199,31 @@ spec:
   minReplicas: 2
   maxReplicas: 10
   metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 70
-  - type: Resource
-    resource:
-      name: memory
-      target:
-        type: Utilization
-        averageUtilization: 80
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
   behavior:
     scaleDown:
       stabilizationWindowSeconds: 300
       policies:
-      - type: Percent
-        value: 10
-        periodSeconds: 60
+        - type: Percent
+          value: 10
+          periodSeconds: 60
     scaleUp:
       stabilizationWindowSeconds: 60
       policies:
-      - type: Percent
-        value: 100
-        periodSeconds: 60
+        - type: Percent
+          value: 100
+          periodSeconds: 60
 ---
 # PostgreSQL Deployment (opcional - para ambiente completo)
 apiVersion: apps/v1
@@ -244,31 +244,31 @@ spec:
         app: postgres
     spec:
       containers:
-      - name: postgres
-        image: postgres:15
-        ports:
-        - containerPort: 5432
-        env:
-        - name: POSTGRES_USER
-          value: "postgres"
-        - name: POSTGRES_PASSWORD
-          value: "postgres"
-        - name: POSTGRES_DB
-          value: "fastfood"
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "250m"
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
-        volumeMounts:
-        - name: postgres-storage
-          mountPath: /var/lib/postgresql/data
+        - name: postgres
+          image: postgres:15
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              value: "postgres"
+            - name: POSTGRES_PASSWORD
+              value: "postgres"
+            - name: POSTGRES_DB
+              value: "fastfood"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data
       volumes:
-      - name: postgres-storage
-        persistentVolumeClaim:
-          claimName: postgres-pvc
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: postgres-pvc
 ---
 # PostgreSQL Persistent Volume Claim
 apiVersion: v1
@@ -293,8 +293,8 @@ spec:
   selector:
     app: postgres
   ports:
-  - name: postgres
-    protocol: TCP
-    port: 5432
-    targetPort: 5432
+    - name: postgres
+      protocol: TCP
+      port: 5432
+      targetPort: 5432
   type: ClusterIP

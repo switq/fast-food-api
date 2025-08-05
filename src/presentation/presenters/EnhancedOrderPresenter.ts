@@ -29,8 +29,8 @@ interface EnhancedOrder {
 
 class EnhancedOrderPresenter {
   static toJSON(
-    order: Order, 
-    products: Map<string, Product>, 
+    order: Order,
+    products: Map<string, Product>,
     customers: Map<string, Customer> = new Map()
   ): EnhancedOrder {
     const items = order.items.map((item) => {
@@ -45,7 +45,10 @@ class EnhancedOrderPresenter {
         totalPrice: item.totalPrice,
         observation: item.observation,
       };
-    });    const customer = order.customerId ? customers.get(order.customerId) : undefined;
+    });
+    const customer = order.customerId
+      ? customers.get(order.customerId)
+      : undefined;
 
     return {
       id: order.id,

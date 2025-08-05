@@ -50,7 +50,7 @@ src/
 Contém **apenas as interfaces** que definem os contratos para operações de dados:
 
 - `ICategoryRepository`: Contrato para operações de categorias
-- `ICustomerRepository`: Contrato para operações de clientes  
+- `ICustomerRepository`: Contrato para operações de clientes
 - `IProductRepository`: Contrato para operações de produtos
 - `IOrderRepository`: Contrato para operações de pedidos
 
@@ -105,14 +105,14 @@ class CategoryController {
   ) {
     // Instancia o gateway (infrastructure)
     const categoryGateway = new CategoryGateway(dbConnection);
-    
+
     // Chama o use case passando a interface
     const category = await CategoryUseCases.createCategory(
       name,
       description,
       categoryGateway // passa a implementação
     );
-    
+
     return category;
   }
 }
@@ -132,7 +132,7 @@ class CategoryController {
 ## Princípios Seguidos
 
 1. **Single Responsibility**: Cada repositório tem uma responsabilidade específica
-2. **Open/Closed**: Interfaces abertas para extensão, fechadas para modificação  
+2. **Open/Closed**: Interfaces abertas para extensão, fechadas para modificação
 3. **Liskov Substitution**: Qualquer implementação pode substituir outra
 4. **Interface Segregation**: Interfaces específicas para cada domínio
 5. **Dependency Inversion**: Use Cases dependem de abstrações, não de concreções

@@ -173,7 +173,8 @@
               "path": ["api", "customers"]
             }
           },
-          "response": []        },
+          "response": []
+        },
         {
           "name": "Get Customer by ID",
           "request": {
@@ -447,7 +448,8 @@
               "path": ["api", "orders"]
             }
           },
-          "response": []        },
+          "response": []
+        },
         {
           "name": "Get Orders by Status",
           "request": {
@@ -807,9 +809,11 @@
           "response": []
         }
       ]
-    },    {
+    },
+    {
       "name": "🍳 Kitchen",
-      "item": [        {
+      "item": [
+        {
           "name": "Get Kitchen Orders",
           "request": {
             "method": "GET",
@@ -823,7 +827,9 @@
             },
             "description": "Smart kitchen ordering system with priority sorting: READY > PREPARING > PAYMENT_CONFIRMED. Oldest orders first within each status. Automatically excludes DELIVERED orders."
           },
-          "response": []        },        {
+          "response": []
+        },
+        {
           "name": "Get Orders Awaiting Preparation",
           "request": {
             "method": "GET",
@@ -861,7 +867,8 @@
                   "value": "your_order_id"
                 }
               ]
-            }          },
+            }
+          },
           "response": []
         }
       ]
@@ -891,13 +898,15 @@
               "path": ["webhooks", "paymentwebhook"]
             }
           },
-          "response": []        }
+          "response": []
+        }
       ]
     },
     {
       "name": "🚀 Full Order Flow",
       "description": "Um fluxo completo para criar e processar um pedido, passo a passo. Execute as requisições na ordem.",
-      "item": [        {
+      "item": [
+        {
           "name": "1. Identify Customer by CPF",
           "request": {
             "method": "GET",
@@ -905,16 +914,9 @@
             "url": {
               "raw": "http://localhost:3000/api/customers/identify/12345678900",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "3000",
-              "path": [
-                "api",
-                "customers",
-                "identify",
-                "12345678900"
-              ]
+              "path": ["api", "customers", "identify", "12345678900"]
             },
             "description": "Identifica cliente pelo CPF. Se não encontrar, pode prosseguir com pedido anônimo ou criar novo cliente."
           },
@@ -950,14 +952,9 @@
             "url": {
               "raw": "http://localhost:3000/api/customers",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "3000",
-              "path": [
-                "api",
-                "customers"
-              ]
+              "path": ["api", "customers"]
             }
           },
           "response": []
@@ -992,19 +989,15 @@
             "url": {
               "raw": "http://localhost:3000/api/orders",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "3000",
-              "path": [
-                "api",
-                "orders"
-              ]
+              "path": ["api", "orders"]
             },
             "description": "Cria um novo pedido usando o `customerId` da etapa anterior. **Atenção:** Substitua o `productId` por um ID de produto válido do seu banco de dados (gerado pelo seed)."
           },
           "response": []
-        },        {
+        },
+        {
           "name": "3. Identify Customer by CPF",
           "request": {
             "method": "GET",
@@ -1012,16 +1005,9 @@
             "url": {
               "raw": "http://localhost:3000/api/customers/identify/{{customerCPF}}",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "3000",
-              "path": [
-                "api",
-                "customers",
-                "identify",
-                "{{customerCPF}}"
-              ]
+              "path": ["api", "customers", "identify", "{{customerCPF}}"]
             },
             "description": "Identifica o cliente pelo CPF. Use o CPF criado na etapa 1 (12345678900). Esta verificação é importante no fluxo de pedidos."
           },
@@ -1035,21 +1021,14 @@
             "url": {
               "raw": "http://localhost:3000/api/orders/{{orderId}}/status/confirmOrder",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "3000",
-              "path": [
-                "api",
-                "orders",
-                "{{orderId}}",
-                "status",
-                "confirmOrder"
-              ]
+              "path": ["api", "orders", "{{orderId}}", "status", "confirmOrder"]
             },
             "description": "Confirma o pedido e gera número do pedido para acompanhamento do cliente. Retorna orderNumber, createdAt e customerName."
           },
-          "response": []        },
+          "response": []
+        },
         {
           "name": "5. Check Order Status",
           "request": {
@@ -1058,16 +1037,9 @@
             "url": {
               "raw": "http://localhost:3000/api/orders/{{orderId}}/status",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "3000",
-              "path": [
-                "api",
-                "orders",
-                "{{orderId}}",
-                "status"
-              ]
+              "path": ["api", "orders", "{{orderId}}", "status"]
             },
             "description": "Verifica o status atual do pedido. Retorna status, orderNumber e informações detalhadas do pedido."
           },
@@ -1090,16 +1062,9 @@
             "url": {
               "raw": "http://localhost:3000/api/orders/{{orderId}}/payment",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "3000",
-              "path": [
-                "api",
-                "orders",
-                "{{orderId}}",
-                "payment"
-              ]
+              "path": ["api", "orders", "{{orderId}}", "payment"]
             },
             "description": "Gera o pagamento para o pedido confirmado. Em um cenário real, o próximo passo (Confirmar Pagamento) seria acionado pelo webhook do Mercado Pago após o cliente pagar."
           },
@@ -1113,9 +1078,7 @@
             "url": {
               "raw": "http://localhost:3000/api/orders/{{orderId}}/status/confirmPayment",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "3000",
               "path": [
                 "api",
@@ -1137,9 +1100,7 @@
             "url": {
               "raw": "http://localhost:3000/api/orders/{{orderId}}/status/startPreparing",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "3000",
               "path": [
                 "api",
@@ -1161,17 +1122,9 @@
             "url": {
               "raw": "http://localhost:3000/api/orders/{{orderId}}/status/markReady",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "3000",
-              "path": [
-                "api",
-                "orders",
-                "{{orderId}}",
-                "status",
-                "markReady"
-              ]
+              "path": ["api", "orders", "{{orderId}}", "status", "markReady"]
             },
             "description": "Marca o pedido como pronto para retirada."
           },
@@ -1185,9 +1138,7 @@
             "url": {
               "raw": "http://localhost:3000/api/orders/{{orderId}}/status/markDelivered",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "3000",
               "path": [
                 "api",

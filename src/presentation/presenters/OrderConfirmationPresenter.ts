@@ -12,7 +12,9 @@ class OrderConfirmationPresenter {
     order: Order,
     customers: Map<string, Customer> = new Map()
   ): OrderConfirmationResponse {
-    const customer = order.customerId ? customers.get(order.customerId) : undefined;
+    const customer = order.customerId
+      ? customers.get(order.customerId)
+      : undefined;
 
     return {
       orderNumber: order.orderNumber!,

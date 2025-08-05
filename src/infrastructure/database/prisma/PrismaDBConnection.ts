@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { IDatabaseConnection } from "../../../interfaces/IDbConnection";
+import { IDatabaseConnection } from "../../interfaces/IDbConnection";
 
 type PrismaModelDelegate = {
   create: Function;

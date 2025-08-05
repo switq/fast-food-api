@@ -214,7 +214,7 @@ export function setupKitchenRoutes(dbConnection: IDatabaseConnection) {
     } catch (err) {
       res.status(400).json({ error: (err as Error).message });
     }
-  });  // Rota específica - pedidos aguardando preparo
+  }); // Rota específica - pedidos aguardando preparo
   router.get("/kitchen/orders/awaiting-preparation", async (req, res) => {
     try {
       const result =

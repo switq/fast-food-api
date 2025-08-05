@@ -348,7 +348,7 @@ import { ProductGateway } from "@presentation-gateways/ProductGateway";
  *                 type: string
  *                 example: pix
  *                 description: |
- *                   OPCIONAL - Atualmente ignorado. O cliente escolhe o método de pagamento 
+ *                   OPCIONAL - Atualmente ignorado. O cliente escolhe o método de pagamento
  *                   na interface do Mercado Pago. Mantido para compatibilidade futura.
  *     responses:
  *       200:

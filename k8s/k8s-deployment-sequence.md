@@ -85,14 +85,14 @@ sequenceDiagram
 
     Pod->>Container: Start container
     Container->>Container: Execute: npm run start:prod
-    
+
     Container->>Prisma: npx prisma generate
     Prisma-->>Container: ✅ Prisma Client generated
-    
+
     Container->>Prisma: npx prisma migrate deploy
     Prisma->>External DB: Apply migrations
     External DB-->>Prisma: ✅ Migrations applied
-    
+
     Container->>Container: npm start
     Container->>External DB: Connect to database
     External DB-->>Container: ✅ Connection established

@@ -42,7 +42,11 @@ class KitchenUseCases {
     productRepository: IProductRepository
   ): Promise<{ order: Order; products: Map<string, Product> }> {
     await this.updateOrderStatus(id, status, orderRepository);
-    return OrderUseCases.findOrderByIdWithProducts(id, orderRepository, productRepository);
+    return OrderUseCases.findOrderByIdWithProducts(
+      id,
+      orderRepository,
+      productRepository
+    );
   }
 
   static async updateOrderStatusWithProductsAndCustomers(
@@ -51,9 +55,18 @@ class KitchenUseCases {
     orderRepository: IOrderRepository,
     productRepository: IProductRepository,
     customerRepository: ICustomerRepository
-  ): Promise<{ order: Order; products: Map<string, Product>; customers: Map<string, Customer> }> {
+  ): Promise<{
+    order: Order;
+    products: Map<string, Product>;
+    customers: Map<string, Customer>;
+  }> {
     await this.updateOrderStatus(id, status, orderRepository);
-    return OrderUseCases.findOrderByIdWithProductsAndCustomers(id, orderRepository, productRepository, customerRepository);
+    return OrderUseCases.findOrderByIdWithProductsAndCustomers(
+      id,
+      orderRepository,
+      productRepository,
+      customerRepository
+    );
   }
 
   static async getPaymentConfirmedOrders(
@@ -71,8 +84,14 @@ class KitchenUseCases {
     orderRepository: IOrderRepository,
     productRepository: IProductRepository,
     customerRepository: ICustomerRepository
-  ): Promise<{ orders: Order[]; products: Map<string, Product>; customers: Map<string, Customer> }> {
-    const orders = await orderRepository.findByStatus(OrderStatus.PAYMENT_CONFIRMED);
+  ): Promise<{
+    orders: Order[];
+    products: Map<string, Product>;
+    customers: Map<string, Customer>;
+  }> {
+    const orders = await orderRepository.findByStatus(
+      OrderStatus.PAYMENT_CONFIRMED
+    );
     const products = await OrderUseCases.findOrdersByStatusWithProducts(
       OrderStatus.PAYMENT_CONFIRMED,
       orderRepository,
@@ -82,7 +101,11 @@ class KitchenUseCases {
       orderRepository,
       customerRepository
     );
-    return { orders, products: products.products, customers: customers.customers };
+    return {
+      orders,
+      products: products.products,
+      customers: customers.customers,
+    };
   }
 }
 

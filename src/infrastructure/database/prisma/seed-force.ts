@@ -274,7 +274,8 @@ async function main() {
 
   // Create sample orders
   console.log("📋 Creating sample orders...");
-  const orders = await Promise.all([    prisma.order.create({
+  const orders = await Promise.all([
+    prisma.order.create({
       data: {
         customerId: customers[0].id,
         status: "CONFIRMED",
@@ -305,7 +306,8 @@ async function main() {
           ],
         },
       },
-    }),    prisma.order.create({
+    }),
+    prisma.order.create({
       data: {
         customerId: customers[1].id,
         status: "READY",
