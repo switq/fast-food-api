@@ -69,15 +69,34 @@ spec:
       # Image Pull Secrets (se necessário)
       # imagePullSecrets:
       # - name: registry-secret
+      initContainers:
+      - name: db-migrate
+        image: fast-food-api:latest
+        imagePullPolicy: Never
+        command: ["npx"]
+        args: ["prisma", "migrate", "deploy"]
+        envFrom:
+        - configMapRef:
+            name: fast-food-api-config
+        env:
+        - name: DATABASE_USER
+          valueFrom:
+            secretKeyRef:
+              name: fast-food-api-secrets
+              key: DATABASE_USER
+        - name: DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: fast-food-api-secrets
+              key: DATABASE_PASSWORD
+        - name: DATABASE_URL
+          value: "postgresql://$(DATABASE_USER):$(DATABASE_PASSWORD)@$(DATABASE_HOST):$(DATABASE_PORT)/$(DATABASE_NAME)"
       containers:
       - name: fast-food-api
         image: fast-food-api:latest
-        imagePullPolicy: IfNotPresent
-        command: ["/bin/sh", "-c"]
-        args:
-        - |
-          echo "Starting production deployment..."
-          npm run start:prod
+        imagePullPolicy: Never
+        command: ["node"]
+        args: ["./dist/index.js"]
         ports:
         - containerPort: 3000
           name: http
@@ -117,6 +136,14 @@ spec:
           periodSeconds: 5
           timeoutSeconds: 3
           failureThreshold: 3
+        # Graceful shutdown hook
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - "sleep 10"
         # Variáveis de ambiente do ConfigMap
         envFrom:
         - configMapRef:
@@ -163,7 +190,7 @@ spec:
     targetPort: 3000
   type: ClusterIP
 ---
-# Ingress para acesso externo (opcional)
+# Ingress para acesso externo
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -172,10 +199,11 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
+  ingressClassName: nginx
   rules:
-  - host: fast-food-api.local  # Configure conforme seu domínio
-    http:
+  - http:
       paths:
       - path: /
         pathType: Prefix
