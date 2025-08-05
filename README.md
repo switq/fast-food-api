@@ -119,23 +119,6 @@ GET /api/products
 
 Ou use um dos produtos criados pelo seed do banco de dados.
 
-## 🔄 Atualizações Recentes da API
-
-### ✅ Rotas Removidas (Agosto 2025)
-
-As seguintes rotas de **teste/desenvolvimento** foram removidas da API para limpar a documentação:
-
-- ❌ `POST /api/test/payment` - Era usada apenas para testes de desenvolvimento
-- ❌ `POST /api/test/webhook` - Era usada apenas para debug de webhooks
-
-**🎯 Impacto:** Nenhum! Essas rotas eram apenas para desenvolvimento interno. Todas as funcionalidades de pagamento continuam disponíveis através das rotas oficiais de Orders e Payments.
-
-### 🔧 Rota de Identificação de Cliente
-
-- ✅ `GET /api/customers/identify/{cpf}` - **Mantida** como rota principal para identificação
-- 📝 **Funcionalidade:** Aceita CPF com ou sem formatação (`12345678901` ou `123.456.789-01`)
-- 🎯 **Uso:** Identificar clientes existentes antes de criar pedidos
-
 ## 📋 Endpoints da API
 
 ### 🏥 Health & Documentação
@@ -935,6 +918,67 @@ Use **webhook.site** para teste temporário:
 - [ ] Aplicação rodando (`docker compose --profile dev up` ou `docker compose --profile prod up`)
 - [ ] Webhook testado e recebendo requisições automaticamente
 - [ ] Fluxo de pagamento testado end-to-end
+
+## 🚀 Fluxo Completo do Pedido
+
+A API suporta um fluxo completo de pedidos seguindo estas etapas:
+
+### 1. Identificação do Cliente
+- **Endpoint**: `GET /api/customers/identify/{cpf}`
+- **Descrição**: Identifica o cliente pelo CPF para personalizar o atendimento
+- **Exemplo**: `GET /api/customers/identify/12345678900`
+
+### 2. Criação do Cliente (Opcional)
+- **Endpoint**: `POST /api/customers`
+- **Descrição**: Cria novo cliente se não existir ou para pedidos identificados
+
+### 3. Criação do Pedido
+- **Status Inicial**: `PENDING`
+- **Endpoint**: `POST /api/orders`
+- **Descrição**: Cria o pedido com itens selecionados
+
+### 4. Confirmação do Pedido
+- **Status**: `PENDING` → `CONFIRMED`
+- **Endpoint**: `PATCH /api/orders/{id}/status/confirmOrder`
+- **Descrição**: Confirma o pedido e gera número para acompanhamento
+
+### 5. Verificação do Status
+- **Endpoint**: `GET /api/orders/{id}/status`
+- **Descrição**: Permite verificar o status atual do pedido a qualquer momento
+
+### 6. Geração do Pagamento
+- **Endpoint**: `POST /api/orders/{id}/payment`
+- **Descrição**: Gera QR Code PIX e dados para pagamento
+- **Requisito**: Pedido deve estar em status `CONFIRMED`
+
+### 7. Confirmação do Pagamento
+- **Status**: `CONFIRMED` → `PAYMENT_CONFIRMED`
+- **Endpoint**: `PATCH /api/orders/{id}/status/confirmPayment`
+- **Descrição**: Confirma pagamento (normalmente via webhook)
+
+### 8. Preparo na Cozinha
+- **Status**: `PAYMENT_CONFIRMED` → `PREPARING`
+- **Endpoint**: `PATCH /api/orders/{id}/status/startPreparing`
+- **Descrição**: Inicia o preparo do pedido
+
+### 9. Pedido Pronto
+- **Status**: `PREPARING` → `READY`
+- **Endpoint**: `PATCH /api/orders/{id}/status/markReady`
+- **Descrição**: Marca pedido como pronto para retirada
+
+### 10. Entrega Finalizada
+- **Status**: `READY` → `DELIVERED`
+- **Endpoint**: `PATCH /api/orders/{id}/status/markDelivered`
+- **Descrição**: Finaliza o pedido
+
+### Estados do Pedido
+- `PENDING`: Pedido criado, aguardando confirmação
+- `CONFIRMED`: Pedido confirmado, aguardando pagamento
+- `PAYMENT_CONFIRMED`: Pagamento confirmado, aguardando preparo
+- `PREPARING`: Pedido em preparo na cozinha
+- `READY`: Pedido pronto para retirada
+- `DELIVERED`: Pedido entregue e finalizado
+- `CANCELLED`: Pedido cancelado
 
 ## 🧪 Testes e Validação
 

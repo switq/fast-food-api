@@ -897,9 +897,31 @@
     {
       "name": "🚀 Full Order Flow",
       "description": "Um fluxo completo para criar e processar um pedido, passo a passo. Execute as requisições na ordem.",
-      "item": [
+      "item": [        {
+          "name": "1. Identify Customer by CPF",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/customers/identify/12345678900",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "customers",
+                "identify",
+                "12345678900"
+              ]
+            },
+            "description": "Identifica cliente pelo CPF. Se não encontrar, pode prosseguir com pedido anônimo ou criar novo cliente."
+          },
+          "response": []
+        },
         {
-          "name": "1. Create a New Customer",
+          "name": "2. Create a New Customer (Optional)",
           "event": [
             {
               "listen": "test",
@@ -983,7 +1005,30 @@
           },
           "response": []
         },        {
-          "name": "3. Checkout the Order (CONFIRMED)",
+          "name": "3. Identify Customer by CPF",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/customers/identify/{{customerCPF}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "customers",
+                "identify",
+                "{{customerCPF}}"
+              ]
+            },
+            "description": "Identifica o cliente pelo CPF. Use o CPF criado na etapa 1 (12345678900). Esta verificação é importante no fluxo de pedidos."
+          },
+          "response": []
+        },
+        {
+          "name": "4. Checkout the Order (CONFIRMED)",
           "request": {
             "method": "PATCH",
             "header": [],
@@ -1004,10 +1049,32 @@
             },
             "description": "Confirma o pedido e gera número do pedido para acompanhamento do cliente. Retorna orderNumber, createdAt e customerName."
           },
+          "response": []        },
+        {
+          "name": "5. Check Order Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/orders/{{orderId}}/status",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "orders",
+                "{{orderId}}",
+                "status"
+              ]
+            },
+            "description": "Verifica o status atual do pedido. Retorna status, orderNumber e informações detalhadas do pedido."
+          },
           "response": []
         },
         {
-          "name": "4. Create Payment (Generates QR Code)",
+          "name": "6. Create Payment (Generates QR Code)",
           "request": {
             "method": "POST",
             "header": [],
@@ -1039,7 +1106,7 @@
           "response": []
         },
         {
-          "name": "5. Confirm Payment (PAYMENT_CONFIRMED)",
+          "name": "7. Confirm Payment (PAYMENT_CONFIRMED)",
           "request": {
             "method": "PATCH",
             "header": [],
@@ -1063,7 +1130,7 @@
           "response": []
         },
         {
-          "name": "6. Start Preparing (PREPARING)",
+          "name": "8. Start Preparing (PREPARING)",
           "request": {
             "method": "PATCH",
             "header": [],
@@ -1087,7 +1154,7 @@
           "response": []
         },
         {
-          "name": "7. Mark as Ready (READY)",
+          "name": "9. Mark as Ready (READY)",
           "request": {
             "method": "PATCH",
             "header": [],
@@ -1111,7 +1178,7 @@
           "response": []
         },
         {
-          "name": "8. Mark as Delivered (DELIVERED)",
+          "name": "10. Mark as Delivered (DELIVERED)",
           "request": {
             "method": "PATCH",
             "header": [],
