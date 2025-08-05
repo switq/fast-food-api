@@ -1,6 +1,6 @@
 import CustomerUseCases from "../../../src/application/use-cases/CustomerUseCases";
 import Customer from "../../../src/domain/entities/Customer";
-import { ICustomerRepository } from "../../../src/interfaces/repositories/ICustomerRepository";
+import { ICustomerRepository } from "@repositories/ICustomerRepository";
 
 describe("CustomerUseCases", () => {
   let mockCustomerRepository: jest.Mocked<ICustomerRepository>;

@@ -6,15 +6,13 @@ module.exports = {
   transform: {
     "^.+\\.tsx?$": "ts-jest",
   },
-  moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
-  moduleNameMapper: {
+  moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],  moduleNameMapper: {
     "^@src/(.*)$": "<rootDir>/src/$1",
     "^@tests/(.*)$": "<rootDir>/tests/$1",
     "^@entities/(.*)$": "<rootDir>/src/domain/entities/$1",
     "^@gateways/(.*)$": "<rootDir>/src/infrastructure/gateways/$1",
-    "^@app-gateways/(.*)$": "<rootDir>/src/application/gateways/$1",
-    "^@interfaces/(.*)$": "<rootDir>/src/interfaces/$1",
-    "^@types/(.*)$": "<rootDir>/src/types/$1",
+    "^@app-gateways/(.*)$": "<rootDir>/src/application/interfaces/gateways/$1",    "^@repositories/(.*)$": "<rootDir>/src/domain/repositories/$1",
+    "^@infra-interfaces/(.*)$": "<rootDir>/src/infrastructure/interfaces/$1",
     "^@presenters/(.*)$": "<rootDir>/src/presentation/presenters/$1",
     "^@controllers/(.*)$": "<rootDir>/src/presentation/controllers/$1",
     "^@presentation-gateways/(.*)$": "<rootDir>/src/presentation/gateways/$1",

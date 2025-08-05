@@ -1,4 +1,4 @@
-import { IDatabaseConnection } from "@interfaces/IDbConnection";
+import { IDatabaseConnection } from "@infra-interfaces/IDbConnection";
 import { CategoryGateway } from "../gateways/CategoryGateway";
 import CategoryUseCases from "@usecases/CategoryUseCases";
 import CategoryPresenter from "@presenters/CategoryPresenter";

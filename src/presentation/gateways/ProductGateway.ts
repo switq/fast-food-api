@@ -1,5 +1,5 @@
-import { IDatabaseConnection } from "@interfaces/IDbConnection";
-import { IProductRepository } from "@interfaces/repositories/IProductRepository";
+import { IDatabaseConnection } from "@infra-interfaces/IDbConnection";
+import { IProductRepository } from "@repositories/IProductRepository";
 import Product from "@entities/Product";
 
 interface ProductData {

@@ -1,5 +1,5 @@
-import { IDatabaseConnection } from "@interfaces/IDbConnection";
-import { IOrderRepository } from "@interfaces/repositories/IOrderRepository";
+import { IDatabaseConnection } from "@infra-interfaces/IDbConnection";
+import { IOrderRepository } from "@repositories/IOrderRepository";
 import Order, { OrderStatus } from "@entities/Order";
 import OrderItem from "@entities/OrderItem";
 

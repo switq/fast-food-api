@@ -1,6 +1,6 @@
 import Product from "@entities/Product";
-import { IProductRepository } from "@interfaces/repositories/IProductRepository";
-import { ICategoryRepository } from "@interfaces/repositories/ICategoryRepository";
+import { IProductRepository } from "@repositories/IProductRepository";
+import { ICategoryRepository } from "@repositories/ICategoryRepository";
 
 class ProductUseCases {
   static async createProduct(

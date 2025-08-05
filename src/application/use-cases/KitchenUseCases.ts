@@ -1,7 +1,10 @@
 import Order, { OrderStatus } from "../../domain/entities/Order";
-import { IOrderRepository } from "../../interfaces/repositories/IOrderRepository";
-import { IProductRepository } from "../../interfaces/repositories/IProductRepository";
+import { IOrderRepository } from "../../domain/repositories/IOrderRepository";
+import { IProductRepository } from "../../domain/repositories/IProductRepository";
+import { ICustomerRepository } from "../../domain/repositories/ICustomerRepository";
 import Product from "../../domain/entities/Product";
+import Customer from "../../domain/entities/Customer";
+import OrderUseCases from "./OrderUseCases";
 
 class KitchenUseCases {
   static async updateOrderStatus(
@@ -21,47 +24,65 @@ class KitchenUseCases {
             "Order can only be moved to PREPARING from PAYMENT_CONFIRMED"
           );
         }
-        order.startPreparing();
-        break;
+        return OrderUseCases.startPreparingOrder(id, repository);
       case OrderStatus.READY:
         if (order.status !== OrderStatus.PREPARING) {
           throw new Error("Order can only be moved to READY from PREPARING");
         }
-        order.markAsReady();
-        break;
+        return OrderUseCases.markOrderAsReady(id, repository);
       default:
         throw new Error(`Invalid status transition for kitchen: ${status}`);
     }
+  }
 
-    return repository.update(order);
+  static async updateOrderStatusWithProducts(
+    id: string,
+    status: OrderStatus,
+    orderRepository: IOrderRepository,
+    productRepository: IProductRepository
+  ): Promise<{ order: Order; products: Map<string, Product> }> {
+    await this.updateOrderStatus(id, status, orderRepository);
+    return OrderUseCases.findOrderByIdWithProducts(id, orderRepository, productRepository);
+  }
+
+  static async updateOrderStatusWithProductsAndCustomers(
+    id: string,
+    status: OrderStatus,
+    orderRepository: IOrderRepository,
+    productRepository: IProductRepository,
+    customerRepository: ICustomerRepository
+  ): Promise<{ order: Order; products: Map<string, Product>; customers: Map<string, Customer> }> {
+    await this.updateOrderStatus(id, status, orderRepository);
+    return OrderUseCases.findOrderByIdWithProductsAndCustomers(id, orderRepository, productRepository, customerRepository);
   }
 
   static async getPaymentConfirmedOrders(
     orderRepository: IOrderRepository,
     productRepository: IProductRepository
   ): Promise<{ orders: Order[]; products: Map<string, Product> }> {
-    const orders = await orderRepository.findByStatus(
-      OrderStatus.PAYMENT_CONFIRMED
+    return OrderUseCases.findOrdersByStatusWithProducts(
+      OrderStatus.PAYMENT_CONFIRMED,
+      orderRepository,
+      productRepository
     );
+  }
 
-    // Buscar todos os produtos únicos dos pedidos
-    const productIds = new Set<string>();
-    orders.forEach((order) => {
-      order.items.forEach((item) => {
-        productIds.add(item.productId);
-      });
-    });
-
-    // Buscar informações dos produtos
-    const products = new Map<string, Product>();
-    for (const productId of productIds) {
-      const product = await productRepository.findById(productId);
-      if (product) {
-        products.set(productId, product);
-      }
-    }
-
-    return { orders, products };
+  static async getPaymentConfirmedOrdersWithCustomers(
+    orderRepository: IOrderRepository,
+    productRepository: IProductRepository,
+    customerRepository: ICustomerRepository
+  ): Promise<{ orders: Order[]; products: Map<string, Product>; customers: Map<string, Customer> }> {
+    const orders = await orderRepository.findByStatus(OrderStatus.PAYMENT_CONFIRMED);
+    const products = await OrderUseCases.findOrdersByStatusWithProducts(
+      OrderStatus.PAYMENT_CONFIRMED,
+      orderRepository,
+      productRepository
+    );
+    const customers = await OrderUseCases.findAllOrdersWithCustomers(
+      orderRepository,
+      customerRepository
+    );
+    return { orders, products: products.products, customers: customers.customers };
   }
 }
 

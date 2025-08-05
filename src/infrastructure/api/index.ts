@@ -6,9 +6,8 @@ import { setupOrderRoutes } from "./OrderApi";
 import { setupKitchenRoutes } from "./KitchenApi";
 import { setupPaymentRoutes } from "./PaymentApi";
 import express from "express";
-import swaggerUi from "swagger-ui-express";
-import swaggerJsdoc from "swagger-jsdoc";
-import testApi from "./testApi";
+// import swaggerUi from "swagger-ui-express";
+// import swaggerJsdoc from "swagger-jsdoc";
 import { IDatabaseConnection } from "@src/interfaces/IDbConnection";
 import { setupPaymentWebhookRoute } from "./PaymentWebhookApi";
 
@@ -16,33 +15,29 @@ export class FastFoodApp {
   start(dbConnection: IDatabaseConnection) {
     const app = express();
     app.use(express.json());
-    const port = process.env.PORT ?? 3000;
-
-    // Swagger setup
-    const swaggerOptions = {
-      definition: {
-        openapi: "3.0.0",
-        info: {
-          title: "Fast Food API",
-          version: "1.0.0",
-        },
-      },
-      apis: [
-        "src/infrastructure/api/*.ts",
-        "src/presentation/controllers/*.ts",
-      ],
-    };
-    const swaggerSpec = swaggerJsdoc(swaggerOptions);
-    app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+    const port = process.env.PORT ?? 3000;    // Swagger setup - TEMPORARILY DISABLED DUE TO ERROR
+    // const swaggerOptions = {
+    //   definition: {
+    //     openapi: "3.0.0",
+    //     info: {
+    //       title: "Fast Food API",
+    //       version: "1.0.0",
+    //     },
+    //   },
+    //   apis: [
+    //     "src/infrastructure/api/*.ts",
+    //     "src/presentation/controllers/*.ts",
+    //   ],
+    // };
+    // const swaggerSpec = swaggerJsdoc(swaggerOptions);
+    // app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
     // Mount routers
     app.use("/api", setupCategoryRoutes(dbConnection));
     app.use("/api", setupProductRoutes(dbConnection));
     app.use("/api", setupCustomerRoutes(dbConnection));
-    app.use("/api", setupOrderRoutes(dbConnection));
-    app.use("/api", setupKitchenRoutes(dbConnection));
+    app.use("/api", setupOrderRoutes(dbConnection));    app.use("/api", setupKitchenRoutes(dbConnection));
     app.use("/api", setupPaymentRoutes(dbConnection));
-    app.use("/api", testApi);
     app.use(setupPaymentWebhookRoute(dbConnection));
 
     // Health check

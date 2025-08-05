@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "complete-fast-food-api-2025",
     "name": "Fast Food API - Complete Collection",
-    "description": "Collection completa com TODOS os endpoints da Fast Food API - Atualizada em 08/01/2025\n\n📋 Includes complete order lifecycle testing with automatic ID management",
+    "description": "Collection completa com TODOS os endpoints da Fast Food API - Atualizada em 08/01/2025\n\n📋 Includes complete order lifecycle testing with automatic ID management\n🔄 UPDATED: Rotas de teste removidas (/api/test/*) - API limpa e organizada",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -891,60 +891,37 @@
               "path": ["webhooks", "paymentwebhook"]
             }
           },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "🧪 Test",
-      "item": [
-        {
-          "name": "Test Payment QR Generation",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:3000/api/test/payment",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "3000",
-              "path": ["api", "test", "payment"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Test Webhook",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"data\": {\n        \"id\": \"test-payment-id\"\n    }\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://localhost:3000/api/test/webhook",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "3000",
-              "path": ["api", "test", "webhook"]
-            }
-          },
-          "response": []
-        }
+          "response": []        }
       ]
     },
     {
       "name": "🚀 Full Order Flow",
       "description": "Um fluxo completo para criar e processar um pedido, passo a passo. Execute as requisições na ordem.",
-      "item": [
+      "item": [        {
+          "name": "1. Identify Customer by CPF",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/customers/identify/12345678900",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "customers",
+                "identify",
+                "12345678900"
+              ]
+            },
+            "description": "Identifica cliente pelo CPF. Se não encontrar, pode prosseguir com pedido anônimo ou criar novo cliente."
+          },
+          "response": []
+        },
         {
-          "name": "1. Create a New Customer",
+          "name": "2. Create a New Customer (Optional)",
           "event": [
             {
               "listen": "test",
@@ -1028,7 +1005,30 @@
           },
           "response": []
         },        {
-          "name": "3. Confirm the Order (CONFIRMED)",
+          "name": "3. Identify Customer by CPF",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/customers/identify/{{customerCPF}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "customers",
+                "identify",
+                "{{customerCPF}}"
+              ]
+            },
+            "description": "Identifica o cliente pelo CPF. Use o CPF criado na etapa 1 (12345678900). Esta verificação é importante no fluxo de pedidos."
+          },
+          "response": []
+        },
+        {
+          "name": "4. Checkout the Order (CONFIRMED)",
           "request": {
             "method": "PATCH",
             "header": [],
@@ -1049,10 +1049,32 @@
             },
             "description": "Confirma o pedido e gera número do pedido para acompanhamento do cliente. Retorna orderNumber, createdAt e customerName."
           },
+          "response": []        },
+        {
+          "name": "5. Check Order Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/orders/{{orderId}}/status",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "orders",
+                "{{orderId}}",
+                "status"
+              ]
+            },
+            "description": "Verifica o status atual do pedido. Retorna status, orderNumber e informações detalhadas do pedido."
+          },
           "response": []
         },
         {
-          "name": "4. Create Payment (Generates QR Code)",
+          "name": "6. Create Payment (Generates QR Code)",
           "request": {
             "method": "POST",
             "header": [],
@@ -1084,7 +1106,7 @@
           "response": []
         },
         {
-          "name": "5. Confirm Payment (PAYMENT_CONFIRMED)",
+          "name": "7. Confirm Payment (PAYMENT_CONFIRMED)",
           "request": {
             "method": "PATCH",
             "header": [],
@@ -1108,7 +1130,7 @@
           "response": []
         },
         {
-          "name": "6. Start Preparing (PREPARING)",
+          "name": "8. Start Preparing (PREPARING)",
           "request": {
             "method": "PATCH",
             "header": [],
@@ -1132,7 +1154,7 @@
           "response": []
         },
         {
-          "name": "7. Mark as Ready (READY)",
+          "name": "9. Mark as Ready (READY)",
           "request": {
             "method": "PATCH",
             "header": [],
@@ -1156,7 +1178,7 @@
           "response": []
         },
         {
-          "name": "8. Mark as Delivered (DELIVERED)",
+          "name": "10. Mark as Delivered (DELIVERED)",
           "request": {
             "method": "PATCH",
             "header": [],

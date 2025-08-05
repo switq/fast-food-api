@@ -3,7 +3,7 @@ export interface PaymentCreationData {
   description: string;
   orderId: string;
   customerEmail: string;
-  paymentMethodId?: string; // Opcional - para futuras integrações com outros gateways
+  paymentMethodId?: string; // Opcional - preparado para futuras integrações (PayPal, Stripe, PIX direto, etc.)
 }
 
 export interface PaymentCreationResult {

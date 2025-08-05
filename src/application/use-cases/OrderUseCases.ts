@@ -1,12 +1,78 @@
 import Order, { OrderStatus } from "@entities/Order";
 import OrderItem from "@entities/OrderItem";
-import { IOrderRepository } from "@interfaces/repositories/IOrderRepository";
-import { IProductRepository } from "@interfaces/repositories/IProductRepository";
-import { ICustomerRepository } from "@interfaces/repositories/ICustomerRepository";
-import ProductInfoService from "../services/ProductInfoService";
+import { IOrderRepository } from "@repositories/IOrderRepository";
+import { IProductRepository } from "@repositories/IProductRepository";
+import { ICustomerRepository } from "@repositories/ICustomerRepository";
 import Product from "@entities/Product";
+import Customer from "@entities/Customer";
 
 class OrderUseCases {
+  // Helper methods moved from services
+  private static async getProductsFromOrders(
+    orders: Order[],
+    productRepository: IProductRepository
+  ): Promise<Map<string, Product>> {
+    // Buscar todos os produtos únicos dos pedidos
+    const productIds = new Set<string>();
+    orders.forEach((order) => {
+      order.items.forEach((item) => {
+        productIds.add(item.productId);
+      });
+    });
+
+    // Buscar informações dos produtos
+    const products = new Map<string, Product>();
+    for (const productId of productIds) {
+      const product = await productRepository.findById(productId);
+      if (product) {
+        products.set(productId, product);
+      }
+    }
+
+    return products;
+  }
+
+  private static async getProductsFromOrder(
+    order: Order,
+    productRepository: IProductRepository
+  ): Promise<Map<string, Product>> {
+    return this.getProductsFromOrders([order], productRepository);
+  }
+
+  private static async getCustomersFromOrders(
+    orders: Order[],
+    customerRepository: ICustomerRepository
+  ): Promise<Map<string, Customer>> {
+    const customerIds = new Set<string>();
+    orders.forEach(order => {
+      if (order.customerId) {
+        customerIds.add(order.customerId);
+      }
+    });
+
+    const customers = new Map<string, Customer>();
+    
+    for (const customerId of customerIds) {
+      try {
+        const customer = await customerRepository.findById(customerId);
+        if (customer) {
+          customers.set(customerId, customer);
+        }
+      } catch (error) {
+        console.warn(`Could not fetch customer ${customerId}:`, error);
+      }
+    }
+
+    return customers;
+  }
+
+  private static async getCustomerFromOrder(
+    order: Order,
+    customerRepository: ICustomerRepository
+  ): Promise<Map<string, Customer>> {
+    return this.getCustomersFromOrders([order], customerRepository);
+  }
+
   static async createOrder(
     items: OrderItem[],
     orderRepository: IOrderRepository,
@@ -267,7 +333,7 @@ class OrderUseCases {
     productRepository: IProductRepository
   ): Promise<{ order: Order; products: Map<string, Product> }> {
     const order = await this.findOrderById(id, orderRepository);
-    const products = await ProductInfoService.getProductsFromOrder(order, productRepository);
+    const products = await this.getProductsFromOrder(order, productRepository);
     return { order, products };
   }
 
@@ -277,7 +343,7 @@ class OrderUseCases {
     productRepository: IProductRepository
   ): Promise<{ orders: Order[]; products: Map<string, Product> }> {
     const orders = await orderRepository.findByCustomerId(customerId);
-    const products = await ProductInfoService.getProductsFromOrders(orders, productRepository);
+    const products = await this.getProductsFromOrders(orders, productRepository);
     return { orders, products };
   }
 
@@ -286,7 +352,7 @@ class OrderUseCases {
     productRepository: IProductRepository
   ): Promise<{ orders: Order[]; products: Map<string, Product> }> {
     const orders = await orderRepository.findAll();
-    const products = await ProductInfoService.getProductsFromOrders(orders, productRepository);
+    const products = await this.getProductsFromOrders(orders, productRepository);
     return { orders, products };
   }
 
@@ -296,7 +362,7 @@ class OrderUseCases {
     productRepository: IProductRepository
   ): Promise<{ orders: Order[]; products: Map<string, Product> }> {
     const orders = await orderRepository.findByStatus(status);
-    const products = await ProductInfoService.getProductsFromOrders(orders, productRepository);
+    const products = await this.getProductsFromOrders(orders, productRepository);
     return { orders, products };
   }
 
@@ -305,7 +371,7 @@ class OrderUseCases {
     productRepository: IProductRepository
   ): Promise<{ orders: Order[]; products: Map<string, Product> }> {
     const orders = await orderRepository.findAllSorted();
-    const products = await ProductInfoService.getProductsFromOrders(orders, productRepository);
+    const products = await this.getProductsFromOrders(orders, productRepository);
     return { orders, products };
   }
 
@@ -317,7 +383,7 @@ class OrderUseCases {
     productRepository: IProductRepository
   ): Promise<{ order: Order; products: Map<string, Product> }> {
     const order = await this.updateOrderStatus(id, status, orderRepository);
-    const products = await ProductInfoService.getProductsFromOrder(order, productRepository);
+    const products = await this.getProductsFromOrder(order, productRepository);
     return { order, products };
   }
 
@@ -328,7 +394,7 @@ class OrderUseCases {
     productRepository: IProductRepository
   ): Promise<{ order: Order; products: Map<string, Product> }> {
     const order = await this.addItemsToOrder(id, items, orderRepository, productRepository);
-    const products = await ProductInfoService.getProductsFromOrder(order, productRepository);
+    const products = await this.getProductsFromOrder(order, productRepository);
     return { order, products };
   }
 
@@ -340,7 +406,7 @@ class OrderUseCases {
     productRepository: IProductRepository
   ): Promise<{ order: Order; products: Map<string, Product> }> {
     const order = await this.updateItemQuantity(orderId, itemId, quantity, orderRepository);
-    const products = await ProductInfoService.getProductsFromOrder(order, productRepository);
+    const products = await this.getProductsFromOrder(order, productRepository);
     return { order, products };
   }
 
@@ -350,7 +416,7 @@ class OrderUseCases {
     productRepository: IProductRepository
   ): Promise<{ order: Order; products: Map<string, Product> }> {
     const order = await this.confirmOrder(id, orderRepository);
-    const products = await ProductInfoService.getProductsFromOrder(order, productRepository);
+    const products = await this.getProductsFromOrder(order, productRepository);
     return { order, products };
   }
 
@@ -360,7 +426,7 @@ class OrderUseCases {
     productRepository: IProductRepository
   ): Promise<{ order: Order; products: Map<string, Product> }> {
     const order = await this.confirmPayment(id, orderRepository);
-    const products = await ProductInfoService.getProductsFromOrder(order, productRepository);
+    const products = await this.getProductsFromOrder(order, productRepository);
     return { order, products };
   }
 
@@ -370,7 +436,7 @@ class OrderUseCases {
     productRepository: IProductRepository
   ): Promise<{ order: Order; products: Map<string, Product> }> {
     const order = await this.startPreparingOrder(id, orderRepository);
-    const products = await ProductInfoService.getProductsFromOrder(order, productRepository);
+    const products = await this.getProductsFromOrder(order, productRepository);
     return { order, products };
   }
 
@@ -380,7 +446,7 @@ class OrderUseCases {
     productRepository: IProductRepository
   ): Promise<{ order: Order; products: Map<string, Product> }> {
     const order = await this.markOrderAsReady(id, orderRepository);
-    const products = await ProductInfoService.getProductsFromOrder(order, productRepository);
+    const products = await this.getProductsFromOrder(order, productRepository);
     return { order, products };
   }
 
@@ -390,7 +456,7 @@ class OrderUseCases {
     productRepository: IProductRepository
   ): Promise<{ order: Order; products: Map<string, Product> }> {
     const order = await this.markOrderAsDelivered(id, orderRepository);
-    const products = await ProductInfoService.getProductsFromOrder(order, productRepository);
+    const products = await this.getProductsFromOrder(order, productRepository);
     return { order, products };
   }
 
@@ -400,8 +466,62 @@ class OrderUseCases {
     productRepository: IProductRepository
   ): Promise<{ order: Order; products: Map<string, Product> }> {
     const order = await this.cancelOrder(id, orderRepository);
-    const products = await ProductInfoService.getProductsFromOrder(order, productRepository);
+    const products = await this.getProductsFromOrder(order, productRepository);
     return { order, products };
+  }
+
+  // Enhanced methods that include customer information
+  static async findOrderByIdWithCustomers(
+    id: string,
+    orderRepository: IOrderRepository,
+    customerRepository: ICustomerRepository
+  ): Promise<{ order: Order; customers: Map<string, Customer> }> {
+    const order = await this.findOrderById(id, orderRepository);
+    const customers = await this.getCustomerFromOrder(order, customerRepository);
+    return { order, customers };
+  }
+
+  static async findOrdersByCustomerWithCustomers(
+    customerId: string,
+    orderRepository: IOrderRepository,
+    customerRepository: ICustomerRepository
+  ): Promise<{ orders: Order[]; customers: Map<string, Customer> }> {
+    const orders = await orderRepository.findByCustomerId(customerId);
+    const customers = await this.getCustomersFromOrders(orders, customerRepository);
+    return { orders, customers };
+  }
+
+  static async findAllOrdersWithCustomers(
+    orderRepository: IOrderRepository,
+    customerRepository: ICustomerRepository
+  ): Promise<{ orders: Order[]; customers: Map<string, Customer> }> {
+    const orders = await orderRepository.findAll();
+    const customers = await this.getCustomersFromOrders(orders, customerRepository);
+    return { orders, customers };
+  }
+
+  // Enhanced methods that include both product and customer information
+  static async findOrderByIdWithProductsAndCustomers(
+    id: string,
+    orderRepository: IOrderRepository,
+    productRepository: IProductRepository,
+    customerRepository: ICustomerRepository
+  ): Promise<{ order: Order; products: Map<string, Product>; customers: Map<string, Customer> }> {
+    const order = await this.findOrderById(id, orderRepository);
+    const products = await this.getProductsFromOrder(order, productRepository);
+    const customers = await this.getCustomerFromOrder(order, customerRepository);
+    return { order, products, customers };
+  }
+
+  static async findAllOrdersWithProductsAndCustomers(
+    orderRepository: IOrderRepository,
+    productRepository: IProductRepository,
+    customerRepository: ICustomerRepository
+  ): Promise<{ orders: Order[]; products: Map<string, Product>; customers: Map<string, Customer> }> {
+    const orders = await orderRepository.findAll();
+    const products = await this.getProductsFromOrders(orders, productRepository);
+    const customers = await this.getCustomersFromOrders(orders, customerRepository);
+    return { orders, products, customers };
   }
 }
 

@@ -1,9 +1,9 @@
-import { IOrderRepository } from "@interfaces/repositories/IOrderRepository";
-import { ICustomerRepository } from "@interfaces/repositories/ICustomerRepository";
+import { IOrderRepository } from "@repositories/IOrderRepository";
+import { ICustomerRepository } from "@repositories/ICustomerRepository";
 import {
   IPaymentGateway,
   PaymentStatus,
-} from "@app-gateways/IPaymentGateway";
+} from "@src/application/interfaces/gateways/IPaymentGateway";
 
 class PaymentUseCases {
   static async handleWebhookNotification(
@@ -84,14 +84,13 @@ class PaymentUseCases {
     orderRepository: IOrderRepository,
     paymentGateway: IPaymentGateway,
     customerRepository?: ICustomerRepository
-  ) {
-    const order = await orderRepository.findById(orderId);
+  ) {    const order = await orderRepository.findById(orderId);
     if (!order) {
       throw new Error("Order not found");
     }
 
-    if (order.status !== "PENDING") {
-      throw new Error("Order must be in PENDING status to create payment");
+    if (order.status !== "CONFIRMED") {
+      throw new Error("Order must be in CONFIRMED status to create payment");
     }
 
     let customerEmail = "guest@example.com";

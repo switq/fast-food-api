@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { IDatabaseConnection } from "@interfaces/IDbConnection";
+import { IDatabaseConnection } from "@infra-interfaces/IDbConnection";
 import ProductController from "@controllers/ProductController";
 
 /**

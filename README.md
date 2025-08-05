@@ -12,6 +12,16 @@ Uma API REST completa para gerenciamento de restaurante fast food, desenvolvida 
 - [💳 Integração com Mercado Pago](#-integração-com-mercado-pago)
 - [🧪 Testes e Validação](#-testes-e-validação)
 
+## 📁 Documentação do Projeto
+
+Este repositório contém documentação organizada por contexto:
+
+- **[README.md](./README.md)** (este arquivo): Documentação principal com API, desenvolvimento e uso
+- **[src/domain/repositories/README.md](./src/domain/repositories/README.md)**: 🏗️ **Arquitetura Clean** - Documentação detalhada da estrutura de repositórios, camadas e princípios SOLID
+- **[k8s/README.md](./k8s/README.md)**: Documentação específica para deploy em Kubernetes
+- **[k8s/desenho-arquitetura.md](./k8s/desenho-arquitetura.md)**: Arquitetura completa e diagramas da solução
+- **[collections/](./collections/)**: Collections do Postman para teste da API
+
 ## 🚀 Início Rápido
 
 ### Para desenvolvedores que querem testar rapidamente:
@@ -54,21 +64,23 @@ Esta é a collection principal que contém todos os endpoints organizados por ca
 - **🍳 Kitchen**: Endpoints específicos da cozinha
 - **💳 Payments**: Gestão de pagamentos
 - **🔔 Webhooks**: Webhooks do Mercado Pago
-- **🧪 Test**: Endpoints de teste
 - **🚀 Full Order Flow**: **Fluxo completo passo a passo**
 
 #### 2. **🚀 Full Order Flow** - Grupo Especial
 
 Este grupo foi criado especificamente para testar o **ciclo de vida completo** de um pedido. As requisições são numeradas e devem ser executadas em ordem:
 
-1. **Create a New Customer** - Cria um cliente e salva o `customerId`
-2. **Create a New Order (PENDING)** - Cria um pedido usando o cliente
-3. **Confirm the Order (CONFIRMED)** - Confirma o pedido e gera número do pedido
-4. **Create Payment** - Gera o QR Code de pagamento
-5. **Confirm Payment (PAYMENT_CONFIRMED)** - Simula confirmação do pagamento
-6. **Start Preparing (PREPARING)** - Inicia o preparo na cozinha
-7. **Mark as Ready (READY)** - Marca como pronto para retirada
-8. **Mark as Delivered (DELIVERED)** - Finaliza o pedido
+1. **Identify Customer by CPF** - Identifica cliente pelo CPF (opcional)
+2. **Create a New Customer (Optional)** - Cria um cliente e salva o `customerId`
+3. **Create a New Order (PENDING)** - Cria um pedido usando o cliente
+4. **Identify Customer by CPF** - Segunda verificação do cliente pelo CPF
+5. **Checkout the Order (CONFIRMED)** - Confirma o pedido e gera número do pedido
+6. **Check Order Status** - Verifica o status atual do pedido
+7. **Create Payment (Generates QR Code)** - Gera o QR Code de pagamento
+8. **Confirm Payment (PAYMENT_CONFIRMED)** - Simula confirmação do pagamento
+9. **Start Preparing (PREPARING)** - Inicia o preparo na cozinha
+10. **Mark as Ready (READY)** - Marca como pronto para retirada
+11. **Mark as Delivered (DELIVERED)** - Finaliza o pedido
 
 **Recursos especiais do grupo:**
 - **Scripts automáticos**: Passa automaticamente `customerId` e `orderId` entre requisições
@@ -125,7 +137,7 @@ Ou use um dos produtos criados pelo seed do banco de dados.
 |--------|----------|-----------|-----------------|
 | GET | `/api/customers` | Listar todos os clientes | - |
 | GET | `/api/customers/:id` | Buscar cliente por ID | `id` (path param) |
-| GET | `/api/customers/identify/:cpf` | Identificar cliente por CPF | `cpf` (path param) |
+| GET | `/api/customers/identify/:cpf` | **Identificar cliente por CPF** | `cpf` (path param) - Ex: `12345678901` ou `123.456.789-01` |
 | POST | `/api/customers` | Criar novo cliente | `{ name, email, cpf, phone }` |
 | PUT | `/api/customers/:id` | Atualizar cliente | `id` (path param) + dados para atualizar |
 | DELETE | `/api/customers/:id` | Deletar cliente | `id` (path param) |
@@ -201,13 +213,6 @@ Ou use um dos produtos criados pelo seed do banco de dados.
 |--------|----------|-----------|-----------------|
 | POST | `/webhooks/paymentwebhook` | Webhook dedicado do Mercado Pago | Payload do MP |
 
-### 🧪 Testes
-
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| POST | `/api/test/payment` | Simular criação de pagamento |
-| POST | `/api/test/webhook` | Simular webhook do Mercado Pago |
-
 ## 🔄 Fluxo de Uso da API
 
 ### 1. 🎯 Fluxo Básico para Fazer um Pedido
@@ -252,7 +257,8 @@ PATCH /api/orders/{orderId}/status/confirmOrder
 
 # 7. Gerar pagamento para o pedido (somente se estiver CONFIRMED)
 POST /api/orders/{orderId}/payment
-# Retorna QR Code para pagamento
+# Body opcional: {} ou {"paymentMethodId": "any-value"} - o campo é ignorado
+# Retorna QR Code para pagamento - cliente escolhe método no Mercado Pago
 
 # 8. Webhook do Mercado Pago atualiza o status para PAYMENT_CONFIRMED
 # após o pagamento ser aprovado.
@@ -350,8 +356,11 @@ POST /api/orders
 # 2. Confirmar o pedido (status: CONFIRMED)
 PATCH /api/orders/{orderId}/status/confirmOrder
 
-# 3. Gerar pagamento (QR Code PIX)
+# 3. Gerar pagamento (cliente escolhe método no Mercado Pago)
+# NOTA: Na implementação atual, o cliente escolhe o método na interface do Mercado Pago.
+# O campo paymentMethodId está preparado para futuras integrações com outros gateways.
 POST /api/orders/{orderId}/payment
+# Body opcional: {} ou {"paymentMethodId": "ignored"}
 # Resposta inclui qrCode e qrCodeBase64
 
 # 4. Cliente escaneia QR Code e paga
@@ -462,11 +471,13 @@ PENDING → CONFIRMED → PAYMENT_CONFIRMED → PREPARING → READY → DELIVERE
 
 #### Atualizar Status do Pedido
 
-```json
-{
-  "status": "PREPARING"
-}
-```
+A API utiliza endpoints específicos para cada transição de status:
+
+- **Iniciar Preparo**: `PATCH /api/orders/{id}/status/startPreparing`
+- **Marcar como Pronto**: `PATCH /api/orders/{id}/status/markReady`  
+- **Marcar como Entregue**: `PATCH /api/orders/{id}/status/markDelivered`
+
+*Não há payload necessário - apenas o ID do pedido na URL.*
 
 ## ⚙️ Configuração Detalhada
 
@@ -509,13 +520,26 @@ npm install
 cp env.example .env
 ```
 
-3. Atualize o arquivo `.env` com sua configuração de banco de dados:
+3. Atualize o arquivo `.env` com sua configuração de banco de dados e Mercado Pago:
 
 ```env
+# Banco de Dados
 DATABASE_URL="postgresql://user:password@localhost:5432/fast_food_db?schema=public"
+
+# Servidor
 PORT=3000
 NODE_ENV=development
+
+# Mercado Pago (obrigatório para pagamentos)
+MERCADO_PAGO_ACCESS_TOKEN=TEST-seu-access-token-aqui
+MERCADO_PAGO_NOTIFICATION_URL=https://sua-url-ngrok.ngrok-free.app/webhooks/paymentwebhook
 ```
+
+> 📝 **Nota**: Para obter as credenciais do Mercado Pago:
+> 1. Acesse [Mercado Pago Developers](https://www.mercadopago.com.br/developers)
+> 2. Crie uma aplicação de teste
+> 3. Copie o Access Token de teste
+> 4. Configure o ngrok para webhook (veja seção "Integração com Mercado Pago")
 
 4. Inicialize o banco de dados:
 
@@ -545,55 +569,47 @@ npm run dev
 
 ### Opção 3: Kubernetes (Produção/Cloud)
 
-Para deploy em cluster Kubernetes:
+Para deploy em cluster Kubernetes, consulte a **[documentação completa do Kubernetes](./k8s/README.md)** que inclui:
 
-1. **Configure o ambiente:**
-   - Certifique-se de ter um cluster Kubernetes rodando (minikube, kind, ou cloud)
-   - Configure o Docker para usar o registry do cluster
+- 🚀 **Deploy completo** com PostgreSQL integrado
+- 🔧 **Auto-scaling** e configuração de recursos
+- 🔒 **Políticas de segurança** e network policies
+- 📊 **Health checks** e monitoramento
+- 🛠️ **Comandos úteis** para gerenciamento
 
-2. **Build e deploy da imagem:**
+Para entender a **arquitetura completa da solução**, consulte **[k8s/desenho-arquitetura.md](./k8s/desenho-arquitetura.md)** que contém:
+
+- 📋 **Análise de requisitos** de negócio e problemas identificados
+- 🏗️ **Diagramas de arquitetura** (Mermaid) com componentes detalhados
+- ⚙️ **Configurações técnicas** de HPA, deployment e segurança
+- 📈 **KPIs e métricas** de performance e disponibilidade
+- 🔄 **Fluxos de dados** e sequência de operações
+
+**Deploy rápido:**
 
 ```bash
-# Build da imagem
-docker build -t fast-food-api:latest .
-
-# Se usando minikube
-eval $(minikube docker-env)
-docker build -t fast-food-api:latest .
-
-# Deploy no Kubernetes
+# Deploy principal
 kubectl apply -f k8s/kubernetes.yaml
-```
 
-3. **Verifique o deploy:**
+# Políticas de rede (opcional)
+kubectl apply -f k8s/network-policies.yaml
 
-```bash
-# Verificar status dos pods
+# Verificar status
 kubectl get pods -n fast-food-api
-
-# Verificar serviços
-kubectl get services -n fast-food-api
-
-# Verificar logs
-kubectl logs -f deployment/fast-food-api -n fast-food-api
 ```
 
-4. **Acesse a aplicação:**
+**Acessar aplicação:**
 
 ```bash
-# Port-forward para acesso local
-kubectl port-forward service/fast-food-api-service 3000:80 -n fast-food-api
+# Port-forward para desenvolvimento
+kubectl port-forward -n fast-food-api service/fast-food-api-service 3000:80
 
-# Ou use minikube tunnel (se aplicável)
-minikube tunnel
+# URLs (com ingress configurado)
+# API: http://fast-food-api.local
+# Swagger: http://fast-food-api.local/api-docs
 ```
 
-**Nota:** A implementação atual do Kubernetes é básica e inclui apenas:
-
-- Namespace `fast-food-api`
-- Deployment com 1 réplica
-- Service ClusterIP na porta 80
-- Configuração para PostgreSQL local via `host.minikube.internal`
+> 📖 **Documentação completa:** Para configurações avançadas, troubleshooting e comandos detalhados, consulte **[k8s/README.md](./k8s/README.md)**
 
 ### Perfis Docker
 
@@ -774,7 +790,13 @@ POST /api/orders
 #### Passo 2: Gere o QR Code de Pagamento
 
 ```bash
-# Gere o pagamento
+# Gere o pagamento (sem payload necessário)
+POST /api/orders/{orderId}/payment
+
+# OU com payload opcional
+# NOTA: O campo paymentMethodId é ignorado na implementação atual com Mercado Pago,
+# mas está preparado para futuras implementações com outros meios de pagamento
+# (PayPal, Stripe, PIX direto, cartão de crédito, etc.)
 POST /api/orders/{orderId}/payment
 {
   "paymentMethodId": "pix"
@@ -900,6 +922,67 @@ Use **webhook.site** para teste temporário:
 - [ ] Webhook testado e recebendo requisições automaticamente
 - [ ] Fluxo de pagamento testado end-to-end
 
+## 🚀 Fluxo Completo do Pedido
+
+A API suporta um fluxo completo de pedidos seguindo estas etapas:
+
+### 1. Identificação do Cliente
+- **Endpoint**: `GET /api/customers/identify/{cpf}`
+- **Descrição**: Identifica o cliente pelo CPF para personalizar o atendimento
+- **Exemplo**: `GET /api/customers/identify/12345678900`
+
+### 2. Criação do Cliente (Opcional)
+- **Endpoint**: `POST /api/customers`
+- **Descrição**: Cria novo cliente se não existir ou para pedidos identificados
+
+### 3. Criação do Pedido
+- **Status Inicial**: `PENDING`
+- **Endpoint**: `POST /api/orders`
+- **Descrição**: Cria o pedido com itens selecionados
+
+### 4. Confirmação do Pedido
+- **Status**: `PENDING` → `CONFIRMED`
+- **Endpoint**: `PATCH /api/orders/{id}/status/confirmOrder`
+- **Descrição**: Confirma o pedido e gera número para acompanhamento
+
+### 5. Verificação do Status
+- **Endpoint**: `GET /api/orders/{id}/status`
+- **Descrição**: Permite verificar o status atual do pedido a qualquer momento
+
+### 6. Geração do Pagamento
+- **Endpoint**: `POST /api/orders/{id}/payment`
+- **Descrição**: Gera QR Code PIX e dados para pagamento
+- **Requisito**: Pedido deve estar em status `CONFIRMED`
+
+### 7. Confirmação do Pagamento
+- **Status**: `CONFIRMED` → `PAYMENT_CONFIRMED`
+- **Endpoint**: `PATCH /api/orders/{id}/status/confirmPayment`
+- **Descrição**: Confirma pagamento (normalmente via webhook)
+
+### 8. Preparo na Cozinha
+- **Status**: `PAYMENT_CONFIRMED` → `PREPARING`
+- **Endpoint**: `PATCH /api/orders/{id}/status/startPreparing`
+- **Descrição**: Inicia o preparo do pedido
+
+### 9. Pedido Pronto
+- **Status**: `PREPARING` → `READY`
+- **Endpoint**: `PATCH /api/orders/{id}/status/markReady`
+- **Descrição**: Marca pedido como pronto para retirada
+
+### 10. Entrega Finalizada
+- **Status**: `READY` → `DELIVERED`
+- **Endpoint**: `PATCH /api/orders/{id}/status/markDelivered`
+- **Descrição**: Finaliza o pedido
+
+### Estados do Pedido
+- `PENDING`: Pedido criado, aguardando confirmação
+- `CONFIRMED`: Pedido confirmado, aguardando pagamento
+- `PAYMENT_CONFIRMED`: Pagamento confirmado, aguardando preparo
+- `PREPARING`: Pedido em preparo na cozinha
+- `READY`: Pedido pronto para retirada
+- `DELIVERED`: Pedido entregue e finalizado
+- `CANCELLED`: Pedido cancelado
+
 ## 🧪 Testes e Validação
 
 ### Schema do Banco de Dados
@@ -972,3 +1055,11 @@ npm run test:coverage   # Testes + Coverage
 - **ESLint**: `.eslintrc.js` - Regras de linting para TypeScript
 - **Prettier**: `.prettierrc` - Formatação de código
 - **Jest**: `jest.config.js` - Configuração de testes e coverage
+
+---
+
+## 📖 Documentação Relacionada
+
+- **[Kubernetes Deployment](./k8s/README.md)**: Configurações para deploy em produção
+- **[Arquitetura da Solução](./k8s/desenho-arquitetura.md)**: Diagramas e documentação técnica completa
+- **[Collections Postman](./collections/)**: Teste automatizado da API
