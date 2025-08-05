@@ -70,14 +70,17 @@ Esta é a collection principal que contém todos os endpoints organizados por ca
 
 Este grupo foi criado especificamente para testar o **ciclo de vida completo** de um pedido. As requisições são numeradas e devem ser executadas em ordem:
 
-1. **Create a New Customer** - Cria um cliente e salva o `customerId`
-2. **Create a New Order (PENDING)** - Cria um pedido usando o cliente
-3. **Confirm the Order (CONFIRMED)** - Confirma o pedido e gera número do pedido
-4. **Create Payment** - Gera o QR Code de pagamento
-5. **Confirm Payment (PAYMENT_CONFIRMED)** - Simula confirmação do pagamento
-6. **Start Preparing (PREPARING)** - Inicia o preparo na cozinha
-7. **Mark as Ready (READY)** - Marca como pronto para retirada
-8. **Mark as Delivered (DELIVERED)** - Finaliza o pedido
+1. **Identify Customer by CPF** - Identifica cliente pelo CPF (opcional)
+2. **Create a New Customer (Optional)** - Cria um cliente e salva o `customerId`
+3. **Create a New Order (PENDING)** - Cria um pedido usando o cliente
+4. **Identify Customer by CPF** - Segunda verificação do cliente pelo CPF
+5. **Checkout the Order (CONFIRMED)** - Confirma o pedido e gera número do pedido
+6. **Check Order Status** - Verifica o status atual do pedido
+7. **Create Payment (Generates QR Code)** - Gera o QR Code de pagamento
+8. **Confirm Payment (PAYMENT_CONFIRMED)** - Simula confirmação do pagamento
+9. **Start Preparing (PREPARING)** - Inicia o preparo na cozinha
+10. **Mark as Ready (READY)** - Marca como pronto para retirada
+11. **Mark as Delivered (DELIVERED)** - Finaliza o pedido
 
 **Recursos especiais do grupo:**
 - **Scripts automáticos**: Passa automaticamente `customerId` e `orderId` entre requisições
