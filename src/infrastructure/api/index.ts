@@ -46,8 +46,10 @@ export class FastFoodApp {
       res.json({ status: "ok" });
     });
 
-    app.listen(port, () => {
+    const server = app.listen(port, () => {
       console.log(`FastFood app listening on http://localhost:${port}`);
     });
+
+    return server;
   }
 }

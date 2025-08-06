@@ -4,6 +4,7 @@
 
 ### Contexto do Negócio
 
+
 O restaurante de fast food precisa de uma solução para gerenciar pedidos, clientes, produtos e pagamentos de forma eficiente. Os principais desafios são:
 
 #### **Problemas Identificados:**
@@ -15,6 +16,7 @@ O restaurante de fast food precisa de uma solução para gerenciar pedidos, clie
 5. **Segurança**: Proteção de dados sensíveis de clientes e pagamentos
 
 #### **Impacto no Negócio:**
+
 
 - **Perda de Receita**: Clientes desistem devido a lentidão
 - **Operacional**: Dificuldade em gerenciar pedidos na cozinha
@@ -126,13 +128,14 @@ graph LR
 
 ### 3.1 Plataforma Kubernetes
 
-**Escolha: Minikube para Desenvolvimento / EKS para Produção**
+**Escolha: Kubernetes Local / Cloud (Apenas para Aprendizado)**
 
 #### **Justificativa da Escolha:**
 
-- **Minikube**: Ideal para desenvolvimento e testes locais
-- **EKS**: Escalabilidade e gerenciamento automático na AWS
-- **Alternativas**: AKS (Azure), GKE (Google) para outras nuvens
+- **Kubernetes Local**: Ideal para desenvolvimento e testes locais
+- **Cloud**: Demonstração de configurações de produção (apenas para aprendizado)
+- **Kustomize**: Gerenciamento de configurações por ambiente
+- **Docker Desktop**: Conveniência e facilidade
 
 ### 3.2 Componentes Implementados
 
@@ -165,6 +168,18 @@ spec:
         target:
           type: Utilization
           averageUtilization: 80
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
 ```
 
 **Justificativa**: Resolve problemas de performance do totem durante picos de demanda
@@ -178,6 +193,7 @@ metadata:
   name: fast-food-api
   namespace: fast-food-api
 spec:
+  replicas: 2 # Múltiplas réplicas para alta disponibilidade
   replicas: 2 # Múltiplas réplicas para alta disponibilidade
   strategy:
     type: RollingUpdate
@@ -196,6 +212,29 @@ spec:
         runAsNonRoot: true
         runAsUser: 1000
       containers:
+        - name: fast-food-api
+          image: fast-food-api:latest
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
         - name: fast-food-api
           image: fast-food-api:latest
           ports:
@@ -262,7 +301,31 @@ spec:
           volumeMounts:
             - name: postgres-storage
               mountPath: /var/lib/postgresql/data
+        - name: postgres
+          image: postgres:15
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              value: "postgres"
+            - name: POSTGRES_PASSWORD
+              value: "postgres"
+            - name: POSTGRES_DB
+              value: "fastfood"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data
       volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: postgres-pvc
         - name: postgres-storage
           persistentVolumeClaim:
             claimName: postgres-pvc
@@ -284,7 +347,16 @@ spec:
   policyTypes:
     - Ingress
     - Egress
+    - Ingress
+    - Egress
   ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 3000
     - from:
         - namespaceSelector:
             matchLabels:
@@ -310,6 +382,23 @@ spec:
       ports:
         - protocol: TCP
           port: 443
+    - to: []
+      ports:
+        - protocol: TCP
+          port: 53
+        - protocol: UDP
+          port: 53
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: fast-food-api
+      ports:
+        - protocol: TCP
+          port: 5432
+    - to: []
+      ports:
+        - protocol: TCP
+          port: 443
 ```
 
 ## 4. Soluções para Problemas Específicos
@@ -317,6 +406,7 @@ spec:
 ### 4.1 Problema: Performance do Totem
 
 **Solução Implementada:**
+
 
 - **HPA**: Auto-scaling baseado em CPU/Memory (70% CPU, 80% Memory)
 - **Múltiplas Réplicas**: Mínimo 2 pods sempre ativos
@@ -327,6 +417,7 @@ spec:
 
 **Solução Implementada:**
 
+
 - **Rolling Updates**: Atualizações sem downtime
 - **Health Checks**: Liveness e Readiness probes
 - **Múltiplas Réplicas**: Redundância de aplicação
@@ -336,6 +427,7 @@ spec:
 
 **Solução Implementada:**
 
+
 - **Webhook Handler**: Processamento assíncrono de pagamentos Mercado Pago
 - **Retry Logic**: Tentativas automáticas em caso de falha
 - **Status Tracking**: Monitoramento em tempo real de pagamentos
@@ -344,6 +436,7 @@ spec:
 ### 4.4 Problema: Segurança
 
 **Solução Implementada:**
+
 
 - **Network Policies**: Controle granular de tráfego
 - **Pod Security Standards**: Execução sem privilégios (runAsNonRoot)
@@ -370,7 +463,9 @@ sequenceDiagram
     M-->>A: QR Code PIX
     A-->>C: Retornar QR Code
 
+
     Note over M,A: Cliente paga via PIX
+
 
     M->>A: Webhook de pagamento
     A->>D: Atualizar status
@@ -406,8 +501,11 @@ sequenceDiagram
 # Build da imagem
 docker build -t fast-food-api:latest .
 
-# Deploy no Kubernetes
-kubectl apply -f k8s/kubernetes.yaml
+# Deploy no Kubernetes (Local)
+kubectl apply -k k8s/overlays/local
+
+# Deploy no Kubernetes (Cloud - Apenas para Aprendizado)
+kubectl apply -k k8s/overlays/cloud
 
 # Verificar status
 kubectl get pods -n fast-food-api
@@ -432,9 +530,26 @@ kubectl port-forward service/fast-food-api-service 3000:80 -n fast-food-api
 curl http://localhost:3000/health
 ```
 
+### 6.3 Ambientes Disponíveis
+
+#### **Local**
+
+- PostgreSQL local
+- Secrets codificados em base64
+- Configurações de desenvolvimento
+- Sem recursos externos
+
+#### **Cloud (Apenas para Aprendizado)**
+
+- Demonstra Azure Key Vault
+- Usa variáveis de ambiente (`AZURE_KEY_VAULT_URL`, `AZURE_TENANT_ID`)
+- Configurações de cloud
+- **Não há recursos reais na nuvem**
+
 ## 7. Métricas e KPIs
 
 ### 7.1 KPIs de Negócio
+
 
 - **Tempo de Resposta**: < 500ms para 95% das requisições
 - **Disponibilidade**: 99.5% uptime
@@ -442,6 +557,7 @@ curl http://localhost:3000/health
 - **Taxa de Erro**: < 1%
 
 ### 7.2 Métricas Técnicas
+
 
 - **CPU Usage**: < 70% média (trigger do HPA)
 - **Memory Usage**: < 80% média (trigger do HPA)
@@ -452,13 +568,16 @@ curl http://localhost:3000/health
 
 ### Fase 1 (Atual - Implementado)
 
+
 - ✅ Deploy básico no Kubernetes
 - ✅ Auto-scaling com HPA
 - ✅ Health checks
 - ✅ Network policies básicas
 - ✅ Integração Mercado Pago
+- ✅ Kustomize para gerenciamento de configurações
 
 ### Fase 2 (Próximos passos)
+
 
 - 📋 Implementação de cache Redis
 - 📋 Backup automático do banco
@@ -466,6 +585,7 @@ curl http://localhost:3000/health
 - 📋 Monitoramento básico
 
 ### Fase 3 (Futuro)
+
 
 - 📋 Multi-region deployment
 - 📋 Advanced monitoring
@@ -481,5 +601,6 @@ Esta arquitetura resolve os problemas críticos do negócio com componentes reai
 3. **Segurança**: Network policies + Pod security standards + Secrets management
 4. **Pagamentos**: Webhook handler + Integração Mercado Pago
 5. **Escalabilidade**: HPA configurado para 2-10 pods
+6. **Flexibilidade**: Kustomize para gerenciamento de configurações por ambiente
 
-A solução é **production-ready** e pode escalar conforme o crescimento do negócio, mantendo a **experiência do cliente** como prioridade máxima.
+A solução é **production-ready** e pode escalar conforme o crescimento do negócio, mantendo a **experiência do cliente** como prioridade máxima. A configuração de cloud é apenas para fins educacionais e demonstração de boas práticas.

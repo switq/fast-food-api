@@ -595,14 +595,16 @@ Para entender a **arquitetura completa da solução**, consulte **[k8s/desenho-a
 **Deploy rápido:**
 
 ```bash
-# Deploy principal
-kubectl apply -f k8s/kubernetes.yaml
+# Deploy local (recomendado para desenvolvimento)
+kubectl apply -k k8s/overlays/local
 
-# Políticas de rede (opcional)
-kubectl apply -f k8s/network-policies.yaml
+# Deploy cloud (apenas para aprendizado)
+kubectl apply -k k8s/overlays/cloud
 
 # Verificar status
 kubectl get pods -n fast-food-api
+kubectl get services -n fast-food-api
+kubectl get ingress -n fast-food-api
 ```
 
 **Acessar aplicação:**

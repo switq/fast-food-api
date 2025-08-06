@@ -6,35 +6,57 @@ metadata:
   labels:
     name: fast-food-api
 ---
-# ConfigMap para configurações não sensíveis
-apiVersion: v1
-kind: ConfigMap
+# Network Policy para a aplicação
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
 metadata:
-  name: fast-food-api-config
+  name: fast-food-api-network-policy
   namespace: fast-food-api
-data:
-  NODE_ENV: "production"
-  PORT: "3000"
-  LOG_LEVEL: "info"
-  # Configurações do banco externo - ajuste conforme seu ambiente
-  DATABASE_HOST: "postgres-service" # Kubernetes PostgreSQL service
-  DATABASE_PORT: "5432"
-  DATABASE_NAME: "fastfood"
----
-# Secret para dados sensíveis
-apiVersion: v1
-kind: Secret
-metadata:
-  name: fast-food-api-secrets
-  namespace: fast-food-api
-type: Opaque
-data:
-  # Base64 encoded values - em produção, use ferramentas como kubectl create secret
-  DATABASE_USER: cG9zdGdyZXM= # postgres
-  DATABASE_PASSWORD: cG9zdGdyZXM= # postgres
-  # Adicione outros secrets conforme necessário
-  # JWT_SECRET: <base64-encoded-jwt-secret>
-  # MERCADO_PAGO_ACCESS_TOKEN: <base64-encoded-token>
+spec:
+  podSelector:
+    matchLabels:
+      app: fast-food-api
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Permitir tráfego interno no namespace
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: fast-food-api
+      ports:
+        - protocol: TCP
+          port: 3000
+    # Permitir tráfego do Ingress Controller
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 3000
+  egress:
+    # Permitir DNS para resolução de nomes
+    - to: []
+      ports:
+        - protocol: TCP
+          port: 53
+        - protocol: UDP
+          port: 53
+    # Permitir conexão com banco interno (PostgreSQL deployment)
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: fast-food-api
+      ports:
+        - protocol: TCP
+          port: 5432
+    # Permitir conexões HTTPS para APIs externas (Mercado Pago, etc.)
+    - to: []
+      ports:
+        - protocol: TCP
+          port: 443
 ---
 # Deployment com boas práticas de segurança
 apiVersion: apps/v1
@@ -46,7 +68,7 @@ metadata:
     app: fast-food-api
     version: v1
 spec:
-  replicas: 2 # Múltiplas réplicas para alta disponibilidade
+  replicas: 2
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -66,18 +88,34 @@ spec:
         runAsNonRoot: true
         runAsUser: 1000
         fsGroup: 1000
-      # Image Pull Secrets (se necessário)
-      # imagePullSecrets:
-      # - name: registry-secret
+      initContainers:
+        - name: db-migrate
+          image: fast-food-api:latest
+          imagePullPolicy: Never
+          command: ["npx"]
+          args: ["prisma", "migrate", "deploy"]
+          envFrom:
+            - configMapRef:
+                name: fast-food-api-config
+          env:
+            - name: DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: fast-food-api-secrets
+                  key: DATABASE_USER
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: fast-food-api-secrets
+                  key: DATABASE_PASSWORD
+            - name: DATABASE_URL
+              value: "postgresql://$(DATABASE_USER):$(DATABASE_PASSWORD)@$(DATABASE_HOST):$(DATABASE_PORT)/$(DATABASE_NAME)"
       containers:
         - name: fast-food-api
           image: fast-food-api:latest
-          imagePullPolicy: IfNotPresent
-          command: ["/bin/sh", "-c"]
-          args:
-            - |
-              echo "Starting production deployment..."
-              npm run start:prod
+          imagePullPolicy: Never
+          command: ["node"]
+          args: ["./dist/index.js"]
           ports:
             - containerPort: 3000
               name: http
@@ -117,6 +155,14 @@ spec:
             periodSeconds: 5
             timeoutSeconds: 3
             failureThreshold: 3
+          # Graceful shutdown hook
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - "sleep 10"
           # Variáveis de ambiente do ConfigMap
           envFrom:
             - configMapRef:
@@ -133,9 +179,21 @@ spec:
                 secretKeyRef:
                   name: fast-food-api-secrets
                   key: DATABASE_PASSWORD
-            # Construir DATABASE_URL dinamicamente para banco externo
             - name: DATABASE_URL
-              value: "postgresql://$(DATABASE_USER):$(DATABASE_PASSWORD)@$(DATABASE_HOST):$(DATABASE_PORT)/$(DATABASE_NAME)"
+              valueFrom:
+                secretKeyRef:
+                  name: fast-food-api-secrets
+                  key: DATABASE_URL
+            - name: MERCADO_PAGO_ACCESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: fast-food-api-secrets
+                  key: MERCADO_PAGO_ACCESS_TOKEN
+            - name: MERCADO_PAGO_PUBLIC_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: fast-food-api-secrets
+                  key: MERCADO_PAGO_PUBLIC_KEY
           # Volume para logs (se necessário)
           volumeMounts:
             - name: logs
@@ -163,7 +221,7 @@ spec:
       targetPort: 3000
   type: ClusterIP
 ---
-# Ingress para acesso externo (opcional)
+# Ingress para acesso externo
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -172,10 +230,11 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
+  ingressClassName: nginx
   rules:
-    - host: fast-food-api.local # Configure conforme seu domínio
-      http:
+    - http:
         paths:
           - path: /
             pathType: Prefix
