@@ -17,7 +17,7 @@ describe("OrderUseCases - Product and Customer Info Methods", () => {
   let testProduct2: Product;
   let testCustomer: Customer;
   let testOrder: Order;
-  
+
   beforeEach(() => {
     mockOrderRepository = {
       create: jest.fn(),
@@ -53,15 +53,51 @@ describe("OrderUseCases - Product and Customer Info Methods", () => {
 
     const categoryId = uuidv4();
     const category = new Category(categoryId, "Burgers", "Burger category");
-    
-    testProduct1 = new Product(uuidv4(), "Burger", "Delicious burger", 15.99, category.id, "https://example.com/image1.jpg", true);
-    testProduct2 = new Product(uuidv4(), "Fries", "Crispy fries", 5.99, category.id, "https://example.com/image2.jpg", true);
-    
-    testCustomer = new Customer(uuidv4(), "John Doe", "john.doe@example.com", "11144477735", "11999999999");
+
+    testProduct1 = new Product(
+      uuidv4(),
+      "Burger",
+      "Delicious burger",
+      15.99,
+      category.id,
+      "https://example.com/image1.jpg",
+      true
+    );
+    testProduct2 = new Product(
+      uuidv4(),
+      "Fries",
+      "Crispy fries",
+      5.99,
+      category.id,
+      "https://example.com/image2.jpg",
+      true
+    );
+
+    testCustomer = new Customer(
+      uuidv4(),
+      "John Doe",
+      "john.doe@example.com",
+      "11144477735",
+      "11999999999"
+    );
 
     const orderId = uuidv4();
-    const orderItem1 = new OrderItem(testProduct1.id, 2, 15.99, orderId, uuidv4(), "No onions");
-    const orderItem2 = new OrderItem(testProduct2.id, 1, 5.99, orderId, uuidv4(), "Extra salt");
+    const orderItem1 = new OrderItem(
+      testProduct1.id,
+      2,
+      15.99,
+      orderId,
+      uuidv4(),
+      "No onions"
+    );
+    const orderItem2 = new OrderItem(
+      testProduct2.id,
+      1,
+      5.99,
+      orderId,
+      uuidv4(),
+      "Extra salt"
+    );
 
     testOrder = new Order(orderId, testCustomer.id);
     testOrder.addItem(orderItem1);

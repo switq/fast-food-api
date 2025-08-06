@@ -16,13 +16,14 @@ class KitchenController {
     const orderGateway = new OrderGateway(dbConnection);
     const productGateway = new ProductGateway(dbConnection);
     const customerGateway = new CustomerGateway(dbConnection);
-    const { order, products, customers } = await KitchenUseCases.updateOrderStatusWithProductsAndCustomers(
-      id,
-      status,
-      orderGateway,
-      productGateway,
-      customerGateway
-    );
+    const { order, products, customers } =
+      await KitchenUseCases.updateOrderStatusWithProductsAndCustomers(
+        id,
+        status,
+        orderGateway,
+        productGateway,
+        customerGateway
+      );
     return EnhancedOrderPresenter.toJSON(order, products, customers);
   }
 
@@ -30,11 +31,12 @@ class KitchenController {
     const orderGateway = new OrderGateway(dbConnection);
     const productGateway = new ProductGateway(dbConnection);
     const customerGateway = new CustomerGateway(dbConnection);
-    const { orders, products, customers } = await KitchenUseCases.getPaymentConfirmedOrdersWithCustomers(
-      orderGateway,
-      productGateway,
-      customerGateway
-    );
+    const { orders, products, customers } =
+      await KitchenUseCases.getPaymentConfirmedOrdersWithCustomers(
+        orderGateway,
+        productGateway,
+        customerGateway
+      );
     return KitchenPresenter.toJSONArray(orders, products, customers);
   }
 }

@@ -84,7 +84,8 @@ class PaymentUseCases {
     orderRepository: IOrderRepository,
     paymentGateway: IPaymentGateway,
     customerRepository?: ICustomerRepository
-  ) {    const order = await orderRepository.findById(orderId);
+  ) {
+    const order = await orderRepository.findById(orderId);
     if (!order) {
       throw new Error("Order not found");
     }

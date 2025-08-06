@@ -8,14 +8,14 @@ import { setupPaymentRoutes } from "./PaymentApi";
 import express from "express";
 // import swaggerUi from "swagger-ui-express";
 // import swaggerJsdoc from "swagger-jsdoc";
-import { IDatabaseConnection } from "@src/interfaces/IDbConnection";
+import { IDatabaseConnection } from "../interfaces/IDbConnection";
 import { setupPaymentWebhookRoute } from "./PaymentWebhookApi";
 
 export class FastFoodApp {
   start(dbConnection: IDatabaseConnection) {
     const app = express();
     app.use(express.json());
-    const port = process.env.PORT ?? 3000;    // Swagger setup - TEMPORARILY DISABLED DUE TO ERROR
+    const port = process.env.PORT ?? 3000; // Swagger setup - TEMPORARILY DISABLED DUE TO ERROR
     // const swaggerOptions = {
     //   definition: {
     //     openapi: "3.0.0",
@@ -36,7 +36,8 @@ export class FastFoodApp {
     app.use("/api", setupCategoryRoutes(dbConnection));
     app.use("/api", setupProductRoutes(dbConnection));
     app.use("/api", setupCustomerRoutes(dbConnection));
-    app.use("/api", setupOrderRoutes(dbConnection));    app.use("/api", setupKitchenRoutes(dbConnection));
+    app.use("/api", setupOrderRoutes(dbConnection));
+    app.use("/api", setupKitchenRoutes(dbConnection));
     app.use("/api", setupPaymentRoutes(dbConnection));
     app.use(setupPaymentWebhookRoute(dbConnection));
 

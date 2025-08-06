@@ -78,13 +78,14 @@ describe("OrderGateway", () => {
       const sortedOrders = await orderGateway.findAllSorted();
 
       expect(sortedOrders).toEqual([]);
-    });    it("should filter out delivered orders", async () => {
+    });
+    it("should filter out delivered orders", async () => {
       const orders = [
         new Order(uuidv4(), uuidv4(), [], OrderStatus.DELIVERED),
         new Order(uuidv4(), uuidv4(), [], OrderStatus.CANCELLED),
         new Order(uuidv4(), uuidv4(), [], OrderStatus.PENDING),
       ];
-      
+
       (dbConnection.findAll as jest.Mock).mockResolvedValue(
         orders.map((o) => ({ ...o.toJSON(), paymentStatus: o.paymentStatus }))
       );
@@ -94,14 +95,15 @@ describe("OrderGateway", () => {
 
       expect(sortedOrders).toEqual([]); // All orders should be filtered out
     });
-  });  describe("create", () => {
+  });
+  describe("create", () => {
     it("should create order with items", async () => {
       const customerId = uuidv4();
       const order = new Order(uuidv4(), customerId);
       const orderData = order.toJSON();
       const orderId = uuidv4();
       const mockCreatedOrder = { ...orderData, id: orderId };
-      
+
       (dbConnection.create as jest.Mock)
         .mockResolvedValueOnce(mockCreatedOrder)
         .mockResolvedValue({ id: uuidv4() }); // For order items
@@ -111,7 +113,10 @@ describe("OrderGateway", () => {
 
       expect(result).toBeInstanceOf(Order);
       expect(result.id).toBe(orderId);
-      expect(dbConnection.create).toHaveBeenCalledWith("order", expect.any(Object));
+      expect(dbConnection.create).toHaveBeenCalledWith(
+        "order",
+        expect.any(Object)
+      );
     });
   });
 
@@ -119,10 +124,11 @@ describe("OrderGateway", () => {
     it("should update order and recreate items", async () => {
       // Create order with specific id using constructor
       const orderId = uuidv4();
-      const customerId = uuidv4();      const orderWithId = new Order(orderId, customerId);
+      const customerId = uuidv4();
+      const orderWithId = new Order(orderId, customerId);
       const orderData = orderWithId.toJSON();
       const mockUpdatedOrder = { ...orderData, id: orderId };
-      
+
       (dbConnection.update as jest.Mock).mockResolvedValue(mockUpdatedOrder);
       (dbConnection.findByField as jest.Mock).mockResolvedValue([]);
       (dbConnection.delete as jest.Mock).mockResolvedValue(true);
@@ -132,20 +138,25 @@ describe("OrderGateway", () => {
 
       expect(result).toBeInstanceOf(Order);
       expect(result.id).toBe(orderId);
-      expect(dbConnection.update).toHaveBeenCalledWith("order", orderId, expect.any(Object));
-    });    it("should handle order with orderNumber", async () => {
+      expect(dbConnection.update).toHaveBeenCalledWith(
+        "order",
+        orderId,
+        expect.any(Object)
+      );
+    });
+    it("should handle order with orderNumber", async () => {
       const orderId = uuidv4();
       const customerId = uuidv4();
       const orderWithId = new Order(orderId, customerId);
       (orderWithId as any)._orderNumber = 123;
-      
+
       const orderData = orderWithId.toJSON();
-      const mockUpdatedOrder = { 
+      const mockUpdatedOrder = {
         ...orderData,
         id: orderId,
-        orderNumber: 123 
+        orderNumber: 123,
       };
-      
+
       (dbConnection.update as jest.Mock).mockResolvedValue(mockUpdatedOrder);
       (dbConnection.findByField as jest.Mock).mockResolvedValue([]);
       (dbConnection.delete as jest.Mock).mockResolvedValue(true);
@@ -166,9 +177,9 @@ describe("OrderGateway", () => {
         paymentStatus: "pending",
         totalAmount: 25.98,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
-      
+
       (dbConnection.findById as jest.Mock).mockResolvedValue(mockOrder);
       (dbConnection.findByField as jest.Mock).mockResolvedValue([]);
 
@@ -199,9 +210,9 @@ describe("OrderGateway", () => {
         totalAmount: 25.98,
         orderNumber: 123,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
-      
+
       (dbConnection.findById as jest.Mock).mockResolvedValue(mockOrder);
       (dbConnection.findByField as jest.Mock).mockResolvedValue([]);
 
@@ -220,7 +231,7 @@ describe("OrderGateway", () => {
           paymentStatus: "pending",
           totalAmount: 25.98,
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         },
         {
           id: uuidv4(),
@@ -229,10 +240,10 @@ describe("OrderGateway", () => {
           paymentStatus: "approved",
           totalAmount: 35.97,
           createdAt: new Date(),
-          updatedAt: new Date()
-        }
+          updatedAt: new Date(),
+        },
       ];
-      
+
       (dbConnection.findAll as jest.Mock).mockResolvedValue(mockOrders);
       (dbConnection.findByField as jest.Mock).mockResolvedValue([]);
 
@@ -263,10 +274,10 @@ describe("OrderGateway", () => {
           paymentStatus: "pending",
           totalAmount: 25.98,
           createdAt: new Date(),
-          updatedAt: new Date()
-        }
+          updatedAt: new Date(),
+        },
       ];
-        (dbConnection.findByField as jest.Mock)
+      (dbConnection.findByField as jest.Mock)
         .mockResolvedValueOnce(mockOrders)
         .mockResolvedValue([]); // For order items
 
@@ -275,7 +286,11 @@ describe("OrderGateway", () => {
       expect(result).toHaveLength(1);
       expect(result[0]).toBeInstanceOf(Order);
       expect(result[0].customerId).toBe(customerId);
-      expect(dbConnection.findByField).toHaveBeenCalledWith("order", "customerId", customerId);
+      expect(dbConnection.findByField).toHaveBeenCalledWith(
+        "order",
+        "customerId",
+        customerId
+      );
     });
   });
   describe("findByStatus", () => {
@@ -288,10 +303,10 @@ describe("OrderGateway", () => {
           paymentStatus: "approved",
           totalAmount: 25.98,
           createdAt: new Date(),
-          updatedAt: new Date()
-        }
+          updatedAt: new Date(),
+        },
       ];
-      
+
       (dbConnection.findByField as jest.Mock)
         .mockResolvedValueOnce(mockOrders)
         .mockResolvedValue([]); // For order items
@@ -301,28 +316,43 @@ describe("OrderGateway", () => {
       expect(result).toHaveLength(1);
       expect(result[0]).toBeInstanceOf(Order);
       expect(result[0].status).toBe(OrderStatus.PREPARING);
-      expect(dbConnection.findByField).toHaveBeenCalledWith("order", "status", "PREPARING");
+      expect(dbConnection.findByField).toHaveBeenCalledWith(
+        "order",
+        "status",
+        "PREPARING"
+      );
     });
   });
   describe("delete", () => {
     it("should delete order and its items", async () => {
       const orderId = uuidv4();
-      const itemId = uuidv4();      const productId = uuidv4();
+      const itemId = uuidv4();
+      const productId = uuidv4();
       const mockItems = [
-        { id: itemId, orderId: orderId, productId: productId, quantity: 2, unitPrice: 15.99 }
+        {
+          id: itemId,
+          orderId: orderId,
+          productId: productId,
+          quantity: 2,
+          unitPrice: 15.99,
+        },
       ];
-      
+
       (dbConnection.findByField as jest.Mock).mockResolvedValue(mockItems);
-      (dbConnection.delete as jest.Mock).mockResolvedValue(true);      await orderGateway.delete(orderId);
+      (dbConnection.delete as jest.Mock).mockResolvedValue(true);
+      await orderGateway.delete(orderId);
 
       expect(dbConnection.delete).toHaveBeenCalledWith("orderItem", itemId);
       expect(dbConnection.delete).toHaveBeenCalledWith("order", orderId);
-    });    it("should throw error when order not found", async () => {
+    });
+    it("should throw error when order not found", async () => {
       const nonExistentId = uuidv4();
       (dbConnection.findByField as jest.Mock).mockResolvedValue([]);
       (dbConnection.delete as jest.Mock).mockResolvedValue(false);
 
-      await expect(orderGateway.delete(nonExistentId)).rejects.toThrow(`Order with ID ${nonExistentId} not found`);
+      await expect(orderGateway.delete(nonExistentId)).rejects.toThrow(
+        `Order with ID ${nonExistentId} not found`
+      );
     });
   });
   describe("getOrderItems", () => {
@@ -340,12 +370,14 @@ describe("OrderGateway", () => {
           totalPrice: 31.98,
           observation: "No onions",
           createdAt: new Date(),
-          updatedAt: new Date()
-        }
+          updatedAt: new Date(),
+        },
       ];
-      
-      (dbConnection.findByField as jest.Mock).mockResolvedValue(mockItems);      // Access private method via reflection for testing
-      const getOrderItems = (orderGateway as any).getOrderItems.bind(orderGateway);
+
+      (dbConnection.findByField as jest.Mock).mockResolvedValue(mockItems); // Access private method via reflection for testing
+      const getOrderItems = (orderGateway as any).getOrderItems.bind(
+        orderGateway
+      );
       const result = await getOrderItems(orderId);
 
       expect(result).toHaveLength(1);
