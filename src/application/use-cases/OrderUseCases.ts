@@ -44,14 +44,14 @@ class OrderUseCases {
     customerRepository: ICustomerRepository
   ): Promise<Map<string, Customer>> {
     const customerIds = new Set<string>();
-    orders.forEach(order => {
+    orders.forEach((order) => {
       if (order.customerId) {
         customerIds.add(order.customerId);
       }
     });
 
     const customers = new Map<string, Customer>();
-    
+
     for (const customerId of customerIds) {
       try {
         const customer = await customerRepository.findById(customerId);
@@ -343,7 +343,10 @@ class OrderUseCases {
     productRepository: IProductRepository
   ): Promise<{ orders: Order[]; products: Map<string, Product> }> {
     const orders = await orderRepository.findByCustomerId(customerId);
-    const products = await this.getProductsFromOrders(orders, productRepository);
+    const products = await this.getProductsFromOrders(
+      orders,
+      productRepository
+    );
     return { orders, products };
   }
 
@@ -352,7 +355,10 @@ class OrderUseCases {
     productRepository: IProductRepository
   ): Promise<{ orders: Order[]; products: Map<string, Product> }> {
     const orders = await orderRepository.findAll();
-    const products = await this.getProductsFromOrders(orders, productRepository);
+    const products = await this.getProductsFromOrders(
+      orders,
+      productRepository
+    );
     return { orders, products };
   }
 
@@ -362,7 +368,10 @@ class OrderUseCases {
     productRepository: IProductRepository
   ): Promise<{ orders: Order[]; products: Map<string, Product> }> {
     const orders = await orderRepository.findByStatus(status);
-    const products = await this.getProductsFromOrders(orders, productRepository);
+    const products = await this.getProductsFromOrders(
+      orders,
+      productRepository
+    );
     return { orders, products };
   }
 
@@ -371,7 +380,10 @@ class OrderUseCases {
     productRepository: IProductRepository
   ): Promise<{ orders: Order[]; products: Map<string, Product> }> {
     const orders = await orderRepository.findAllSorted();
-    const products = await this.getProductsFromOrders(orders, productRepository);
+    const products = await this.getProductsFromOrders(
+      orders,
+      productRepository
+    );
     return { orders, products };
   }
 
@@ -393,7 +405,12 @@ class OrderUseCases {
     orderRepository: IOrderRepository,
     productRepository: IProductRepository
   ): Promise<{ order: Order; products: Map<string, Product> }> {
-    const order = await this.addItemsToOrder(id, items, orderRepository, productRepository);
+    const order = await this.addItemsToOrder(
+      id,
+      items,
+      orderRepository,
+      productRepository
+    );
     const products = await this.getProductsFromOrder(order, productRepository);
     return { order, products };
   }
@@ -405,7 +422,12 @@ class OrderUseCases {
     orderRepository: IOrderRepository,
     productRepository: IProductRepository
   ): Promise<{ order: Order; products: Map<string, Product> }> {
-    const order = await this.updateItemQuantity(orderId, itemId, quantity, orderRepository);
+    const order = await this.updateItemQuantity(
+      orderId,
+      itemId,
+      quantity,
+      orderRepository
+    );
     const products = await this.getProductsFromOrder(order, productRepository);
     return { order, products };
   }
@@ -477,7 +499,10 @@ class OrderUseCases {
     customerRepository: ICustomerRepository
   ): Promise<{ order: Order; customers: Map<string, Customer> }> {
     const order = await this.findOrderById(id, orderRepository);
-    const customers = await this.getCustomerFromOrder(order, customerRepository);
+    const customers = await this.getCustomerFromOrder(
+      order,
+      customerRepository
+    );
     return { order, customers };
   }
 
@@ -487,7 +512,10 @@ class OrderUseCases {
     customerRepository: ICustomerRepository
   ): Promise<{ orders: Order[]; customers: Map<string, Customer> }> {
     const orders = await orderRepository.findByCustomerId(customerId);
-    const customers = await this.getCustomersFromOrders(orders, customerRepository);
+    const customers = await this.getCustomersFromOrders(
+      orders,
+      customerRepository
+    );
     return { orders, customers };
   }
 
@@ -496,7 +524,10 @@ class OrderUseCases {
     customerRepository: ICustomerRepository
   ): Promise<{ orders: Order[]; customers: Map<string, Customer> }> {
     const orders = await orderRepository.findAll();
-    const customers = await this.getCustomersFromOrders(orders, customerRepository);
+    const customers = await this.getCustomersFromOrders(
+      orders,
+      customerRepository
+    );
     return { orders, customers };
   }
 
@@ -506,10 +537,17 @@ class OrderUseCases {
     orderRepository: IOrderRepository,
     productRepository: IProductRepository,
     customerRepository: ICustomerRepository
-  ): Promise<{ order: Order; products: Map<string, Product>; customers: Map<string, Customer> }> {
+  ): Promise<{
+    order: Order;
+    products: Map<string, Product>;
+    customers: Map<string, Customer>;
+  }> {
     const order = await this.findOrderById(id, orderRepository);
     const products = await this.getProductsFromOrder(order, productRepository);
-    const customers = await this.getCustomerFromOrder(order, customerRepository);
+    const customers = await this.getCustomerFromOrder(
+      order,
+      customerRepository
+    );
     return { order, products, customers };
   }
 
@@ -517,10 +555,20 @@ class OrderUseCases {
     orderRepository: IOrderRepository,
     productRepository: IProductRepository,
     customerRepository: ICustomerRepository
-  ): Promise<{ orders: Order[]; products: Map<string, Product>; customers: Map<string, Customer> }> {
+  ): Promise<{
+    orders: Order[];
+    products: Map<string, Product>;
+    customers: Map<string, Customer>;
+  }> {
     const orders = await orderRepository.findAll();
-    const products = await this.getProductsFromOrders(orders, productRepository);
-    const customers = await this.getCustomersFromOrders(orders, customerRepository);
+    const products = await this.getProductsFromOrders(
+      orders,
+      productRepository
+    );
+    const customers = await this.getCustomersFromOrders(
+      orders,
+      customerRepository
+    );
     return { orders, products, customers };
   }
 }

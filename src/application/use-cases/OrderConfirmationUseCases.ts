@@ -16,14 +16,15 @@ class OrderConfirmationUseCases {
 
     // Confirm the order (this will generate the orderNumber)
     order.confirm();
-    
+
     // Update the order in repository
     const updatedOrder = await orderRepository.update(order);
-    
+
     // Get customer info if exists
     let customer: Customer | undefined;
     if (order.customerId) {
-      customer = await customerRepository.findById(order.customerId) || undefined;
+      customer =
+        (await customerRepository.findById(order.customerId)) || undefined;
     }
 
     return { order: updatedOrder, customer };

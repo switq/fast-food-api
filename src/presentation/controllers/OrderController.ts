@@ -26,25 +26,34 @@ class OrderController {
       customerGateway
     );
     // Get product and customer information for the created order
-    const { order: orderWithProducts, products, customers } = await OrderUseCases.findOrderByIdWithProductsAndCustomers(
+    const {
+      order: orderWithProducts,
+      products,
+      customers,
+    } = await OrderUseCases.findOrderByIdWithProductsAndCustomers(
       order.id,
       orderGateway,
       productGateway,
       customerGateway
     );
-    return EnhancedOrderPresenter.toJSON(orderWithProducts, products, customers);
+    return EnhancedOrderPresenter.toJSON(
+      orderWithProducts,
+      products,
+      customers
+    );
   }
 
   static async getOrderById(id: string, dbConnection: IDatabaseConnection) {
     const orderGateway = new OrderGateway(dbConnection);
     const productGateway = new ProductGateway(dbConnection);
     const customerGateway = new CustomerGateway(dbConnection);
-    const { order, products, customers } = await OrderUseCases.findOrderByIdWithProductsAndCustomers(
-      id,
-      orderGateway,
-      productGateway,
-      customerGateway
-    );
+    const { order, products, customers } =
+      await OrderUseCases.findOrderByIdWithProductsAndCustomers(
+        id,
+        orderGateway,
+        productGateway,
+        customerGateway
+      );
     return EnhancedOrderPresenter.toJSON(order, products, customers);
   }
 
@@ -55,11 +64,12 @@ class OrderController {
     const orderGateway = new OrderGateway(dbConnection);
     const productGateway = new ProductGateway(dbConnection);
     const customerGateway = new CustomerGateway(dbConnection);
-    const { orders, products } = await OrderUseCases.findOrdersByCustomerWithProducts(
-      customerId,
-      orderGateway,
-      productGateway
-    );
+    const { orders, products } =
+      await OrderUseCases.findOrdersByCustomerWithProducts(
+        customerId,
+        orderGateway,
+        productGateway
+      );
     const { customers } = await OrderUseCases.findOrdersByCustomerWithCustomers(
       customerId,
       orderGateway,
@@ -72,11 +82,12 @@ class OrderController {
     const orderGateway = new OrderGateway(dbConnection);
     const productGateway = new ProductGateway(dbConnection);
     const customerGateway = new CustomerGateway(dbConnection);
-    const { orders, products, customers } = await OrderUseCases.findAllOrdersWithProductsAndCustomers(
-      orderGateway,
-      productGateway,
-      customerGateway
-    );
+    const { orders, products, customers } =
+      await OrderUseCases.findAllOrdersWithProductsAndCustomers(
+        orderGateway,
+        productGateway,
+        customerGateway
+      );
     return EnhancedOrderPresenter.toJSONArray(orders, products, customers);
   }
 
@@ -87,11 +98,12 @@ class OrderController {
     const orderGateway = new OrderGateway(dbConnection);
     const productGateway = new ProductGateway(dbConnection);
     const customerGateway = new CustomerGateway(dbConnection);
-    const { orders, products } = await OrderUseCases.findOrdersByStatusWithProducts(
-      status,
-      orderGateway,
-      productGateway
-    );
+    const { orders, products } =
+      await OrderUseCases.findOrdersByStatusWithProducts(
+        status,
+        orderGateway,
+        productGateway
+      );
     const { customers } = await OrderUseCases.findAllOrdersWithCustomers(
       orderGateway,
       customerGateway
@@ -103,11 +115,12 @@ class OrderController {
     const orderGateway = new OrderGateway(dbConnection);
     const productGateway = new ProductGateway(dbConnection);
     const customerGateway = new CustomerGateway(dbConnection);
-    const { orders, products, customers } = await OrderUseCases.findAllOrdersWithProductsAndCustomers(
-      orderGateway,
-      productGateway,
-      customerGateway
-    );
+    const { orders, products, customers } =
+      await OrderUseCases.findAllOrdersWithProductsAndCustomers(
+        orderGateway,
+        productGateway,
+        customerGateway
+      );
     return EnhancedOrderPresenter.toJSONArray(orders, products, customers);
   }
 
@@ -119,12 +132,13 @@ class OrderController {
     const orderGateway = new OrderGateway(dbConnection);
     const productGateway = new ProductGateway(dbConnection);
     const customerGateway = new CustomerGateway(dbConnection);
-    const { order, products } = await OrderUseCases.updateOrderStatusWithProducts(
-      id,
-      status,
-      orderGateway,
-      productGateway
-    );
+    const { order, products } =
+      await OrderUseCases.updateOrderStatusWithProducts(
+        id,
+        status,
+        orderGateway,
+        productGateway
+      );
     const { customers } = await OrderUseCases.findOrderByIdWithCustomers(
       order.id,
       orderGateway,
@@ -163,13 +177,14 @@ class OrderController {
   ) {
     const orderGateway = new OrderGateway(dbConnection);
     const productGateway = new ProductGateway(dbConnection);
-    const { order, products } = await OrderUseCases.updateItemQuantityWithProducts(
-      orderId,
-      itemId,
-      quantity,
-      orderGateway,
-      productGateway
-    );
+    const { order, products } =
+      await OrderUseCases.updateItemQuantityWithProducts(
+        orderId,
+        itemId,
+        quantity,
+        orderGateway,
+        productGateway
+      );
     return EnhancedOrderPresenter.toJSON(order, products);
   }
 
@@ -182,18 +197,19 @@ class OrderController {
   static async confirmOrder(id: string, dbConnection: IDatabaseConnection) {
     const orderGateway = new OrderGateway(dbConnection);
     const customerGateway = new CustomerGateway(dbConnection);
-    
-    const { order, customer } = await OrderConfirmationUseCases.confirmOrderSimple(
-      id,
-      orderGateway,
-      customerGateway
-    );
-    
+
+    const { order, customer } =
+      await OrderConfirmationUseCases.confirmOrderSimple(
+        id,
+        orderGateway,
+        customerGateway
+      );
+
     const customers = new Map();
     if (customer) {
       customers.set(customer.id, customer);
     }
-    
+
     return OrderConfirmationPresenter.toJSON(order, customers);
   }
 
@@ -214,22 +230,24 @@ class OrderController {
   ) {
     const orderGateway = new OrderGateway(dbConnection);
     const productGateway = new ProductGateway(dbConnection);
-    const { order, products } = await OrderUseCases.startPreparingOrderWithProducts(
-      id,
-      orderGateway,
-      productGateway
-    );
+    const { order, products } =
+      await OrderUseCases.startPreparingOrderWithProducts(
+        id,
+        orderGateway,
+        productGateway
+      );
     return EnhancedOrderPresenter.toJSON(order, products);
   }
 
   static async markOrderAsReady(id: string, dbConnection: IDatabaseConnection) {
     const orderGateway = new OrderGateway(dbConnection);
     const productGateway = new ProductGateway(dbConnection);
-    const { order, products } = await OrderUseCases.markOrderAsReadyWithProducts(
-      id,
-      orderGateway,
-      productGateway
-    );
+    const { order, products } =
+      await OrderUseCases.markOrderAsReadyWithProducts(
+        id,
+        orderGateway,
+        productGateway
+      );
     return EnhancedOrderPresenter.toJSON(order, products);
   }
 
@@ -239,11 +257,12 @@ class OrderController {
   ) {
     const orderGateway = new OrderGateway(dbConnection);
     const productGateway = new ProductGateway(dbConnection);
-    const { order, products } = await OrderUseCases.markOrderAsDeliveredWithProducts(
-      id,
-      orderGateway,
-      productGateway
-    );
+    const { order, products } =
+      await OrderUseCases.markOrderAsDeliveredWithProducts(
+        id,
+        orderGateway,
+        productGateway
+      );
     return EnhancedOrderPresenter.toJSON(order, products);
   }
 

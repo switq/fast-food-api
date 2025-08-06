@@ -2,10 +2,7 @@ import PaymentUseCases from "../../../src/application/use-cases/PaymentUseCases"
 import Order, { OrderStatus } from "../../../src/domain/entities/Order";
 import OrderItem from "../../../src/domain/entities/OrderItem";
 import { IOrderRepository } from "@repositories/IOrderRepository";
-import {
-  IPaymentGateway,
-  PaymentStatus,
-} from "@app-gateways/IPaymentGateway";
+import { IPaymentGateway, PaymentStatus } from "@app-gateways/IPaymentGateway";
 import { v4 as uuidv4 } from "uuid";
 
 describe("PaymentUseCases", () => {
@@ -117,18 +114,21 @@ describe("PaymentUseCases", () => {
     });
   });
 
-  describe("createPayment", () => {    it("should create payment for confirmed order without customer", async () => {
+  describe("createPayment", () => {
+    it("should create payment for confirmed order without customer", async () => {
       const order = new Order();
       const productId = uuidv4();
       const orderId = uuidv4();
       const itemId = uuidv4();
-      order.addItem([new OrderItem(productId, 2, 15.99, orderId, itemId, "No onions")]);
+      order.addItem([
+        new OrderItem(productId, 2, 15.99, orderId, itemId, "No onions"),
+      ]);
       order.confirm(); // Confirm the order so it can accept payment
-      
+
       const paymentResult = {
         paymentProviderId: "mp-12345",
         qrCode: "qr-code-data",
-        qrCodeBase64: "base64-qr-code"
+        qrCodeBase64: "base64-qr-code",
       };
 
       mockOrderRepository.findById.mockResolvedValue(order);
@@ -146,7 +146,7 @@ describe("PaymentUseCases", () => {
         orderId: order.id,
         paymentProviderId: "mp-12345",
         qrCode: "qr-code-data",
-        qrCodeBase64: "base64-qr-code"
+        qrCodeBase64: "base64-qr-code",
       });
 
       expect(mockPaymentGateway.createPayment).toHaveBeenCalledWith({
@@ -154,29 +154,32 @@ describe("PaymentUseCases", () => {
         description: `Pedido #${order.id}`,
         orderId: order.id,
         customerEmail: "guest@example.com",
-        paymentMethodId: "pix"
+        paymentMethodId: "pix",
       });
 
       expect(order.paymentProviderId).toBe("mp-12345");
       expect(mockOrderRepository.update).toHaveBeenCalledWith(order);
-    });    it("should create payment for confirmed order with customer", async () => {
+    });
+    it("should create payment for confirmed order with customer", async () => {
       const customerId = uuidv4();
       const order = new Order(uuidv4(), customerId);
       const productId = uuidv4();
       const itemId = uuidv4();
-      order.addItem([new OrderItem(productId, 2, 15.99, order.id, itemId, "No onions")]);
+      order.addItem([
+        new OrderItem(productId, 2, 15.99, order.id, itemId, "No onions"),
+      ]);
       order.confirm(); // Confirm the order so it can accept payment
-      
+
       const customer = {
         id: customerId,
         name: "John Doe",
-        email: "john@example.com"
+        email: "john@example.com",
       };
 
       const paymentResult = {
         paymentProviderId: "mp-12345",
         qrCode: "qr-code-data",
-        qrCodeBase64: "base64-qr-code"
+        qrCodeBase64: "base64-qr-code",
       };
 
       const mockCustomerRepository = {
@@ -205,7 +208,7 @@ describe("PaymentUseCases", () => {
         orderId: order.id,
         paymentProviderId: "mp-12345",
         qrCode: "qr-code-data",
-        qrCodeBase64: "base64-qr-code"
+        qrCodeBase64: "base64-qr-code",
       });
 
       expect(mockPaymentGateway.createPayment).toHaveBeenCalledWith({
@@ -213,21 +216,25 @@ describe("PaymentUseCases", () => {
         description: `Pedido #${order.id}`,
         orderId: order.id,
         customerEmail: "john@example.com",
-        paymentMethodId: "pix"
+        paymentMethodId: "pix",
       });
-    });    it("should handle customer not found and use guest email", async () => {
+    });
+    it("should handle customer not found and use guest email", async () => {
       const customerId = uuidv4();
       const order = new Order(uuidv4(), customerId);
       const productId = uuidv4();
       const itemId = uuidv4();
-      order.addItem([new OrderItem(productId, 2, 15.99, order.id, itemId, "No onions")]);
+      order.addItem([
+        new OrderItem(productId, 2, 15.99, order.id, itemId, "No onions"),
+      ]);
       order.confirm(); // Confirm the order so it can accept payment
-      
+
       const paymentResult = {
         paymentProviderId: "mp-12345",
         qrCode: "qr-code-data",
-        qrCodeBase64: "base64-qr-code"
-      };      const mockCustomerRepository = {
+        qrCodeBase64: "base64-qr-code",
+      };
+      const mockCustomerRepository = {
         findById: jest.fn().mockResolvedValue(null),
         create: jest.fn(),
         update: jest.fn(),
@@ -238,7 +245,8 @@ describe("PaymentUseCases", () => {
       };
 
       mockOrderRepository.findById.mockResolvedValue(order);
-      mockPaymentGateway.createPayment.mockResolvedValue(paymentResult);      mockOrderRepository.update.mockResolvedValue(order);
+      mockPaymentGateway.createPayment.mockResolvedValue(paymentResult);
+      mockOrderRepository.update.mockResolvedValue(order);
 
       await PaymentUseCases.createPayment(
         "order-1",
@@ -253,7 +261,7 @@ describe("PaymentUseCases", () => {
         description: `Pedido #${order.id}`,
         orderId: order.id,
         customerEmail: "guest@example.com",
-        paymentMethodId: "pix"
+        paymentMethodId: "pix",
       });
     });
 
@@ -268,13 +276,16 @@ describe("PaymentUseCases", () => {
           mockPaymentGateway
         )
       ).rejects.toThrow("Order not found");
-    });    it("should throw error when order is not confirmed", async () => {
+    });
+    it("should throw error when order is not confirmed", async () => {
       const order = new Order();
       const productId = uuidv4();
       const itemId = uuidv4();
-      order.addItem([new OrderItem(productId, 2, 15.99, order.id, itemId, "No onions")]);
+      order.addItem([
+        new OrderItem(productId, 2, 15.99, order.id, itemId, "No onions"),
+      ]);
       // Order remains in PENDING status (not confirmed)
-      
+
       mockOrderRepository.findById.mockResolvedValue(order);
 
       await expect(
@@ -290,10 +301,10 @@ describe("PaymentUseCases", () => {
 
   describe("handleWebhookNotification - edge cases", () => {
     it("should handle payment with no external reference", async () => {
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-        mockPaymentGateway.getPaymentStatus.mockResolvedValue({
+      const consoleSpy = jest.spyOn(console, "error").mockImplementation();
+      mockPaymentGateway.getPaymentStatus.mockResolvedValue({
         status: PaymentStatus.APPROVED,
-        externalReference: undefined
+        externalReference: undefined,
       });
 
       await PaymentUseCases.handleWebhookNotification(
@@ -302,18 +313,20 @@ describe("PaymentUseCases", () => {
         mockPaymentGateway
       );
 
-      expect(consoleSpy).toHaveBeenCalledWith("Payment payment-1 has no external reference.");
+      expect(consoleSpy).toHaveBeenCalledWith(
+        "Payment payment-1 has no external reference."
+      );
       expect(mockOrderRepository.findById).not.toHaveBeenCalled();
-      
+
       consoleSpy.mockRestore();
     });
 
     it("should handle order not found", async () => {
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-      
+      const consoleSpy = jest.spyOn(console, "error").mockImplementation();
+
       mockPaymentGateway.getPaymentStatus.mockResolvedValue({
         status: PaymentStatus.APPROVED,
-        externalReference: "non-existent-order"
+        externalReference: "non-existent-order",
       });
       mockOrderRepository.findById.mockResolvedValue(null);
 
@@ -323,20 +336,25 @@ describe("PaymentUseCases", () => {
         mockPaymentGateway
       );
 
-      expect(consoleSpy).toHaveBeenCalledWith("Order not found with ID: non-existent-order");
+      expect(consoleSpy).toHaveBeenCalledWith(
+        "Order not found with ID: non-existent-order"
+      );
       expect(mockOrderRepository.update).not.toHaveBeenCalled();
-      
+
       consoleSpy.mockRestore();
-    });    it("should handle pending order with approved payment", async () => {
+    });
+    it("should handle pending order with approved payment", async () => {
       const order = new Order();
       const productId = uuidv4();
       const itemId = uuidv4();
-      order.addItem([new OrderItem(productId, 2, 15.99, order.id, itemId, "No onions")]);
+      order.addItem([
+        new OrderItem(productId, 2, 15.99, order.id, itemId, "No onions"),
+      ]);
       expect(order.status).toBe(OrderStatus.PENDING);
 
       mockPaymentGateway.getPaymentStatus.mockResolvedValue({
         status: PaymentStatus.APPROVED,
-        externalReference: order.id
+        externalReference: order.id,
       });
       mockOrderRepository.findById.mockResolvedValue(order);
 
@@ -350,17 +368,20 @@ describe("PaymentUseCases", () => {
       expect(order.paymentStatus).toBe(PaymentStatus.APPROVED);
       expect(order.paymentProviderId).toBe("payment-1");
       expect(mockOrderRepository.update).toHaveBeenCalledWith(order);
-    });    it("should handle already confirmed order with approved payment", async () => {
+    });
+    it("should handle already confirmed order with approved payment", async () => {
       const order = new Order();
       const productId = uuidv4();
       const itemId = uuidv4();
-      order.addItem([new OrderItem(productId, 2, 15.99, order.id, itemId, "No onions")]);
+      order.addItem([
+        new OrderItem(productId, 2, 15.99, order.id, itemId, "No onions"),
+      ]);
       order.confirm(); // Status is now CONFIRMED
       expect(order.status).toBe(OrderStatus.CONFIRMED);
 
       mockPaymentGateway.getPaymentStatus.mockResolvedValue({
         status: PaymentStatus.APPROVED,
-        externalReference: order.id
+        externalReference: order.id,
       });
       mockOrderRepository.findById.mockResolvedValue(order);
 
@@ -378,10 +399,10 @@ describe("PaymentUseCases", () => {
 
     it("should handle rejected payment", async () => {
       const order = new Order();
-      
+
       mockPaymentGateway.getPaymentStatus.mockResolvedValue({
         status: PaymentStatus.REJECTED,
-        externalReference: order.id
+        externalReference: order.id,
       });
       mockOrderRepository.findById.mockResolvedValue(order);
 
@@ -399,10 +420,10 @@ describe("PaymentUseCases", () => {
 
     it("should handle cancelled payment", async () => {
       const order = new Order();
-      
+
       mockPaymentGateway.getPaymentStatus.mockResolvedValue({
         status: PaymentStatus.CANCELLED,
-        externalReference: order.id
+        externalReference: order.id,
       });
       mockOrderRepository.findById.mockResolvedValue(order);
 

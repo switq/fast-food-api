@@ -158,7 +158,8 @@ export function setupCustomerRoutes(dbConnection: IDatabaseConnection) {
       res.json(result);
     } catch (err) {
       res.status(400).json({ error: (err as Error).message });
-    }  });    // Endpoint para identificação do cliente por CPF - deve vir antes da rota /:id
+    }
+  }); // Endpoint para identificação do cliente por CPF - deve vir antes da rota /:id
   router.get("/customers/identify/:cpf", async (req, res) => {
     try {
       const result = await CustomerController.getCustomerByCPF(
@@ -180,7 +181,8 @@ export function setupCustomerRoutes(dbConnection: IDatabaseConnection) {
       res.json(result);
     } catch (err) {
       res.status(404).json({ error: (err as Error).message });
-    }  });
+    }
+  });
 
   router.post("/customers", async (req, res) => {
     try {

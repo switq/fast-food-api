@@ -9,45 +9,45 @@ spec:
     matchLabels:
       app: fast-food-api
   policyTypes:
-  - Ingress
-  - Egress
+    - Ingress
+    - Egress
   ingress:
-  # Permitir tráfego interno no namespace
-  - from:
-    - namespaceSelector:
-        matchLabels:
-          name: fast-food-api
-    ports:
-    - protocol: TCP
-      port: 3000
-  # Permitir tráfego do Ingress Controller
-  - from:
-    - namespaceSelector:
-        matchLabels:
-          name: ingress-nginx
-    ports:
-    - protocol: TCP
-      port: 3000
+    # Permitir tráfego interno no namespace
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: fast-food-api
+      ports:
+        - protocol: TCP
+          port: 3000
+    # Permitir tráfego do Ingress Controller
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 3000
   egress:
-  # Permitir DNS para resolução de nomes
-  - to: []
-    ports:
-    - protocol: TCP
-      port: 53
-    - protocol: UDP
-      port: 53
-  # Permitir conexão com banco externo (ajuste conforme necessário)
-  - to: []
-    ports:
-    - protocol: TCP
-      port: 5432
-  # Permitir conexões HTTPS para APIs externas (Mercado Pago, etc.)
-  - to: []
-    ports:
-    - protocol: TCP
-      port: 443
-  # Permitir conexões HTTP para APIs externas
-  - to: []
-    ports:
-    - protocol: TCP
-      port: 80 
+    # Permitir DNS para resolução de nomes
+    - to: []
+      ports:
+        - protocol: TCP
+          port: 53
+        - protocol: UDP
+          port: 53
+    # Permitir conexão com banco externo (ajuste conforme necessário)
+    - to: []
+      ports:
+        - protocol: TCP
+          port: 5432
+    # Permitir conexões HTTPS para APIs externas (Mercado Pago, etc.)
+    - to: []
+      ports:
+        - protocol: TCP
+          port: 443
+    # Permitir conexões HTTP para APIs externas
+    - to: []
+      ports:
+        - protocol: TCP
+          port: 80

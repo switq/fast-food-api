@@ -22,8 +22,8 @@ interface KitchenOrder {
 
 class KitchenPresenter {
   static toJSON(
-    order: Order, 
-    products: Map<string, Product>, 
+    order: Order,
+    products: Map<string, Product>,
     customers: Map<string, Customer> = new Map()
   ): KitchenOrder {
     const items = order.items.map((item) => {
@@ -37,7 +37,9 @@ class KitchenPresenter {
       };
     });
 
-    const customer = order.customerId ? customers.get(order.customerId) : undefined;
+    const customer = order.customerId
+      ? customers.get(order.customerId)
+      : undefined;
 
     return {
       id: order.id,

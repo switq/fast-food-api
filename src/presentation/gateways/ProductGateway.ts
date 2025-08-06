@@ -26,7 +26,8 @@ export class ProductGateway implements IProductRepository {
     const createdProduct = await this.dbConnection.create<ProductData>(
       this.tableName,
       productData
-    );    return new Product(
+    );
+    return new Product(
       createdProduct.id,
       createdProduct.name,
       createdProduct.description,
@@ -122,7 +123,8 @@ export class ProductGateway implements IProductRepository {
       this.tableName,
       product.id,
       productData
-    );    return new Product(
+    );
+    return new Product(
       updatedProduct.id,
       updatedProduct.name,
       updatedProduct.description,
