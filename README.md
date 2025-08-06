@@ -2,6 +2,9 @@
 
 Uma API REST completa para gerenciamento de restaurante fast food, desenvolvida com TypeScript, Express, Prisma e integração com Mercado Pago para pagamentos.
 
+## 🎞️ Vídeo de demostração pode ser encontrado neste [link](https://youtu.be/HK6JHgzT8BY)
+- https://youtu.be/HK6JHgzT8BY
+
 ## 📚 Índice
 
 - [🚀 Início Rápido](#-início-rápido)
