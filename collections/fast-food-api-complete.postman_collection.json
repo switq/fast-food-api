@@ -1030,21 +1030,27 @@
           "response": []
         },
         {
-          "name": "5. Check Order Status",
+          "name": "5. Get Order by ID(Check Status)",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:3000/api/orders/{{orderId}}/status",
+              "raw": "http://localhost:3000/api/orders/{{orderId}}",
               "protocol": "http",
               "host": ["localhost"],
               "port": "3000",
-              "path": ["api", "orders", "{{orderId}}", "status"]
-            },
-            "description": "Verifica o status atual do pedido. Retorna status, orderNumber e informações detalhadas do pedido."
+              "path": ["api", "orders", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "your_order_id"
+                }
+              ]
+            }
           },
           "response": []
         },
+        
         {
           "name": "6. Create Payment (Generates QR Code)",
           "request": {
