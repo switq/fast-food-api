@@ -8,7 +8,7 @@ resources:
 commonAnnotations:
   managed-by: kustomize
 labels:
-  - includeSelectors: true
+  - includeSelectors: false
     pairs:
       app: fast-food-api
       version: v1

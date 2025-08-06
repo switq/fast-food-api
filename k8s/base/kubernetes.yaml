@@ -89,6 +89,12 @@ spec:
         runAsUser: 1000
         fsGroup: 1000
       initContainers:
+        - name: wait-for-db
+          image: postgres:15
+          command: ['sh', '-c', 'until pg_isready -h postgres-service -p 5432 -U postgres; do echo waiting for database; sleep 2; done;']
+          env:
+            - name: PGPASSWORD
+              value: "postgres"
         - name: db-migrate
           image: fast-food-api:latest
           imagePullPolicy: Never
@@ -278,7 +284,7 @@ spec:
           value: 10
           periodSeconds: 60
     scaleUp:
-      stabilizationWindowSeconds: 60
+      stabilizationWindowSeconds: 30
       policies:
         - type: Percent
           value: 100
